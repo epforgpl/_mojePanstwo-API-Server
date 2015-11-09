@@ -638,7 +638,7 @@ class Document extends AppModel
             'to_email' => $doc['to_email'],
             'slug' => $doc['slug'],
             'access' => $doc['access'],
-
+            'is_public' => $doc['is_public'],
             'id' => $doc['id'],
             'hash' => $doc['hash'],
             'saved' => (boolean)$doc['saved'],
@@ -691,8 +691,55 @@ class Document extends AppModel
             'body' => $data,
         ));
 
+        $res = $this->query("SELECT id FROM objects WHERE `dataset_id`='23' AND `object_id`='" . addslashes( $data['id'] ) . "' LIMIT 1");
+        $global_id = (int)(@$res[0]['objects']['id']);
 
-        // debug( $response );
+        if($doc['is_public']) {
+
+            if(!$global_id) {
+                $this->query("INSERT INTO `objects` (`dataset`, `dataset_id`, `object_id`) VALUES ('pisma', 23, ".$data['id'].")");
+                $res = $this->query('select last_insert_id() as id;');
+                $global_id = $res[0][0]['id'];
+            }
+
+            $ES->API->index(array(
+                'index' => 'mojepanstwo_v1',
+                'id' => $global_id,
+                'type' => 'objects',
+                'body' => array(
+                    'data' => array(
+                        'pisma.alphaid' => $data['alphaid'],
+                        'pisma.created_at' => $data['created_at'],
+                        'pisma.deleted' => $data['deleted'],
+                        'pisma.from_user_id' => $data['from_user_id'],
+                        'pisma.from_user_type' => $data['from_user_type'],
+                        'pisma.hash' => $data['hash'],
+                        'pisma.id' => $data['id'],
+                        'pisma.is_public' => $data['is_public'],
+                        'pisma.modified_at' => $data['modified_at'],
+                        'pisma.name' => $data['name'],
+                        'pisma.saved' => $data['saved'],
+                        'pisma.saved_at' => $data['saved_at'],
+                        'pisma.sent' => $data['sent'],
+                        'pisma.sent_at' => $data['sent_at'],
+                        'pisma.template_id' => $data['template_id'],
+                        'pisma.title' => $data['title'],
+                        'pisma.to_dataset' => $data['to_dataset']
+                    )
+                )
+            ));
+
+        } elseif($global_id) {
+
+            $deleteParams = array();
+            $deleteParams['index'] = 'mojepanstwo_v1';
+            $deleteParams['type'] = 'objects';
+            $deleteParams['id'] = $global_id;
+            $deleteParams['refresh'] = true;
+            $deleteParams['ignore'] = array(404);
+            $ES->API->delete($deleteParams);
+
+        }
 
     }
 

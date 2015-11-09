@@ -123,6 +123,7 @@ class DocumentsController extends AppController
         	'tresc_html' => 'content_html',
         	'adresat' => 'to_str',
         	'nadawca' => 'from_str',
+			'is_public' => 'is_public',
         	'miejscowosc' => 'from_location',
         	'data' => 'date',
         	'szablon_id' => 'template_id',

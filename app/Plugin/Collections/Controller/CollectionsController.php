@@ -126,7 +126,16 @@ class CollectionsController extends AppController {
         $this->set('_serialize', 'response');
     }
 
-    public function addObject($id, $object_id) {
+    public function addObjectData() {
+        $data = $this->request->data;
+        $this->addObject(
+            $data['id'],
+            $data['object_id'],
+            $data['note']
+        );
+    }
+
+    public function addObject($id, $object_id, $note = false) {
         $collection = $this->Collection->find('first', array(
             'conditions' => array(
                 'Collection.id' => $id
@@ -153,10 +162,14 @@ class CollectionsController extends AppController {
                 'object_id' => (int) $object_id
             )
         );
+
+        if($note)
+            $data['CollectionObject']['note'] = $note;
 		
 		if( $collection_object_id ) {
-			
+
 			$data['CollectionObject']['id'] = $collection_object_id['CollectionObject']['id'];
+            $this->CollectionObject->save($data);
 			$this->CollectionObject->syncByData($data);
 			$response = true;
 			

@@ -714,6 +714,7 @@ class Document extends AppModel
                         'pisma.from_user_id' => $data['from_user_id'],
                         'pisma.from_user_type' => $data['from_user_type'],
                         'pisma.hash' => $data['hash'],
+                        'pisma.object_id' => $doc['object_id'],
                         'pisma.id' => $data['id'],
                         'pisma.is_public' => $data['is_public'],
                         'pisma.modified_at' => $data['modified_at'],

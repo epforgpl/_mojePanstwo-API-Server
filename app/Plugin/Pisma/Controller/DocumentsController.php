@@ -124,18 +124,17 @@ class DocumentsController extends AppController
         	'adresat' => 'to_str',
         	'nadawca' => 'from_str',
 			'is_public' => 'is_public',
+			'object_id' => 'object_id',
         	'miejscowosc' => 'from_location',
         	'data' => 'date',
         	'szablon_id' => 'template_id',
         	'podpis' => 'from_signature',
         );
                 
-                
         $data = $this->request->data;
         if (empty($data)) {
             $data = array();
         }
-                
         
         $adresat_id = isset($data['adresat_id']) ? $data['adresat_id'] : false;
         
@@ -146,7 +145,7 @@ class DocumentsController extends AppController
                 
         $temp['from_user_type'] = $this->Auth->user('type');
         $temp['from_user_id'] = $this->Auth->user('id');
-                
+
         
         $data = $temp;
         unset( $temp );
@@ -166,6 +165,26 @@ class DocumentsController extends AppController
         
         App::import('model','DB');
 		$DB = new DB();
+
+		if(isset($data['object_id']) && $data['object_id'] > 0) {
+			$r = $DB->query("
+				SELECT
+					COUNT(*)
+				FROM
+					`objects-users`
+				INNER JOIN
+					`objects` ON
+						`objects`.`dataset` = `objects-users`.`dataset` AND
+						`objects`.`object_id` = `objects-users`.`object_id`
+				WHERE
+					`objects-users`.`user_id` = ". $this->Auth->user('id') ." AND
+					`objects-users`.`role` > 0 AND
+					`objects`.`id` = ". addslashes($data['object_id']) ."
+			");
+
+			if(!isset($r[0][0]['COUNT(*)']) || $r[0][0]['COUNT(*)'] == 0)
+				throw new ForbiddenException;
+		}
         
         
         // edit & create in one func, path param has precedence

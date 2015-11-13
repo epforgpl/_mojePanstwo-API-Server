@@ -123,6 +123,8 @@ class DocumentsController extends AppController
         	'tresc_html' => 'content_html',
         	'adresat' => 'to_str',
         	'nadawca' => 'from_str',
+			'is_public' => 'is_public',
+			'object_id' => 'object_id',
         	'miejscowosc' => 'from_location',
         	'data' => 'date',
         	'szablon_id' => 'template_id',
@@ -131,12 +133,14 @@ class DocumentsController extends AppController
                 
         App::import('model','DB');
 		$DB = new DB();
-             
+
+
         $data = $this->request->data;
         if (empty($data)) {
             $data = array();
         }
-            
+        
+                  
                 
         if( 
 	        $id && 
@@ -169,6 +173,8 @@ class DocumentsController extends AppController
 	        
 	        $DB->autocommit(true);
 	        
+	        $text = '';
+	        
 	        if(
 	        	$doc['Document']['template_id'] && 
 	        	( $template = $this->Template->findById($doc['Document']['template_id'], array('text')) ) && 
@@ -182,13 +188,9 @@ class DocumentsController extends AppController
 				        $text = str_replace('{$inp' . $matches[1][$i] . '}', $inputs[ $matches[1][$i] ], $text);
 			        
 		        }
-		        
-				
-	        }
-	        
-	        
-	        
-	        $this->Document->query("UPDATE `pisma_documents` SET `content`='" . mysql_real_escape_string( $text ) . "' WHERE `alphaid`='$id' LIMIT 1");
+		    }
+		    
+		    $this->Document->query("UPDATE `pisma_documents` SET `content`='" . mysql_real_escape_string( $text ) . "' WHERE `alphaid`='$id' LIMIT 1");
 	            
             $url = '/moje-pisma/' . $id;
                         
@@ -199,14 +201,34 @@ class DocumentsController extends AppController
 	            'id' => $id,
 	            'url' =>  $url,
             ));
-	
-	        
-	        
+		    
+
 	        
 	        
         } else {
             
-	        
+            
+            if(isset($data['object_id']) && $data['object_id'] > 0) {
+				$r = $DB->query("
+					SELECT
+						COUNT(*)
+					FROM
+						`objects-users`
+					INNER JOIN
+						`objects` ON
+							`objects`.`dataset` = `objects-users`.`dataset` AND
+							`objects`.`object_id` = `objects-users`.`object_id`
+					WHERE
+						`objects-users`.`user_id` = ". $this->Auth->user('id') ." AND
+						`objects-users`.`role` > 0 AND
+						`objects`.`id` = ". addslashes($data['object_id']) ."
+				");
+	
+				if(!isset($r[0][0]['COUNT(*)']) || $r[0][0]['COUNT(*)'] == 0)
+					throw new ForbiddenException;
+			}
+			
+			
 	        $adresat_id = isset($data['adresat_id']) ? $data['adresat_id'] : false;
 	        
 	        $temp = array();

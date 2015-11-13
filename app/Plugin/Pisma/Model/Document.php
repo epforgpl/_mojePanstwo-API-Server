@@ -640,7 +640,6 @@ class Document extends AppModel
             'slug' => $doc['slug'],
             'access' => $doc['access'],
             'version' => (int) $doc['version'],
-
             'id' => $doc['id'],
             'hash' => $doc['hash'],
             'saved' => (boolean)$doc['saved'],

@@ -200,7 +200,7 @@ class DB extends AppModel
 			if ( in_array($v, $this->reserved_words) )
 				$_values[] = $v;
 			else
-				$_values[] = "'" . $v . "'";
+				$_values[] = "'" . addslashes($v) . "'";
 		}
 		$values = $_values;
 		
@@ -238,7 +238,7 @@ class DB extends AppModel
 				if( in_array($v, $this->reserved_words) )
 					$sets[] = "`$k`=$v";
 				else 
-					$sets[] = "`$k`='$v'";
+					$sets[] = "`$k`='" . addslashes( $v ) . "'";
 			
 			}
 		}
@@ -258,18 +258,19 @@ class DB extends AppModel
 		
 		foreach( $values as &$v )
 			if( !in_array($v, $this->reserved_words) )
-				$v = "'" . $v . "'";
+				$v = "'" . addslashes($v) . "'";
 		
 		$q = "INSERT INTO `$table` (`".implode("`, `", $keys)."`) VALUES (".implode(", ", $values).") ON DUPLICATE KEY UPDATE ";
 		
 		
 		$sets = array();
+		unset( $v );
 		foreach( $data as $k=>$v ) {
 		
 			if( in_array($v, $this->reserved_words) ) {
 				$sets[] = "`$k`=$v";
 			} else {
-				$sets[] = "`$k`='$v'";
+				$sets[] = "`$k`='" . addslashes( $v ) . "'";
 			}
 		
 		}

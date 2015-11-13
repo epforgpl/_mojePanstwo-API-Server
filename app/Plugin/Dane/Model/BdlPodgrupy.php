@@ -10,6 +10,8 @@ class BdlPodgrupy extends AppModel {
 
 
     public function opis($data, $id = false) {
+	    
+	    var_export( $data ); die();
 	    	    
         if(!$id)
             return false;

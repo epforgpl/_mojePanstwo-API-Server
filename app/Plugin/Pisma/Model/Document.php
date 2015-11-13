@@ -618,11 +618,12 @@ class Document extends AppModel
 
         $doc = $db->query("SELECT * FROM pisma_documents WHERE alphaid='" . addslashes($id) . "'");
         $doc = $doc[0]['pisma_documents'];
-
+        
         $data = array(
             'date' => $doc['date'],
             'to_str' => $doc['to_str'],
             'template_id' => $doc['template_id'],
+            'template_name' => $doc['template_name'],
             'title' => $doc['title'],
             'name' => $doc['name'],
             'content_html' => $doc['content_html'],
@@ -638,7 +639,7 @@ class Document extends AppModel
             'to_email' => $doc['to_email'],
             'slug' => $doc['slug'],
             'access' => $doc['access'],
-            'is_public' => $doc['is_public'],
+            'version' => (int) $doc['version'],
             'id' => $doc['id'],
             'hash' => $doc['hash'],
             'saved' => (boolean)$doc['saved'],
@@ -690,6 +691,7 @@ class Document extends AppModel
             'refresh' => true,
             'id' => $data['alphaid'],
             'body' => $data,
+            'refresh' => true,
         ));
 
         $res = $this->query("SELECT id FROM objects WHERE `dataset_id`='23' AND `object_id`='" . addslashes( $data['id'] ) . "' LIMIT 1");
@@ -743,7 +745,6 @@ class Document extends AppModel
             $ES->API->index($params);
 
         } elseif($global_id) {
-
             $deleteParams = array();
             $deleteParams['index'] = 'mojepanstwo_v1';
             $deleteParams['type'] = 'objects';
@@ -751,7 +752,6 @@ class Document extends AppModel
             $deleteParams['refresh'] = true;
             $deleteParams['ignore'] = array(404);
             $ES->API->delete($deleteParams);
-
         }
 
     }

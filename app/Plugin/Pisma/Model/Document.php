@@ -489,6 +489,17 @@ class Document extends AppModel
 
                 $ES->API->delete($deleteParams);
 
+                $res = $this->query("SELECT id FROM objects WHERE `dataset_id`='23' AND `object_id`='" . addslashes( $item['id'] ) . "' LIMIT 1");
+                $global_id = (int)(@$res[0]['objects']['id']);
+
+                $deleteParams = array();
+                $deleteParams['index'] = 'mojepanstwo_v1';
+                $deleteParams['type'] = 'objects';
+                $deleteParams['id'] = $global_id;
+                $deleteParams['refresh'] = true;
+                $deleteParams['ignore'] = array(404);
+                $ES->API->delete($deleteParams);
+
             }
 
             return 200;
@@ -633,6 +644,7 @@ class Document extends AppModel
             'from_user_id' => $doc['from_user_id'],
             'from_user_name' => $doc['from_user_name'],
             'to_dataset' => $doc['to_dataset'],
+            'is_public' => $doc['is_public'],
             'to_id' => $doc['to_id'],
             'alphaid' => $doc['alphaid'],
             'to_label' => $doc['to_name'],

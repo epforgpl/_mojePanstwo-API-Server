@@ -618,11 +618,12 @@ class Document extends AppModel
 
         $doc = $db->query("SELECT * FROM pisma_documents WHERE alphaid='" . addslashes($id) . "'");
         $doc = $doc[0]['pisma_documents'];
-
+        
         $data = array(
             'date' => $doc['date'],
             'to_str' => $doc['to_str'],
             'template_id' => $doc['template_id'],
+            'template_name' => $doc['template_name'],
             'title' => $doc['title'],
             'name' => $doc['name'],
             'content_html' => $doc['content_html'],
@@ -638,6 +639,7 @@ class Document extends AppModel
             'to_email' => $doc['to_email'],
             'slug' => $doc['slug'],
             'access' => $doc['access'],
+            'version' => (int) $doc['version'],
 
             'id' => $doc['id'],
             'hash' => $doc['hash'],
@@ -689,6 +691,7 @@ class Document extends AppModel
             'type' => 'letters',
             'id' => $data['alphaid'],
             'body' => $data,
+            'refresh' => true,
         ));
 
 

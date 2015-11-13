@@ -687,6 +687,7 @@ class Document extends AppModel
         $response = $ES->API->index(array(
             'index' => 'mojepanstwo_v1',
             'type' => 'letters',
+            'refresh' => true,
             'id' => $data['alphaid'],
             'body' => $data,
         ));
@@ -702,17 +703,27 @@ class Document extends AppModel
                 $global_id = $res[0][0]['id'];
             }
 
-            $ES->API->index(array(
+            $params = array(
                 'index' => 'mojepanstwo_v1',
                 'id' => $global_id,
                 'type' => 'objects',
+                'refresh' => true,
                 'body' => array(
+                    'id' => $data['id'],
+                    'title' => $data['name'],
+                    'text' => $data['name'],
+                    'dataset' => 'pisma',
+                    'slug' => Inflector::slug($data['name']),
                     'data' => array(
                         'pisma.alphaid' => $data['alphaid'],
                         'pisma.created_at' => $data['created_at'],
                         'pisma.deleted' => $data['deleted'],
                         'pisma.from_user_id' => $data['from_user_id'],
                         'pisma.from_user_type' => $data['from_user_type'],
+                        'pisma.to_label' => $data['to_label'],
+                        'pisma.to_email' => $data['to_email'],
+                        'pisma.to_dataset' => $data['to_dataset'],
+                        'pisma.to_id' => $data['to_id'],
                         'pisma.hash' => $data['hash'],
                         'pisma.object_id' => $doc['object_id'],
                         'pisma.id' => $data['id'],
@@ -724,11 +735,12 @@ class Document extends AppModel
                         'pisma.sent' => $data['sent'],
                         'pisma.sent_at' => $data['sent_at'],
                         'pisma.template_id' => $data['template_id'],
-                        'pisma.title' => $data['title'],
-                        'pisma.to_dataset' => $data['to_dataset']
+                        'pisma.title' => $data['title']
                     )
                 )
-            ));
+            );
+
+            $ES->API->index($params);
 
         } elseif($global_id) {
 

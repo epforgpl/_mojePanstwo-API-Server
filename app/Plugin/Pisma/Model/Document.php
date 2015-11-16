@@ -704,7 +704,7 @@ class Document extends AppModel
 
             if( $r[0]['objects']['dataset']=='krs_podmioty' ) {
 
-                $t = $DB->query("SELECT nazwa FROM krs_pozycje WHERE `id`='" . $r[0]['objects']['object_id'] . "'");
+                $t = $db->query("SELECT nazwa FROM krs_pozycje WHERE `id`='" . $r[0]['objects']['object_id'] . "'");
                 $data['page_name'] = $t[0]['krs_pozycje']['nazwa'];
 
             }

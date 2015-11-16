@@ -25,7 +25,7 @@ $data = $this->DB->query("SELECT `krs_dzialalnosci`.`id`, `krs_dzialalnosci`.`st
 		ON `krs_pozycje-dzialalnosci`.`dzialalnosc_id` = `krs_dzialalnosci`.`id`
 		AND `krs_pozycje-dzialalnosci`.krs_id='" . addslashes($id) . "'
 		AND `krs_pozycje-dzialalnosci`.`deleted`='0' 
-		ORDER BY `krs_pozycje-dzialalnosci`.`ord` ASC");
+		ORDER BY `krs_pozycje-dzialalnosci`.`przewazajaca` DESC, `krs_pozycje-dzialalnosci`.`ord` ASC");
 
 $output = array();
 foreach ($data as $d)

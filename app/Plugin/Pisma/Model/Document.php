@@ -27,6 +27,7 @@ class Document extends AppModel
         'szablon_id' => 'Document.template_id',
         'podpis' => 'Document.from_signature',
         'id' => 'Document.alphaid',
+        'numeric_id' => 'Document.id',
     );
 
 
@@ -180,12 +181,11 @@ class Document extends AppModel
 
     public function afterSave($created, $options)
     {
-
+				
         if (
             ($data = $this->data['Document']) &&
             isset($data['alphaid']) &&
-            $data['alphaid'] &&
-            ($saved = (isset($data['saved']) ? (boolean)$data['saved'] : false))
+            $data['alphaid'] 
         ) {
 
             $this->sync($data['alphaid']);
@@ -411,6 +411,7 @@ class Document extends AppModel
                 'index' => 'mojepanstwo_v1',
                 'type' => 'letters',
                 'id' => $id,
+                'refresh' => true,
                 'body' => array(
                     'doc' => array(
                         'name' => $params['name'],
@@ -448,6 +449,7 @@ class Document extends AppModel
                         'access' => $params['access'],
                     ),
                 ),
+                'refresh' => true,
             ));
 
             return true;
@@ -574,6 +576,7 @@ class Document extends AppModel
                         'sent_at' => date('Ymd\THis\Z'),
                     ),
                 ),
+                'refresh' => true,
             ));
 
             $db = ConnectionManager::getDataSource('default');
@@ -621,7 +624,7 @@ class Document extends AppModel
 
     public function sync($id)
     {
-
+	
         $db = ConnectionManager::getDataSource('default');
         $ES = ConnectionManager::getDataSource('MPSearch');
 
@@ -629,8 +632,13 @@ class Document extends AppModel
 
         $doc = $db->query("SELECT * FROM pisma_documents WHERE alphaid='" . addslashes($id) . "'");
         $doc = $doc[0]['pisma_documents'];
-        
+                
         $data = array(
+            'object_id' => $doc['object_id'],
+            'page_dataset' => $doc['page_dataset'],
+            'page_object_id' => $doc['page_object_id'],
+            'page_slug' => $doc['page_slug'],
+            'page_slug' => $doc['page_name'],
             'date' => $doc['date'],
             'to_str' => $doc['to_str'],
             'template_id' => $doc['template_id'],
@@ -696,7 +704,7 @@ class Document extends AppModel
         } else {
             $data['template_label'] = 'Bez szablonu';
         }
-
+				
         $response = $ES->API->index(array(
             'index' => 'mojepanstwo_v1',
             'type' => 'letters',
@@ -705,7 +713,7 @@ class Document extends AppModel
             'body' => $data,
             'refresh' => true,
         ));
-
+        
         $res = $this->query("SELECT id FROM objects WHERE `dataset_id`='23' AND `object_id`='" . addslashes( $data['id'] ) . "' LIMIT 1");
         $global_id = (int)(@$res[0]['objects']['id']);
 
@@ -747,7 +755,7 @@ class Document extends AppModel
                         'pisma.saved' => $data['saved'],
                         'pisma.saved_at' => $data['saved_at'],
                         'pisma.sent' => $data['sent'],
-                        'pisma.sent_at' => $data['sent_at'],
+                        'pisma.sent_at' => @$data['sent_at'],
                         'pisma.template_id' => $data['template_id'],
                         'pisma.title' => $data['title']
                     )

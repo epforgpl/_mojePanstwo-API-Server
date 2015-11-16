@@ -129,6 +129,10 @@ class DocumentsController extends AppController
         	'data' => 'date',
         	'szablon_id' => 'template_id',
         	'podpis' => 'from_signature',
+        	'page_dataset' => 'page_dataset',
+            'page_object_id' => 'page_object_id',
+            'page_slug' => 'page_slug',
+            'page_name' => 'page_name',
         );
                 
         App::import('model','DB');
@@ -190,7 +194,7 @@ class DocumentsController extends AppController
 		        }
 		    }
 		    
-		    $this->Document->query("UPDATE `pisma_documents` SET `content`='" . mysql_real_escape_string( $text ) . "' WHERE `alphaid`='$id' LIMIT 1");
+		    $this->Document->query("UPDATE `pisma_documents` SET `saved` = '1', `content`='" . mysql_real_escape_string( $text ) . "' WHERE `alphaid`='$id' LIMIT 1");
 	            
             $url = '/moje-pisma/' . $id;
                         
@@ -207,11 +211,15 @@ class DocumentsController extends AppController
 	        
         } else {
             
+            $data['page_dataset'] = '';
+            $data['page_object_id'] = '0';
+            $data['page_slug'] = '';
+            $data['page_name'] = '';
             
-            if(isset($data['object_id']) && $data['object_id'] > 0) {
+            if( isset($data['object_id']) && $data['object_id'] ) {
 				$r = $DB->query("
 					SELECT
-						COUNT(*)
+						objects.dataset, objects.object_id, objects.slug
 					FROM
 						`objects-users`
 					INNER JOIN
@@ -223,13 +231,27 @@ class DocumentsController extends AppController
 						`objects-users`.`role` > 0 AND
 						`objects`.`id` = ". addslashes($data['object_id']) ."
 				");
-	
-				if(!isset($r[0][0]['COUNT(*)']) || $r[0][0]['COUNT(*)'] == 0)
+								
+				if( empty($r) )
 					throw new ForbiddenException;
+				
+				if( $r[0]['objects']['dataset']=='krs_podmioty' ) {
+					
+					$t = $DB->query("SELECT nazwa FROM krs_pozycje WHERE `id`='" . $r[0]['objects']['object_id'] . "'");
+					$data['page_name'] = $t[0]['krs_pozycje']['nazwa'];
+					
+				}
+				
+				
+				$data['page_dataset'] = $r[0]['objects']['dataset'];
+	            $data['page_object_id'] = $r[0]['objects']['object_id'];
+	            $data['page_slug'] = $r[0]['objects']['slug'];
+	            					
 			}
 			
 			
 	        $adresat_id = isset($data['adresat_id']) ? $data['adresat_id'] : false;
+	        
 	        
 	        $temp = array();
 	        foreach( $data as $k => $v )
@@ -251,7 +273,9 @@ class DocumentsController extends AppController
 	        	$data = array_merge($data, array(
 		        	'to_dataset' => $parts[0],
 		        	'to_id' => $parts[1],
-	        	));        
+	        	));  
+	        	
+	        	
 	        
 	        
 	        // edit & create in one func, path param has precedence
@@ -315,10 +339,12 @@ class DocumentsController extends AppController
 		       	
 		       	if(
 			       	( $data['to_dataset']=='instytucje' ) && 
-		        	( $to = $DB->selectAssoc("SELECT id, nazwa, email, adres_str FROM instytucje WHERE id='" . addslashes( $data['to_id'] ) . "'" ) ) 
+		        	( $to = $DB->selectAssoc("SELECT id, nazwa, email, adres_str, pisma_adresat_nazwa FROM instytucje WHERE id='" . addslashes( $data['to_id'] ) . "'" ) ) 
 		        ) {
-		       		       	 
-		        	$data['to_str'] = '<p>' . $to['nazwa'] . '</p><p>' . $to['adres_str'] . '</p>';
+		       		
+		       		$nazwa = $to['pisma_adresat_nazwa'] ? $to['nazwa'] : $to[''];
+		       		
+		        	$data['to_str'] = '<p>' . $nazwa . '</p><p>' . $to['adres_str'] . '</p>';
 		        	$data['to_name'] = $to['nazwa'];
 		        	$data['to_email'] = $to['email'];
 	        	
@@ -505,12 +531,12 @@ class DocumentsController extends AppController
 			$lastLog = end($logs['log']);
 			echo $lastLog['query']; die();   
 			*/
-		       
 		    
+		    		    
 		    if( $data['saved']=='0' )	        	
 		        $this->Document->create();  
 		    
-		    
+		    		    
 		    $data['from_user_name'] = '';
 		    if( $data['from_user_type']=='account' ) {
 			    
@@ -524,7 +550,7 @@ class DocumentsController extends AppController
 			    $data['from_user_name'] = $user['User']['username'];
 			    
 		    }
-		    
+		    		    
 	        if ($doc = $this->Document->save(array('Document' => $data))) {
 	            $this->response->statusCode(201);  // 201 Created
 	            
@@ -619,7 +645,7 @@ class DocumentsController extends AppController
 			    )
 	        ),
         ));
-        
+                
         /*
         $dbo = $this->Document->getDatasource();
 		$logs = $dbo->getLog();

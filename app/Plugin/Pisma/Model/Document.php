@@ -638,7 +638,7 @@ class Document extends AppModel
             'page_dataset' => $doc['page_dataset'],
             'page_object_id' => $doc['page_object_id'],
             'page_slug' => $doc['page_slug'],
-            'page_slug' => $doc['page_name'],
+            'page_name' => $doc['page_name'],
             'date' => $doc['date'],
             'to_str' => $doc['to_str'],
             'template_id' => $doc['template_id'],
@@ -675,6 +675,8 @@ class Document extends AppModel
         $data['text'] .= @$doc['title'] . "\n";
         $data['text'] .= @$doc['content'] . "\n";
         $data['text'] .= @$doc['from_signature'] . "\n";
+        $dataText = $data['text'];
+        unset($data['text']);
 
         $ts_fields = array('created_at', 'modified_at', 'saved_at', 'sent_at', 'deleted_at');
         foreach ($ts_fields as $ts_field) {
@@ -704,7 +706,7 @@ class Document extends AppModel
         } else {
             $data['template_label'] = 'Bez szablonu';
         }
-				
+
         $response = $ES->API->index(array(
             'index' => 'mojepanstwo_v1',
             'type' => 'letters',
@@ -738,7 +740,7 @@ class Document extends AppModel
                 'body' => array(
                     'id' => $data['id'],
                     'title' => $data['name'],
-                    'text' => $data['name'],
+                    'text' => $dataText,
                     'dataset' => 'pisma',
                     'slug' => Inflector::slug($data['name']),
                     'data' => $paramsData

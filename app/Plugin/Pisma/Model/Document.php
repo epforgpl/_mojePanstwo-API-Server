@@ -725,6 +725,11 @@ class Document extends AppModel
                 $global_id = $res[0][0]['id'];
             }
 
+            $paramsData = array();
+            foreach($data as $name => $value) {
+                $paramsData['pisma.' . $name] = $value;
+            }
+
             $params = array(
                 'index' => 'mojepanstwo_v1',
                 'id' => $global_id,
@@ -736,29 +741,7 @@ class Document extends AppModel
                     'text' => $data['name'],
                     'dataset' => 'pisma',
                     'slug' => Inflector::slug($data['name']),
-                    'data' => array(
-                        'pisma.alphaid' => $data['alphaid'],
-                        'pisma.created_at' => $data['created_at'],
-                        'pisma.deleted' => $data['deleted'],
-                        'pisma.from_user_id' => $data['from_user_id'],
-                        'pisma.from_user_type' => $data['from_user_type'],
-                        'pisma.to_label' => $data['to_label'],
-                        'pisma.to_email' => $data['to_email'],
-                        'pisma.to_dataset' => $data['to_dataset'],
-                        'pisma.to_id' => $data['to_id'],
-                        'pisma.hash' => $data['hash'],
-                        'pisma.object_id' => $doc['object_id'],
-                        'pisma.id' => $data['id'],
-                        'pisma.is_public' => $data['is_public'],
-                        'pisma.modified_at' => $data['modified_at'],
-                        'pisma.name' => $data['name'],
-                        'pisma.saved' => $data['saved'],
-                        'pisma.saved_at' => $data['saved_at'],
-                        'pisma.sent' => $data['sent'],
-                        'pisma.sent_at' => @$data['sent_at'],
-                        'pisma.template_id' => $data['template_id'],
-                        'pisma.title' => $data['title']
-                    )
+                    'data' => $paramsData
                 )
             );
 

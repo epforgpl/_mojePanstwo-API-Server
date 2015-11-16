@@ -678,6 +678,44 @@ class Document extends AppModel
         $dataText = $data['text'];
         unset($data['text']);
 
+        $data['page_dataset'] = '';
+        $data['page_object_id'] = '0';
+        $data['page_slug'] = '';
+        $data['page_name'] = '';
+
+        if( isset($data['object_id']) && $data['object_id'] ) {
+            $r = $db->query("
+					SELECT
+						objects.dataset, objects.object_id, objects.slug
+					FROM
+						`objects-users`
+					INNER JOIN
+						`objects` ON
+							`objects`.`dataset` = `objects-users`.`dataset` AND
+							`objects`.`object_id` = `objects-users`.`object_id`
+					WHERE
+						`objects-users`.`user_id` = ". $data['from_user_id'] ." AND
+						`objects-users`.`role` > 0 AND
+						`objects`.`id` = ". addslashes($data['object_id']) ."
+				");
+
+            if( empty($r) )
+                throw new ForbiddenException;
+
+            if( $r[0]['objects']['dataset']=='krs_podmioty' ) {
+
+                $t = $DB->query("SELECT nazwa FROM krs_pozycje WHERE `id`='" . $r[0]['objects']['object_id'] . "'");
+                $data['page_name'] = $t[0]['krs_pozycje']['nazwa'];
+
+            }
+
+
+            $data['page_dataset'] = $r[0]['objects']['dataset'];
+            $data['page_object_id'] = $r[0]['objects']['object_id'];
+            $data['page_slug'] = $r[0]['objects']['slug'];
+
+        }
+
         $ts_fields = array('created_at', 'modified_at', 'saved_at', 'sent_at', 'deleted_at');
         foreach ($ts_fields as $ts_field) {
             if (

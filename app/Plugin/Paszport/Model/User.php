@@ -178,4 +178,53 @@ class User extends PaszportAppModel
         $value = $value[0];
         return preg_match('|^[0-9a-zA-Z_-]*$|', $value);
     }
+
+    public function afterSave($created, $options) {
+        if(isset($this->data['User']['id']))
+            $this->sync($this->data['User']['id']);
+    }
+
+    public function syncAll() {
+        $db = ConnectionManager::getDataSource('default');
+        $ids = $db->query("SELECT id FROM users");
+        foreach($ids as $id)
+            $this->sync($id['users']['id']);
+    }
+
+    public function sync($id) {
+        $db = ConnectionManager::getDataSource('default');
+        $es = ConnectionManager::getDataSource('MPSearch');
+        $users_dataset_id = 221;
+
+        $user = $db->query("SELECT id, username FROM users WHERE id = '" . addslashes($id) . "'");
+        $user = $user[0]['users'];
+
+        $objects = $db->query("SELECT id FROM objects WHERE `dataset_id`='$users_dataset_id' AND `object_id`='" . addslashes( $user['id'] ) . "' LIMIT 1");
+        $global_id = (int) (@$objects[0]['objects']['id']);
+
+        if(!$global_id) {
+            $db->query("INSERT INTO `objects` (`dataset`, `dataset_id`, `object_id`) VALUES ('uzytkownicy', " . $users_dataset_id . ", " . $user['id'] . ")");
+            $res = $db->query('select last_insert_id() as id;');
+            $global_id = $res[0][0]['id'];
+        }
+
+        $es->API->index(array(
+            'index' => 'mojepanstwo_v1',
+            'id' => $global_id,
+            'type' => 'objects',
+            'refresh' => true,
+            'body' => array(
+                'id' => $user['id'],
+                'title' => $user['username'],
+                'text' => $user['username'],
+                'dataset' => 'uzytkownicy',
+                'slug' => Inflector::slug($user['username']),
+                'data' => array(
+                    'uzytkownicy.id' => $user['id'],
+                    'uzytkownicy.username' => $user['username']
+                )
+            )
+        ));
+    }
+
 }

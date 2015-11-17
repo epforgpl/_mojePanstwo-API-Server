@@ -1119,7 +1119,7 @@ class MPSearch {
 				'suggest' => array(
 					'text' => $q,
 					'completion' => array(
-						'field' => 'suggest_v6',
+						'field' => 'suggest_v7',
 						'fuzzy' => array(
 			                'fuzziness' => 0,
 			            ),

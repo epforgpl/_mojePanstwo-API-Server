@@ -196,7 +196,7 @@ class User extends PaszportAppModel
         $es = ConnectionManager::getDataSource('MPSearch');
         $users_dataset_id = 221;
 
-        $user = $db->query("SELECT id, username FROM users WHERE id = '" . addslashes($id) . "'");
+        $user = $db->query("SELECT id, username, created FROM users WHERE id = '" . addslashes($id) . "'");
         $user = $user[0]['users'];
 
         $objects = $db->query("SELECT id FROM objects WHERE `dataset_id`='$users_dataset_id' AND `object_id`='" . addslashes( $user['id'] ) . "' LIMIT 1");
@@ -221,7 +221,8 @@ class User extends PaszportAppModel
                 'slug' => Inflector::slug($user['username']),
                 'data' => array(
                     'uzytkownicy.id' => $user['id'],
-                    'uzytkownicy.username' => $user['username']
+                    'uzytkownicy.username' => $user['username'],
+                    'uzytkownicy.created' => date('Ymd\THis\Z', strtotime($user['created']))
                 )
             )
         ));

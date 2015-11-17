@@ -57,6 +57,11 @@ class AppShell extends Shell
         $this->loadModel('Paszport.User');
         $this->User->syncAll();
     }
+
+    public function userSync() {
+        $this->loadModel('Paszport.User');
+        $this->User->sync((int) $this->args[0]);
+    }
     
     public function projectsSyncAll() {
 

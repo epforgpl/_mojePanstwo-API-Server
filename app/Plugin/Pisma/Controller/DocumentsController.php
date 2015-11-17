@@ -109,6 +109,30 @@ class DocumentsController extends AppController
 		$this->set('_serialize', 'status');	
 		
 	}
+
+	public function setDocumentName($id) {
+		$doc = $this->Document->find('first', array(
+			'conditions' => array(
+				'Document.alphaid' => $id,
+			),
+			'fields' => array(
+				'Document.from_user_id'
+			),
+		));
+
+		if($doc['Document']['from_user_id'] != $this->Auth->user('id'))
+			throw new ForbiddenException;
+
+		$status = $this->Document->save(array(
+			'Document' => array(
+				'alphaid' => $id,
+				'name' => $this->request->data['name']
+			)
+		));
+
+		$this->set('status', $status);
+		$this->set('_serialize', 'status');
+	}
 	
     public function save($id = null) {
         

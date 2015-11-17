@@ -143,8 +143,7 @@ class DocumentsController extends AppController
         if (empty($data)) {
             $data = array();
         }
-        
-                  
+                          
                 
         if( 
 	        $id && 
@@ -210,6 +209,41 @@ class DocumentsController extends AppController
 	        
 	        
         } else {
+						
+			if( isset($data['object_id']) && $data['object_id'] ) {
+	            $r = $this->Document->query("
+						SELECT
+							objects.dataset, objects.object_id, objects.slug 
+						FROM
+							`objects-users`
+						INNER JOIN
+							`objects` ON
+								`objects`.`dataset` = `objects-users`.`dataset` AND
+								`objects`.`object_id` = `objects-users`.`object_id`
+						WHERE
+							`objects-users`.`user_id` = ". $this->Auth->user('id') ." AND
+							`objects-users`.`role` > 0 AND
+							`objects`.`id` = ". addslashes($data['object_id']) ."
+					");
+					
+	
+	            if( empty($r) )
+	                throw new ForbiddenException;
+	
+	            if( $r[0]['objects']['dataset']=='krs_podmioty' ) {
+	
+	                $t = $this->Document->query("SELECT nazwa FROM krs_pozycje WHERE `id`='" . $r[0]['objects']['object_id'] . "'");
+	                $data['page_name'] = $t[0]['krs_pozycje']['nazwa'];
+	
+	            }
+	
+	
+	            $data['page_dataset'] = $r[0]['objects']['dataset'];
+	            $data['page_object_id'] = $r[0]['objects']['object_id'];
+	            $data['page_slug'] = $r[0]['objects']['slug'];
+	
+	        }
+			
 			
 			
 	        $adresat_id = isset($data['adresat_id']) ? $data['adresat_id'] : false;
@@ -261,7 +295,7 @@ class DocumentsController extends AppController
 		        $data['saved'] = '0';
 		       
 		    }
-		    
+		    		    
 		    
 	        if(
 		        isset( $data['template_id'] ) && 

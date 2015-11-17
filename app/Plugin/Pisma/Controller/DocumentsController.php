@@ -191,8 +191,12 @@ class DocumentsController extends AppController
 				        $text = str_replace('{$inp' . $matches[1][$i] . '}', $inputs[ $matches[1][$i] ], $text);
 			        
 		        }
+		    } elseif( isset($inputs[0]) ) {
+			    
+			    $text = $inputs[0];
+			    
 		    }
-		    
+		    		    
 		    $this->Document->query("UPDATE `pisma_documents` SET `saved` = '1', `content`='" . mysql_real_escape_string( $text ) . "' WHERE `alphaid`='$id' LIMIT 1");
 	            
             $url = '/moje-pisma/' . $id;
@@ -317,6 +321,10 @@ class DocumentsController extends AppController
 	        		
 	        	}
 	        	
+	        } else {
+		        
+		        $data['title'] = 'Pismo';
+		        
 	        }
 	        
 	        
@@ -338,7 +346,7 @@ class DocumentsController extends AppController
 		        	( $to = $DB->selectAssoc("SELECT id, nazwa, email, adres_str, pisma_adresat_nazwa FROM instytucje WHERE id='" . addslashes( $data['to_id'] ) . "'" ) ) 
 		        ) {
 		       		
-		       		$nazwa = $to['pisma_adresat_nazwa'] ? $to['nazwa'] : $to[''];
+		       		$nazwa = $to['pisma_adresat_nazwa'] ? $to['nazwa'] : $to['pisma_adresat_nazwa'];
 		       		
 		        	$data['to_str'] = '<p>' . $nazwa . '</p><p>' . $to['adres_str'] . '</p>';
 		        	$data['to_name'] = $to['nazwa'];

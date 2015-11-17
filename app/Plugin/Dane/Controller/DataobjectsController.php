@@ -83,36 +83,48 @@ class DataobjectsController extends AppController
 
 
 	private function _index($params = array()){
-		$allowed_query_params = array('conditions', 'limit', 'page', 'order', 'highlight');
+		$allowed_query_params = array('conditions', 'limit', 'page', 'order', 'highlight', '_type');
 		if ($this->isPortalCalling) {
 			array_push($allowed_query_params, 'aggs');
 		}
-
+		
+		if( !isset($this->request->query['_type']) )
+			$this->request->query['_type'] = 'objects';
+		
 		$original_query = $query = array_intersect_key($this->request->query, array_flip($allowed_query_params));
-
-		if( isset($params['dataset']) && $params['dataset'] )
-			$query['conditions']['dataset'] = $params['dataset'];
-
-		if( isset($params['_main']) && $params['_main'] )
-			$query['conditions']['_main'] = true;
+		
+		
+		if( $query['_type']=='collections' ) {
 			
-		if( isset($params['_feed']) && $params['_feed'] )
-			$query['conditions']['_feed'] = $params['_feed'];		
+			$query['conditions']['user_id'] = $this->Auth->user('id');
+			
+		} else {
 		
-		if( isset( $query['conditions']['subscribtions'] ) && $query['conditions']['subscribtions'] ) {
-						
-			$query['conditions']['subscribtions'] = array(
-				'user_type' => $this->Auth->user('type'),
-				'user_id' => $this->Auth->user('id'),
-			);
-		}
+			if( isset($params['dataset']) && $params['dataset'] )
+				$query['conditions']['dataset'] = $params['dataset'];
+	
+			if( isset($params['_main']) && $params['_main'] )
+				$query['conditions']['_main'] = true;
+				
+			if( isset($params['_feed']) && $params['_feed'] )
+				$query['conditions']['_feed'] = $params['_feed'];		
+			
+			if( isset( $query['conditions']['subscribtions'] ) && $query['conditions']['subscribtions'] ) {
+							
+				$query['conditions']['subscribtions'] = array(
+					'user_type' => $this->Auth->user('type'),
+					'user_id' => $this->Auth->user('id'),
+				);
+			}
+			
+			if( isset( $query['conditions']['user-pages'] ) && $query['conditions']['user-pages'] ) {
+							
+				$query['conditions']['user-pages'] = array(
+					'user_type' => $this->Auth->user('type'),
+					'user_id' => $this->Auth->user('id'),
+				);
+			}
 		
-		if( isset( $query['conditions']['user-pages'] ) && $query['conditions']['user-pages'] ) {
-						
-			$query['conditions']['user-pages'] = array(
-				'user_type' => $this->Auth->user('type'),
-				'user_id' => $this->Auth->user('id'),
-			);
 		}
 
 		// ograniczenie limit
@@ -358,13 +370,12 @@ class DataobjectsController extends AppController
 			'channels' => null,
 			'page' => null,
 			'subscribers' => null,
-			''
 		);
-		$dataset_info = $this->MPCache->getDataset($dataset);
-		foreach($dataset_info['Layer'] as $layer) {
-			$object['layers'][$layer['layer']] = null;
-		}
-
+		
+		if( $dataset_info = $this->MPCache->getDataset($dataset) )
+			foreach($dataset_info['Layer'] as $layer)
+				$object['layers'][$layer['layer']] = null;
+		
 		// what should we load?
 		$layers_to_load = array();
 		if( isset($query['layers']) ) {

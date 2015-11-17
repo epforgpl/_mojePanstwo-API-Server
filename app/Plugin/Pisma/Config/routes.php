@@ -32,6 +32,7 @@ foreach(array('', '_v0') as $version) {
     Router::connect("$base_slug$version/:letter_id/responses", array('plugin' => 'Pisma', 'controller' => 'Responses', 'action' => 'save', '[method]' => 'POST'), array('letter_id' => '[A-Za-z0-9]{5}', 'pass' => array('letter_id')));
     Router::connect("$base_slug$version/:letter_id/responses", array('plugin' => 'Pisma', 'controller' => 'Responses', 'action' => 'getByLetter', '[method]' => 'GET'), array('letter_id' => '[A-Za-z0-9]{5}', 'pass' => array('letter_id')));
     Router::connect("$base_slug$version/:letter_id/responses/:response_id", array('plugin' => 'Pisma', 'controller' => 'Responses', 'action' => 'get', '[method]' => 'GET'), array('letter_id' => '[A-Za-z0-9]{5}', 'response_id' => '[0-9]{1,}', 'pass' => array('letter_id', 'response_id')));
+    Router::connect("$base_slug$version/getAttachmentURL/:attachment_id", array('plugin' => 'Pisma', 'controller' => 'Responses', 'action' => 'getAttachmentURL', '[method]' => 'GET'), array('attachment_id' => '[0-9]{1,}', 'pass' => array('attachment_id')));
 
 }
 

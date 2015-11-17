@@ -23,6 +23,7 @@ class ResponsesController extends AppController {
             if(isset($data['files']) && is_array($data['files'])) {
                 $letter_response_id = $this->Response->getLastInsertID();
                 foreach($data['files'] as $file) {
+                    $this->ResponseFile->clear();
                     $this->ResponseFile->save(array(
                         'ResponseFile' => array(
                             'letter_response_id' => $letter_response_id,
@@ -40,7 +41,7 @@ class ResponsesController extends AppController {
     }
 
     public function getByLetter($letter_id) {
-        $this->setSerialized('responses', $this->Response->find('all', array(
+        $responses = $this->Response->find('all', array(
             /* 'fields' => array('Response.*', 'ResponseFile.*'),
             'joins' => array(
                 array(
@@ -56,7 +57,53 @@ class ResponsesController extends AppController {
                 'Response.letter_id' => $letter_id,
                 'Response.user_id' => $this->Auth->user('id'),
             ),
-        )));
+        ));
+
+        foreach($responses as $r => $response) {
+            $responses[$r]['files'] = $this->ResponseFile->find('all', array(
+                'conditions' => array(
+                    'ResponseFile.letter_response_id' => $response['Response']['id'],
+                ),
+            ));
+        }
+
+        $this->setSerialized('responses', $responses);
+    }
+
+    public function getAttachmentURL($attachment_id) {
+        if(!$attachment_id)
+            throw new NotFoundException;
+
+        $attachment_id = (int) $attachment_id;
+
+        $filename = $this->Response->query("
+            SELECT filename
+            FROM letters_responses_files
+            INNER JOIN
+              letters_responses
+                ON letters_responses.id = letters_responses_files.letter_response_id
+            WHERE
+              letters_responses_files.id = $attachment_id AND
+              letters_responses.user_id = ".$this->Auth->user('id')."
+        ");
+
+        if(!empty($filename[0]['letters_responses_files']['filename']))
+            $filename = $filename[0]['letters_responses_files']['filename'];
+        else
+            throw new NotFoundException;
+
+        App::uses('S3', 'Vendor');
+        $S3 = new S3(S3_LOGIN, S3_SECRET, null, S3_ENDPOINT);
+        $bucket = 'portal';
+        $file = 'letters/responses/' . $filename;
+        $url = $S3->getAuthenticatedURL($bucket, $file, 60);
+
+        if( $url ) {
+            $url = str_replace('s3.amazonaws.com/' . $bucket, $bucket . '.sds.tiktalik.com', $url);
+        } else
+            throw new NotFoundException;
+
+        $this->setSerialized('url', $url);
     }
 
     public function get($letter_id, $response_id)

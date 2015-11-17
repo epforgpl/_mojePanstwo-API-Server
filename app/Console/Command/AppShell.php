@@ -47,6 +47,11 @@ class AppShell extends Shell
         $this->Document->sync( $this->args[0] );
         
     }
+
+    public function collectionsSyncAll() {
+        $this->loadModel('Collections.Collection');
+        $this->Collection->syncAll(((bool) (@$this->args[0])));
+    }
     
     public function projectsSyncAll() {
 

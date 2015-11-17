@@ -442,6 +442,7 @@ class Document extends AppModel
             $ES = ConnectionManager::getDataSource('MPSearch');
             $ES->API->update(array(
                 'index' => 'mojepanstwo_v1',
+
                 'type' => 'letters',
                 'id' => $id,
                 'body' => array(
@@ -638,14 +639,13 @@ class Document extends AppModel
             'page_dataset' => $doc['page_dataset'],
             'page_object_id' => $doc['page_object_id'],
             'page_slug' => $doc['page_slug'],
-            'page_name' => $doc['page_name'],
+            'page_slug' => $doc['page_name'],
             'date' => $doc['date'],
             'to_str' => $doc['to_str'],
             'template_id' => $doc['template_id'],
             'template_name' => $doc['template_name'],
             'title' => $doc['title'],
             'name' => $doc['name'],
-            'content' => $doc['content'],
             'content_html' => $doc['content_html'],
             'from_str' => $doc['from_str'],
             'from_signature' => $doc['from_signature'],
@@ -676,49 +676,7 @@ class Document extends AppModel
         $data['text'] .= @$doc['title'] . "\n";
         $data['text'] .= @$doc['content'] . "\n";
         $data['text'] .= @$doc['from_signature'] . "\n";
-        $dataText = $data['text'];
-        unset($data['text']);
 
-        $data['page_dataset'] = '';
-        $data['page_object_id'] = '0';
-        $data['page_slug'] = '';
-        $data['page_name'] = '';
-		
-		
-        if( isset($data['object_id']) && $data['object_id'] ) {
-            $r = $db->query("
-					SELECT
-						objects.dataset, objects.object_id, objects.slug
-					FROM
-						`objects-users`
-					INNER JOIN
-						`objects` ON
-							`objects`.`dataset` = `objects-users`.`dataset` AND
-							`objects`.`object_id` = `objects-users`.`object_id`
-					WHERE
-						`objects-users`.`user_id` = ". $data['from_user_id'] ." AND
-						`objects-users`.`role` > 0 AND
-						`objects`.`id` = ". addslashes($data['object_id']) ."
-				");
-				
-
-            if( empty($r) )
-                throw new ForbiddenException;
-
-            if( $r[0]['objects']['dataset']=='krs_podmioty' ) {
-
-                $t = $db->query("SELECT nazwa FROM krs_pozycje WHERE `id`='" . $r[0]['objects']['object_id'] . "'");
-                $data['page_name'] = $t[0]['krs_pozycje']['nazwa'];
-
-            }
-
-
-            $data['page_dataset'] = $r[0]['objects']['dataset'];
-            $data['page_object_id'] = $r[0]['objects']['object_id'];
-            $data['page_slug'] = $r[0]['objects']['slug'];
-
-        }
-        
         $ts_fields = array('created_at', 'modified_at', 'saved_at', 'sent_at', 'deleted_at');
         foreach ($ts_fields as $ts_field) {
             if (
@@ -747,7 +705,7 @@ class Document extends AppModel
         } else {
             $data['template_label'] = 'Bez szablonu';
         }
-
+				
         $response = $ES->API->index(array(
             'index' => 'mojepanstwo_v1',
             'type' => 'letters',
@@ -772,7 +730,7 @@ class Document extends AppModel
             foreach($data as $name => $value) {
                 $paramsData['pisma.' . $name] = $value;
             }
-						
+
             $params = array(
                 'index' => 'mojepanstwo_v1',
                 'id' => $global_id,
@@ -781,13 +739,39 @@ class Document extends AppModel
                 'body' => array(
                     'id' => $data['id'],
                     'title' => $data['name'],
-                    'text' => $dataText,
+                    'text' => $data['name'],
                     'dataset' => 'pisma',
                     'slug' => Inflector::slug($data['name']),
+<<<<<<< HEAD
+                    'data' => array(
+                        'pisma.alphaid' => $data['alphaid'],
+                        'pisma.created_at' => $data['created_at'],
+                        'pisma.deleted' => $data['deleted'],
+                        'pisma.from_user_id' => $data['from_user_id'],
+                        'pisma.from_user_type' => $data['from_user_type'],
+                        'pisma.to_label' => $data['to_label'],
+                        'pisma.to_email' => $data['to_email'],
+                        'pisma.to_dataset' => $data['to_dataset'],
+                        'pisma.to_id' => $data['to_id'],
+                        'pisma.hash' => $data['hash'],
+                        'pisma.object_id' => $doc['object_id'],
+                        'pisma.id' => $data['id'],
+                        'pisma.is_public' => $data['is_public'],
+                        'pisma.modified_at' => $data['modified_at'],
+                        'pisma.name' => $data['name'],
+                        'pisma.saved' => $data['saved'],
+                        'pisma.saved_at' => $data['saved_at'],
+                        'pisma.sent' => $data['sent'],
+                        'pisma.sent_at' => @$data['sent_at'],
+                        'pisma.template_id' => $data['template_id'],
+                        'pisma.title' => $data['title']
+                    )
+=======
                     'data' => $paramsData
+>>>>>>> c1c16fe8ceb0e90df726ef09cdf67fba27635f82
                 )
             );
-            
+
             $ES->API->index($params);
 
         } elseif($global_id) {

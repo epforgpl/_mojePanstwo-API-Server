@@ -63,5 +63,11 @@ class FinanseController extends AppController
         $this->set('_serialize', 'data');
     }
     
+    public function getCompareData()
+    {
+        $data = $this->Finanse->getCompareData($this->request->query['p1'], $this->request->query['p2']);
+        $this->set('data', $data);
+        $this->set('_serialize', 'data');
+    }
 
 } 

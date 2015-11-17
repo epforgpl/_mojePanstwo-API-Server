@@ -63,15 +63,20 @@ class TemplatesController extends AppController
 
     public function view()
     {
-        $object = $this->Template->findById($this->request->params['id'], array(
+        
+        if( $object = $this->Template->findById($this->request->params['id'], array(
             'fields' => 'Template.id,Template.nazwa,Template.tresc,Template.adresat_opis'
-        )); //$this->Dataobject->getObject('pisma_documents', $this->request->params['id']);
-
+        )) ) {
+			
+			$object['Inputs'] = $this->Template->query("SELECT `id`, `type`, `label`, `desc` FROM `pisma_szablony_pola` AS `Input` WHERE `template_id`='" . $object['Template']['id'] . "' ORDER BY `ord` ASC");
+					
+		}
+		
         if (!isset($object['Template']) || empty($object['Template'])) {
             throw new NotFoundException();
         }
 
-        $this->setSerialized('object', $object['Template']);
+        $this->setSerialized('object', $object);
     }
 
     public function grouped()

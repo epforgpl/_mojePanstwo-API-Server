@@ -152,6 +152,9 @@ function getmicrotime(){
     return ((float)$usec + (float)$sec); 
 } 
 
+function es_date($date_str) {
+    return date('Ymd\TGis', strtotime($date_str));
+}
 
 function mpapi_get_field_type($field)
 {

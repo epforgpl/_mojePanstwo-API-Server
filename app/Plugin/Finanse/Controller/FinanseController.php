@@ -73,7 +73,9 @@ class FinanseController extends AppController
     public function getSpendings()
     {
 	    
-	    return $this->request->query['year'];
+	    $data = $this->Finanse->getSpendings( $this->request->params['id'] );
+	    $this->set('data', $data);
+        $this->set('_serialize', 'data');
 	    
     }
 

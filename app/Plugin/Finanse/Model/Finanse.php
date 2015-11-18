@@ -920,11 +920,20 @@ GROUP BY pl_budzety_wydatki.rozdzial_str, pl_budzety_wydatki.rocznik");
 	    App::import('model', 'DB');
         $DB = new DB();
 	    
-	    $q = "SELECT dzial_id, tresc, SUM(plan) FROM `pl_budzety_wydatki` WHERE `type` = 'dzial' AND `rocznik` = '" . mysql_real_escape_string( $year ) . "' GROUP BY dzial_id ORDER BY SUM(plan) DESC";
+	    $q = "SELECT dzial_id, tresc, SUM(plan) as 'kwota' FROM `pl_budzety_wydatki` WHERE `type` = 'dzial' AND `rocznik` = '" . mysql_real_escape_string( $year ) . "' GROUP BY dzial_id ORDER BY SUM(plan) DESC";
 	    
-	    $data = $DB->selectAssocs( $q );
+	    $suma = 0;
 	    
-	    return $data;
+	    $items = $DB->selectAssocs( $q );
+	    foreach( $items as $i )
+	    	$suma += $i['kwota'];
+	    	
+	    unset( $i );
+	    foreach( $items as &$i )
+	    	$i['procent'] = $i['kwota'] / $suma;
+	    
+	    
+	    return $items;
 	    
     }
     

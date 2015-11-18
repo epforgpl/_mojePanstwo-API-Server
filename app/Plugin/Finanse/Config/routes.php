@@ -1,6 +1,7 @@
 <?
 
 Router::connect('/finanse/:action', array('plugin' => 'Finanse', 'controller' => 'Finanse'));
+Router::connect('/finanse/:action/:id', array('plugin' => 'Finanse', 'controller' => 'Finanse'));
 
 Router::connect('/finanse/getCommunePopCount/:id', array(
     'plugin' => 'Finanse',

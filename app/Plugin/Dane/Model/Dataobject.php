@@ -649,6 +649,21 @@ class Dataobject extends AppModel
         ));
 
         $dzialanie_id = $this->OrganizacjeDzialania->getLastInsertId();
+		if(isset($data['files']) && is_array($data['files'])) {
+			App::uses('ActivitiesFiles', 'Dane.Model');
+			$this->ActivitiesFiles = new ActivitiesFiles();
+			foreach($data['files'] as $file) {
+				$this->ActivitiesFiles->clear();
+				$this->ActivitiesFiles->save(array(
+					'ActivitiesFiles' => array(
+						'dzialanie_id' => $dzialanie_id,
+						'filename' => $file['filename'],
+						'src_filename' => $file['src_filename']
+					)
+				));
+			}
+		}
+
         $this->_update_activity_tags($dzialanie_id, @$data['tagi']);
         $this->_update_activity_photo($dzialanie_id, $data);
         $this->update_activity_mail_template($dzialanie_id, $data);

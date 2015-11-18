@@ -68,6 +68,13 @@ class Collection extends AppModel {
 		)
 			$this->syncById($obj['collections']['id'], $public);
 	}
+
+	public function beforeSave($options = array()) {
+		if(isset($this->data['Collection']['user_id'])) {
+			$res = $this->query("SELECT username FROM `users` WHERE `id` = '" . $this->data['Collection']['user_id'] . "'");
+			$this->data['Collection']['user_username'] = (@$res[0]['users']['username']);
+		}
+	}
     
     public function afterSave($created, $options) {
 
@@ -159,6 +166,7 @@ class Collection extends AppModel {
 			'nazwa' => $data['name'],
 			'description' => $data['description'],
 			'user_id' => $data['user_id'],
+			'user_username' => $data['user_username'],
 			'is_public' => $data['is_public'],
 			'object_id' => $data['object_id'],
 			'items_count' => $data['items_count'],
@@ -177,7 +185,7 @@ class Collection extends AppModel {
 				$global_id = $res[0][0]['id'];
 			}
 
-			foreach(array('date', 'nazwa', 'description', 'user_id', 'is_public', 'object_id', 'items_count') as $f)
+			foreach(array('date', 'nazwa', 'description', 'user_id', 'user_username', 'is_public', 'object_id', 'items_count') as $f)
 				unset($params['body'][$f]);
 
 			$params['id'] = $global_id;
@@ -187,6 +195,7 @@ class Collection extends AppModel {
 				'kolekcje.nazwa' => $data['name'],
 				'kolekcje.notatka' => $data['description'],
 				'kolekcje.user_id' => $data['user_id'],
+				'kolekcje.user_username' => $data['user_username'],
 				'kolekcje.is_public' => $data['is_public'],
 				'kolekcje.object_id' => $data['object_id'],
 				'kolekcje.items_count' => $data['items_count'],

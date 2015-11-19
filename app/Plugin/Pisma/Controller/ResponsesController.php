@@ -130,4 +130,52 @@ class ResponsesController extends AppController {
         $this->setSerialized('response', $response);
     }
 
+    public function update($letter_id, $response_id) {
+        if($this->Auth->user('type') != 'account')
+            throw new ForbiddenException;
+
+        $data = $this->request->data;
+        $response = $this->Response->save(array(
+            'Response' => array(
+                'id' => $response_id,
+                'letter_id' => $letter_id,
+                'title' => $data['name'],
+                'content' => $data['content'],
+                'date' => $data['date'],
+            )
+        ));
+
+        // new files
+        if(isset($data['session_files']) && is_array($data['session_files'])) {
+            foreach($data['session_files'] as $file) {
+                $this->ResponseFile->clear();
+                $this->ResponseFile->save(array(
+                    'ResponseFile' => array(
+                        'letter_response_id' => $response_id,
+                        'filename' => $file['filename'],
+                        'src_filename' => $file['src_filename']
+                    )
+                ));
+            }
+        }
+
+        // remove deleted files from database and s3 cloud
+        if(isset($data['files']) && is_array($data['files'])) {
+            App::uses('S3', 'Vendor');
+            $S3 = new S3(S3_LOGIN, S3_SECRET, null, S3_ENDPOINT);
+            foreach($data['files'] as $file) {
+                if(isset($file['deleted']) && $file['deleted'] == true) {
+                    $this->ResponseFile->clear();
+                    $this->ResponseFile->delete(
+                        $file['ResponseFile']['id']
+                    );
+
+                    $S3->deleteObject('portal', 'letters/responses/' . $file['ResponseFile']['filename']);
+                }
+            }
+        }
+
+        $this->setSerialized('response', $response);
+    }
+
 }

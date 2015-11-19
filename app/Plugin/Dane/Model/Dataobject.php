@@ -650,7 +650,7 @@ class Dataobject extends AppModel
 
         $dzialanie_id = $this->OrganizacjeDzialania->getLastInsertId();
 		if(isset($data['files']) && is_array($data['files'])) {
-			App::uses('ActivitiesFiles', 'Dane.Model');
+			App::uses('ActivitiesFiles', 'Activities.Model');
 			$this->ActivitiesFiles = new ActivitiesFiles();
 			foreach($data['files'] as $file) {
 				$this->ActivitiesFiles->clear();

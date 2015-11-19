@@ -756,8 +756,8 @@ class Dataobject extends AppModel
             $x = (int) $data['x'];
             $y = (int) $data['y'];
             $zoom = ((float) $data['zoom']) * 100;
-            $width = 810;
-            $height = 320;
+            $width = 885;
+            $height = 350;
 
             $src = 'pages/dzialania/' . $id . '.' . $ext;
             $tmp_src = APP . 'tmp/' . $id . '.' .$ext;

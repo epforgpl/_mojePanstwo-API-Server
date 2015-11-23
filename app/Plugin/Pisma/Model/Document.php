@@ -676,7 +676,7 @@ class Document extends AppModel
         $data['text'] .= @$doc['title'] . "\n";
         $data['text'] .= @$doc['content'] . "\n";
         $data['text'] .= @$doc['from_signature'] . "\n";
-        $dataText = $data['text'];
+        $dataText = $doc['content'];
         unset($data['text']);
 
         $data['page_dataset'] = '';
@@ -719,6 +719,10 @@ class Document extends AppModel
 
         }
         
+        
+        	
+        	
+         
         $ts_fields = array('created_at', 'modified_at', 'saved_at', 'sent_at', 'deleted_at');
         foreach ($ts_fields as $ts_field) {
             if (
@@ -728,7 +732,18 @@ class Document extends AppModel
             )
                 $data[$ts_field] = date($mask, $ts);
         }
-
+		        
+        $data['date'] = null;
+        
+        if( @$data['created_at'] )
+        	$data['date'] = $data['created_at'];
+        	
+        if( @$data['sent_at'] )
+        	$data['date'] = $data['sent_at'];
+		
+		if( $data['date'] )
+			$data['date'] = date('Y-m-d', strtotime($data['date']));
+		
         if ($data['from_user_type'] == 'account') {
 
             App::import('model', 'Paszport.User');
@@ -759,20 +774,22 @@ class Document extends AppModel
         
         $res = $this->query("SELECT id FROM objects WHERE `dataset_id`='23' AND `object_id`='" . addslashes( $data['id'] ) . "' LIMIT 1");
         $global_id = (int)(@$res[0]['objects']['id']);
-
-        if($doc['is_public']) {
-
+				
+        if(!$doc['deleted'] && $doc['is_public']) {
+			
             if(!$global_id) {
                 $this->query("INSERT INTO `objects` (`dataset`, `dataset_id`, `object_id`) VALUES ('pisma', 23, ".$data['id'].")");
                 $res = $this->query('select last_insert_id() as id;');
                 $global_id = $res[0][0]['id'];
             }
-
+			
+			
             $paramsData = array();
             foreach($data as $name => $value) {
                 $paramsData['pisma.' . $name] = $value;
             }
-						
+            
+            						
             $params = array(
                 'index' => 'mojepanstwo_v1',
                 'id' => $global_id,
@@ -784,10 +801,17 @@ class Document extends AppModel
                     'text' => $dataText,
                     'dataset' => 'pisma',
                     'slug' => Inflector::slug($data['name']),
-                    'data' => $paramsData
+                    'data' => $paramsData,
+                    'date' => $paramsData['pisma.date'],
+                    'weights' => array(
+	                    'main' => array(
+		                    'score' => 2,
+		                    'enabled' => true,
+	                    ),
+                    ),
                 )
             );
-            
+                                    
             $ES->API->index($params);
 
         } elseif($global_id) {

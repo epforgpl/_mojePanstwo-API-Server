@@ -335,12 +335,56 @@ class MPSearch {
         	 
         	if( in_array($key, array('dataset', 'id')) ) {
         		
-        		$filter_type = is_array($value) ? 'terms' : 'term';
-        		$and_filters[] = array(
-	        		$filter_type => array(
-	        			$key => $value,
-	        		),
-	        	);
+        		if( ($key=='dataset') && is_array($value) && !empty($value) ) {
+	        		
+	        		$ors = array();
+	        		foreach( $value as $v ) {
+		        		
+		        		if( preg_match('/^(.*?)\{(.*?)\:(.*?)\}$/', $v, $match) ) {
+			        		
+			        		$ors[] = array(
+				        		'bool' => array(
+					        		'must' => array(
+						        		array(
+							        		'term' => array(
+								        		$key => $match[1],
+							        		),
+						        		),
+						        		array(
+							        		'term' => array(
+								        		'data.' . $match[2] => $match[3],
+							        		),
+						        		),
+					        		),
+				        		),
+			        		);
+			        		
+		        		} else {
+		        		
+			        		$ors[] = array(
+				        		'term' => array(
+					        		$key => $v,
+				        		),
+			        		);
+		        		
+		        		}
+		        		
+	        		}
+	        		
+	        		$and_filters[] = array(
+		        		'or' => $ors,
+	        		);
+	        		
+	        	} else {
+	        		        		
+	        		$filter_type = is_array($value) ? 'terms' : 'term';
+	        		$and_filters[] = array(
+		        		$filter_type => array(
+		        			$key => $value,
+		        		),
+		        	);
+	        	
+	        	}
 	        	
 	        } elseif( $key == 'geohash' ) {
 		        
@@ -1182,7 +1226,7 @@ class MPSearch {
 		
 		$params = $this->buildESQuery($queryData);
 				
-		// debug( $params ); die();
+		// var_export( $params ); die();
 		
 		$this->lastResponseStats = null;
 		$response = $this->API->search( $params );

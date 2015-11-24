@@ -150,6 +150,35 @@ class Collection extends AppModel {
 		$res = $this->query("SELECT COUNT(*) FROM `collection_object` WHERE `collection_id`='" . $data['id'] . "'");
 		$data['items_count'] = (int) (@$res[0][0]['COUNT(*)']);
 
+		if( isset($data['object_id']) && $data['object_id'] ) {
+			$r = $this->query("
+					SELECT
+						objects.dataset, objects.object_id, objects.slug
+					FROM
+						`objects-users`
+					INNER JOIN
+						`objects` ON
+							`objects`.`dataset` = `objects-users`.`dataset` AND
+							`objects`.`object_id` = `objects-users`.`object_id`
+					WHERE
+						`objects-users`.`user_id` = ". $data['user_id'] ." AND
+						`objects-users`.`role` > 0 AND
+						`objects`.`id` = ". addslashes($data['object_id']) ."
+				");
+
+			if( empty($r) )
+				throw new ForbiddenException;
+
+			if( $r[0]['objects']['dataset']=='krs_podmioty' ) {
+				$t = $this->query("SELECT nazwa FROM krs_pozycje WHERE `id`='" . $r[0]['objects']['object_id'] . "'");
+				$data['page_name'] = $t[0]['krs_pozycje']['nazwa'];
+			}
+
+			$data['page_dataset'] = $r[0]['objects']['dataset'];
+			$data['page_object_id'] = $r[0]['objects']['object_id'];
+			$data['page_slug'] = $r[0]['objects']['slug'];
+		}
+
 		$ES = ConnectionManager::getDataSource('MPSearch');
 		$params = array();
 		$params['index'] = 'mojepanstwo_v1';
@@ -170,6 +199,10 @@ class Collection extends AppModel {
 			'is_public' => $data['is_public'],
 			'object_id' => $data['object_id'],
 			'items_count' => $data['items_count'],
+			'page_name' => isset($data['page_name']) ? $data['page_name'] : '',
+			'page_dataset' => isset($data['page_dataset']) ? $data['page_dataset'] : '',
+			'page_object_id' => isset($data['page_object_id']) ? $data['page_object_id'] : '',
+			'page_slug' => isset($data['page_slug']) ? $data['page_slug'] : '',
 		);
 
 		$ES->API->index($params);
@@ -199,6 +232,10 @@ class Collection extends AppModel {
 				'kolekcje.is_public' => $data['is_public'],
 				'kolekcje.object_id' => $data['object_id'],
 				'kolekcje.items_count' => $data['items_count'],
+				'kolekcje.page_name' => isset($data['page_name']) ? $data['page_name'] : '',
+				'kolekcje.page_dataset' => isset($data['page_dataset']) ? $data['page_dataset'] : '',
+				'kolekcje.page_object_id' => isset($data['page_object_id']) ? $data['page_object_id'] : '',
+				'kolekcje.page_slug' => isset($data['page_slug']) ? $data['page_slug'] : '',
 			);
 			$params['type'] = 'objects';
 			$ES->API->index($params);

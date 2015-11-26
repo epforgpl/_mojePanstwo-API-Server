@@ -284,7 +284,12 @@ class DocumentsController extends AppController
 	                
 	        $temp['from_user_type'] = $this->Auth->user('type');
 	        $temp['from_user_id'] = $this->Auth->user('id');
-	                
+
+			if(isset($data['public_content'])) {
+				$temp['public_content'] = $data['public_content'];
+			} elseif(isset($temp['content'])) {
+				$temp['public_content'] = $temp['content'];
+			}
 	        
 	        $data = $temp;
 	        unset( $temp );

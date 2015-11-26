@@ -646,6 +646,7 @@ class Document extends AppModel
             'title' => $doc['title'],
             'name' => $doc['name'],
             'content' => $doc['content'],
+            'public_content' => $doc['public_content'],
             'content_html' => $doc['content_html'],
             'from_str' => $doc['from_str'],
             'from_signature' => $doc['from_signature'],

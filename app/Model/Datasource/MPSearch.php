@@ -228,13 +228,17 @@ class MPSearch {
 		
 		// debug($queryData); die();
 		
+		$has_order = false;
+		
 		if( isset($queryData['order']) && is_array($queryData['order']) ) {
+			
 			
 			$sort = array();
 			foreach( $queryData['order'] as $os) {
 				if( is_array($os) ) {
 					foreach( $os as $o ) {
 						
+						$has_order = true;
 						$parts = explode(' ', $o);
 						$partsCount = count( $parts );
 						
@@ -258,8 +262,10 @@ class MPSearch {
 								
 							}
 							
+							$prefix = in_array($field, array('date', 'dataset')) ? '' : 'data.';
+							
 							$sort[] = array(
-								$field => $direction,
+								$prefix.$field => $direction,
 							);
 							
 						}
@@ -267,7 +273,7 @@ class MPSearch {
 					}
 				}
 			}
-			
+						
 			if( !empty($sort) )
 				$params['body']['sort'] = $sort;
 			
@@ -406,7 +412,8 @@ class MPSearch {
 						'slop' => 5,
 		        	);
 		        	
-		        	unset( $params['body']['sort'] );
+		        	if( !$has_order )
+			        	unset( $params['body']['sort'] );
 	        	
 	        	}
         	
@@ -1188,7 +1195,7 @@ class MPSearch {
 			
 		}
 		
-		// var_export($params); die();
+	
 		
 		return $params;
 		

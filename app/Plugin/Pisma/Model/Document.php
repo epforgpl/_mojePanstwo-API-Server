@@ -676,7 +676,7 @@ class Document extends AppModel
         $data['text'] .= @$doc['title'] . "\n";
         $data['text'] .= @$doc['content'] . "\n";
         $data['text'] .= @$doc['from_signature'] . "\n";
-        $dataText = $doc['content'];
+        $dataText = strip_tags($doc['content']);
         unset($data['text']);
 
         $data['page_dataset'] = '';
@@ -805,7 +805,7 @@ class Document extends AppModel
                     'date' => $paramsData['pisma.date'],
                     'weights' => array(
 	                    'main' => array(
-		                    'score' => 2,
+		                    'score' => 1.3,
 		                    'enabled' => true,
 	                    ),
                     ),

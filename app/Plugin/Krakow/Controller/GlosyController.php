@@ -26,7 +26,7 @@ class GlosyController extends AppController
             }
         }
 
-        if(count($data) !== 10)
+        if(count($data) < 10)
             throw new BadRequestException;
 
         App::import('model','DB');

@@ -221,7 +221,7 @@ class DocumentsController extends AppController
 			    
 		    }
 		    		    
-		    $this->Document->query("UPDATE `pisma_documents` SET `saved` = '1', `content`='" . mysql_real_escape_string( $text ) . "' WHERE `alphaid`='$id' LIMIT 1");
+		    $this->Document->query("UPDATE `pisma_documents` SET `saved` = '1', `content`='" . addslashes( $text ) . "' WHERE `alphaid`='$id' LIMIT 1");
 	            
             $url = '/moje-pisma/' . $id;
                         

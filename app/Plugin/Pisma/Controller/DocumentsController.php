@@ -472,29 +472,19 @@ class DocumentsController extends AppController
 				
 	            } elseif(
 	                ( $data['to_dataset']=='gminy' ) &&
-	                ( $to = $DB->selectAssoc("SELECT pl_gminy.id, pl_gminy.nazwa, pl_gminy.email, pl_gminy.szef_stanowisko, pl_gminy.adres FROM pl_gminy WHERE pl_gminy.id='" . addslashes( $data['to_id'] ) . "'" ) )
+	                ( $to = $DB->selectAssoc("SELECT instytucje.id, instytucje.nazwa, instytucje.email, instytucje.adres_str, instytucje.pisma_adresat_nazwa FROM instytucje WHERE `instytucje`.`source`='pl_gminy_urzedy_gminne' AND `instytucje`.`source_id`='" . addslashes( $data['to_id'] ) . "'" ) )
 	            ) {
-	
-	                $data['to_str'] = '<p>' . $to['szef_stanowisko'] . ' ';
-	                switch ($to['szef_stanowisko']) {
-	                    case 'Wójt': {
-	                        $data['to_str'].='Gminy';
-	                        break;
-	                    }
-	                    case 'Burmistrz': {
-	                        $data['to_str'].='Miasta';
-	                        break;
-	                    }
-	                    case 'Prezydent': {
-	                        $data['to_str'].='Miasta';
-	                        break;
-	                    }
-	                }
-	
-	                $addr=preg_replace('~(\d{2})-(\d{3})~', '</p><p>${1}-${2}', $to['adres']);
-	                    $data['to_str'].= ' ' . $to['nazwa'] . '</p><p>' . $addr . '</p><p>' . $to['email'] . '</p>';
-	                $data['to_name'] = $to['szef_stanowisko'] . ' ' . $to['nazwa'];
-	                $data['to_email'] = $to['email'];
+					
+					
+					$data['to_dataset'] = 'instytucje';
+					$data['to_id'] = $to['id'];
+					
+					$nazwa = $to['pisma_adresat_nazwa'] ? $to['nazwa'] : $to['pisma_adresat_nazwa'];
+		       		
+		        	$data['to_str'] = '<p>' . $nazwa . '</p><p>' . $to['adres_str'] . '</p>';
+		        	$data['to_name'] = $to['nazwa'];
+		        	$data['to_email'] = $to['email'];
+	                
 	
 	            } elseif(
 	                ( $data['to_dataset']=='rada_gminy' ) &&
@@ -696,10 +686,11 @@ class DocumentsController extends AppController
         */
         
         
+        
         if( @$params['inputs'] ) {
 	        
 	        $inputs = array();        
-	        if( $data = $this->Document->query("SELECT `pisma_szablony_pola`.`id`, `pisma_szablony_pola`.`type`, `pisma_szablony_pola`.`label`, `pisma_szablony_pola`.`desc`, `pisma_szablony_pola`.`default_value`, `pisma_szablony_pola_wartosci`.`v` FROM `pisma_szablony_pola` LEFT JOIN `pisma_szablony_pola_wartosci` ON `pisma_szablony_pola`.`id` = `pisma_szablony_pola_wartosci`.`input_id` AND `pisma_szablony_pola_wartosci`.`pismo_id`='" . mysql_real_escape_string( $object['Document']['alphaid'] ) . "' WHERE `pisma_szablony_pola`.`template_id` = '" . mysql_real_escape_string( $object['Document']['template_id'] ) . "' ORDER BY `pisma_szablony_pola`.`ord` ASC") ) {
+	        if( $data = $this->Document->query("SELECT `pisma_szablony_pola`.`id`, `pisma_szablony_pola`.`type`, `pisma_szablony_pola`.`label`, `pisma_szablony_pola`.`desc`, `pisma_szablony_pola`.`default_value`, `pisma_szablony_pola_wartosci`.`v` FROM `pisma_szablony_pola` LEFT JOIN `pisma_szablony_pola_wartosci` ON `pisma_szablony_pola`.`id` = `pisma_szablony_pola_wartosci`.`input_id` AND `pisma_szablony_pola_wartosci`.`pismo_id`='" . addslashes( $object['Document']['alphaid'] ) . "' WHERE `pisma_szablony_pola`.`template_id` = '" . addslashes( $object['Document']['template_id'] ) . "' ORDER BY `pisma_szablony_pola`.`ord` ASC") ) {
 		        
 		        foreach( $data as $d )
 		        	$inputs[] = array_merge($d['pisma_szablony_pola'], array(
@@ -707,7 +698,8 @@ class DocumentsController extends AppController
 		        	));
 		        
 	        }
-	        	        
+	        	
+	                
 	        $object['Document']['_inputs'] = $inputs;
 	        
         }

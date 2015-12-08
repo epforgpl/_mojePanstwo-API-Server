@@ -311,7 +311,6 @@ class MPSearch {
 	    	}
     	}
         
-        // var_export($queryData['conditions']);
         
         foreach( $queryData['conditions'] as $key => $value ) {
         	
@@ -791,6 +790,28 @@ class MPSearch {
 		        		),
 	        		),
 	        	);
+	        	
+	        } elseif( $key=='OR' ) {
+		        
+		        $ors = array();
+		        
+		        foreach( $value as $k => $v ) {
+			        
+			        if( !is_array($v) )
+			        	$v = array($v);
+			        
+			        $ors[] = array(
+				        'terms' => array(
+					        $k => $v,
+				        ),
+			        );
+			        
+		        }
+		        		        
+		        $and_filters[] = array(
+			        'or' => $ors,
+		        );
+		        		        
         	
         	} else {
 	        	

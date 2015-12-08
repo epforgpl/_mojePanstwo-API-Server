@@ -50,30 +50,17 @@ class Collection extends AppModel {
 								'term' => array(
 									'id' => $id,
 								),
-							)
+							),
+							array(
+								'term' => array(
+									'user_id' => $user_id,
+								),
+							),
 						),
 					),
 				),
-				'filter' => array(
-					'or' => array(
-						array(
-							'term' => array(
-								'user_id' => $user_id,
-							),
-						),
-						array(
-							'term' => array(
-								'object_id' => array_map(function($value) {
-									return  $value['objects']['id'];
-								}, $objects),
-							),
-						),
-					)
-				)
 			),
 		));
-
-		$this->log($ret);
 		
 		return isset( $ret['hits']['hits'][0] ) ? $ret['hits']['hits'][0] : false;
 		

@@ -96,7 +96,10 @@ class DataobjectsController extends AppController
 		
 		if( $query['_type']=='collections' ) {
 			
-			$query['conditions']['user_id'] = $this->Auth->user('id');
+			$query['conditions']['OR'] => array(
+				'user_id' => $this->Auth->user('id'),
+				'object_id' => array(1, 2, 3),
+			);			
 			
 		} else {
 		

@@ -25,7 +25,20 @@ class Collection extends AppModel {
 	public function load($id, $user_id) {
 		
 		$ES = ConnectionManager::getDataSource('MPSearch');
-				
+		$objects = $this->query("
+			SELECT
+				`objects`.`id`
+			FROM
+				`objects-users`
+			JOIN
+				`objects` ON
+					`objects`.`dataset` = `objects-users`.`dataset` AND
+					`objects`.`object_id` = `objects-users`.`object_id`
+			WHERE
+				`objects-users`.`user_id` = ". $user_id ." AND
+				`objects-users`.`role` > 0
+		");
+
 		$ret = $ES->API->search(array(
 			'index' => 'mojepanstwo_v1',
 			'type' => 'collections',
@@ -37,17 +50,30 @@ class Collection extends AppModel {
 								'term' => array(
 									'id' => $id,
 								),
-							),
-							array(
-								'term' => array(
-									'user_id' => $user_id,
-								),
-							),
+							)
 						),
 					),
 				),
+				'filter' => array(
+					'or' => array(
+						array(
+							'term' => array(
+								'user_id' => $user_id,
+							),
+						),
+						array(
+							'term' => array(
+								'object_id' => array_map(function($value) {
+									return  $value['objects']['id'];
+								}, $objects),
+							),
+						),
+					)
+				)
 			),
 		));
+
+		$this->log($ret);
 		
 		return isset( $ret['hits']['hits'][0] ) ? $ret['hits']['hits'][0] : false;
 		

@@ -95,12 +95,28 @@ class DataobjectsController extends AppController
 		
 		
 		if( $query['_type']=='collections' ) {
-			
+
+			$objects = $this->ObjectPage->query("
+				SELECT
+					`objects`.`id`
+				FROM
+					`objects-users`
+				JOIN
+					`objects` ON
+						`objects`.`dataset` = `objects-users`.`dataset` AND
+						`objects`.`object_id` = `objects-users`.`object_id`
+				WHERE
+					`objects-users`.`user_id` = ". $this->Auth->user('id') ." AND
+					`objects-users`.`role` > 0
+			");
+
 			$query['conditions']['OR'] = array(
 				'user_id' => $this->Auth->user('id'),
-				'object_id' => array(1, 2, 3),
-			);			
-			
+				'object_id' => array_map(function($value) {
+					return  $value['objects']['id'];
+				}, $objects),
+			);
+
 		} else {
 		
 			if( isset($params['dataset']) && $params['dataset'] )

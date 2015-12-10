@@ -83,8 +83,7 @@ class ResponsesController extends AppController {
               letters_responses
                 ON letters_responses.id = letters_responses_files.letter_response_id
             WHERE
-              letters_responses_files.id = $attachment_id AND
-              letters_responses.user_id = ".$this->Auth->user('id')."
+              letters_responses_files.id = $attachment_id
         ");
 
         if(!empty($filename[0]['letters_responses_files']['filename']))

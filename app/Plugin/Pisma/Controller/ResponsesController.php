@@ -55,7 +55,7 @@ class ResponsesController extends AppController {
             ), */
             'conditions' => array(
                 'Response.letter_id' => $letter_id,
-                'Response.user_id' => $this->Auth->user('id'),
+                // 'Response.user_id' => $this->Auth->user('id'),
             ),
         ));
 

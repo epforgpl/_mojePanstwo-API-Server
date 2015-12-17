@@ -51,8 +51,8 @@ class ResponsesController extends AppController {
             )
         ));
 
-        if(!$doc || $doc['Document']['is_public'] != '1')
-            throw new ForbiddenException;
+        // if(!$doc || $doc['Document']['is_public'] != '1')
+            // throw new ForbiddenException;
 
         $responses = $this->Response->find('all', array(
             /* 'fields' => array('Response.*', 'ResponseFile.*'),

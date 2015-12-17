@@ -2,7 +2,7 @@
 
 class ResponsesController extends AppController {
 
-    public $uses = array('Pisma.Response', 'Pisma.ResponseFile');
+    public $uses = array('Pisma.Response', 'Pisma.ResponseFile', 'Pisma.Document');
 
     public function save($letter_id) {
         try {
@@ -41,6 +41,19 @@ class ResponsesController extends AppController {
     }
 
     public function getByLetter($letter_id) {
+
+        $doc = $this->Document->find('first', array(
+            'fields' => array(
+                'is_public'
+            ),
+            'conditions' => array(
+                'alphaid' => $letter_id
+            )
+        ));
+
+        if(!$doc || $doc['Document']['is_public'] != '1')
+            throw new ForbiddenException;
+
         $responses = $this->Response->find('all', array(
             /* 'fields' => array('Response.*', 'ResponseFile.*'),
             'joins' => array(
@@ -55,7 +68,7 @@ class ResponsesController extends AppController {
             ), */
             'conditions' => array(
                 'Response.letter_id' => $letter_id,
-                'Response.user_id' => $this->Auth->user('id'),
+                // 'Response.user_id' => $this->Auth->user('id'),
             ),
         ));
 
@@ -76,6 +89,23 @@ class ResponsesController extends AppController {
 
         $attachment_id = (int) $attachment_id;
 
+        $is_public = $this->Response->query("
+            SELECT
+              pisma_documents.is_public
+            FROM letters_responses_files
+            JOIN
+              letters_responses
+              ON letters_responses.id = letters_responses_files.letter_response_id
+            JOIN
+              pisma_documents
+              ON pisma_documents.alphaid = letters_responses.letter_id
+            WHERE
+              letters_responses_files.id = $attachment_id
+        ");
+
+        if(@$is_public[0]['pisma_documents']['is_public'] != '1')
+            throw new ForbiddenException;
+
         $filename = $this->Response->query("
             SELECT filename
             FROM letters_responses_files
@@ -83,8 +113,7 @@ class ResponsesController extends AppController {
               letters_responses
                 ON letters_responses.id = letters_responses_files.letter_response_id
             WHERE
-              letters_responses_files.id = $attachment_id AND
-              letters_responses.user_id = ".$this->Auth->user('id')."
+              letters_responses_files.id = $attachment_id
         ");
 
         if(!empty($filename[0]['letters_responses_files']['filename']))

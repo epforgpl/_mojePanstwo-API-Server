@@ -106,8 +106,7 @@ class DataobjectsController extends AppController
 						`objects`.`dataset` = `objects-users`.`dataset` AND
 						`objects`.`object_id` = `objects-users`.`object_id`
 				WHERE
-					`objects-users`.`user_id` = ". $this->Auth->user('id') ." AND
-					`objects-users`.`role` > 0
+					`objects-users`.`user_id` = ". $this->Auth->user('id') ."
 			");
 
 			$query['conditions']['OR'] = array(
@@ -156,6 +155,7 @@ class DataobjectsController extends AppController
 		}
 				
 		$objects = $this->Dataobject->find('all', $query);
+		$this->log($objects);
 
 		$lr_stats = @$this->Dataobject->getDataSource()->lastResponseStats;
 		$count = @$lr_stats['count'];
@@ -212,7 +212,7 @@ class DataobjectsController extends AppController
 			$_serialize[] = 'Aggs';
 		}
 		
-				
+
 		$this->set('Dataobject', $objects);
 		$this->set('Count', $count);
 		$this->set('Took', $took);

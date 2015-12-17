@@ -333,7 +333,7 @@ class DocumentsController extends AppController
 	        if(
 		        isset( $data['template_id'] ) && 
 	        	$data['template_id'] && 
-	        	$template = $DB->selectAssoc("SELECT nazwa, tresc, tytul, nadawca_opis FROM pisma_szablony WHERE id='" . addslashes( $data['template_id'] ) . "'")
+	        	$template = $DB->selectAssoc("SELECT nazwa, tresc, tytul, nadawca_opis, init_text FROM pisma_szablony WHERE id='" . addslashes( $data['template_id'] ) . "'")
 	        ) {
 		        
 	        	$data['title'] = $data['template_name'] = $template['tytul'] ? $template['tytul'] : $template['nazwa'];
@@ -576,6 +576,37 @@ class DocumentsController extends AppController
 		    		    
 	        if ($doc = $this->Document->save(array('Document' => $data))) {
 	            $this->response->statusCode(201);  // 201 Created
+	            
+	            if( isset($template['init_text']) && !$doc['Document']['saved'] && $doc['Document']['alphaid'] ) {
+		            
+		            $text = $template['init_text'];
+
+		            if( @$to['pkw_plec']=='K' ) {
+		            
+			            $text = str_replace(array(
+			        		'{$szanowny_panie_posle}',
+			        		'{$pan_posel}',
+			        	), array(
+			        		'Szanowna Pani Posłanko',
+			        		'Pani Posłanka'
+			        	), $text);
+		        	
+		        	} else {
+			        	
+			        	$text = str_replace(array(
+			        		'{$szanowny_panie_posle}',
+			        		'{$pan_posel}',
+			        	), array(
+			        		'Szanowny Panie Pośle',
+			        		'Pan Poseł'
+			        	), $text);
+			        	
+		        	}
+		            
+		            $this->Document->query("INSERT IGNORE INTO `pisma_szablony_pola_wartosci` (`pismo_id`, `input_id`, `v`) VALUES ('" . $doc['Document']['alphaid'] . "', '101', '" . addslashes( $text ) . "')");
+		            
+	            }
+	            
 	            
 	            $url = '/moje-pisma/' . $doc['Document']['alphaid'];
 	                        

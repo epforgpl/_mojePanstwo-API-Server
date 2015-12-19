@@ -52,6 +52,15 @@ class BDLController extends AppController
 				'conditions' => $conditions,
 				'contain' => $contain,
 			));
+			
+			
+			$dbo = $this->WymiaryKombinacje->getDatasource();
+			$logs = $dbo->getLog();
+			
+			var_export( $logs ); die();
+			
+			$lastLog = end($logs['log']);
+			echo "Q= "; $lastLog['query']; die();
 					
 		}
 				

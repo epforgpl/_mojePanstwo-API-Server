@@ -98,7 +98,7 @@ class BDL extends AppModel {
 				$q_q = "`$units_table`.`nazwa` LIKE '" . addslashes( $params['uq'] ) . "'";
 			*/
 			
-			$q = "SELECT `$data_table`.`$data_table_field`, `$units_table`.`nazwa`, GROUP_CONCAT(CONCAT(`$data_table`.`rocznik`, \"\t\", `$data_table`.`v`, \"\t\", `$data_table`.`a`) ORDER BY `$data_table`.`rocznik` ASC SEPARATOR \"\n\") as 'data' FROM `$data_table` JOIN `$units_table` ON `$data_table`.`$data_table_field` = `$units_table`.`id` WHERE `$data_table`.`kombinacja_id`='$id' AND `$data_table`.`deleted`='0' AND `$data_table`.`zero`='0' AND $q_q GROUP BY `$data_table`.`$data_table_field` ORDER BY $q_order LIMIT 3000";
+			$q = "SELECT `$data_table`.`$data_table_field`, `$units_table`.`nazwa`, GROUP_CONCAT(CONCAT(`$data_table`.`rocznik`, \"\t\", `$data_table`.`v`, \"\t\", `$data_table`.`a`) ORDER BY `$data_table`.`rocznik` ASC SEPARATOR \"\n\") as 'data' FROM `$data_table` JOIN `$units_table` ON `$data_table`.`$data_table_field` = `$units_table`.`id` WHERE `$data_table`.`kombinacja_id`='$id' AND `$data_table`.`zero`='0' AND $q_q GROUP BY `$data_table`.`$data_table_field` ORDER BY $q_order LIMIT 3000";
 			
 			$data = $this->DB->query($q);
 			foreach( $data as &$d ) {

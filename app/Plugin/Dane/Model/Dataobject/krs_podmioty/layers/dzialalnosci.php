@@ -19,7 +19,7 @@ foreach ($data as $d)
 return $output;
 */
 
-$data = $this->DB->query("SELECT `krs_dzialalnosci`.`id`, `krs_dzialalnosci`.`str`
+$data = $this->DB->query("SELECT `krs_dzialalnosci`.`id`, `krs_dzialalnosci`.`str`, `krs_pozycje-dzialalnosci`.`przewazajaca` 
 		FROM `krs_dzialalnosci` 
 		JOIN `krs_pozycje-dzialalnosci` 
 		ON `krs_pozycje-dzialalnosci`.`dzialalnosc_id` = `krs_dzialalnosci`.`id`
@@ -29,6 +29,6 @@ $data = $this->DB->query("SELECT `krs_dzialalnosci`.`id`, `krs_dzialalnosci`.`st
 
 $output = array();
 foreach ($data as $d)
-    $output[] = $d['krs_dzialalnosci'];
+    $output[] = array_merge($d['krs_dzialalnosci'], $d['krs_pozycje-dzialalnosci']);
 
 return $output;

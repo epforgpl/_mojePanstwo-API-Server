@@ -41,5 +41,14 @@ class PortalController extends AppController
 		$this->set('_serialize', 'res');
 		
 	}
+	
+	public function saveWpf() {
+					
+		$res = true;
+		
+		$this->set('res', $res);
+		$this->set('_serialize', 'res');
+		
+	}
 
 }

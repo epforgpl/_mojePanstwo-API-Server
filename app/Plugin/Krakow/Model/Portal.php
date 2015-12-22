@@ -30,6 +30,18 @@ class Portal extends AppModel {
         return true;
         
     }
+    
+    public function saveWpf($id, $lat, $lon, $zoom) {
+	    
+	    App::import('model','DB');
+        $db = new DB();
+	    
+	    $q = "UPDATE `krakow_wpf_program` SET `lat`='" . addslashes($lat) . "', `lon`='" . addslashes($lon) . "', `zoom`='" . addslashes( $zoom ) . "' WHERE `id`='" . addslashes($id) . "' LIMIT 1";
+        $db->query($q);
+        
+        return true;
+	    
+    }
 
 
 }

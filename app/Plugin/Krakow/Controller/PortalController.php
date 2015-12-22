@@ -43,8 +43,20 @@ class PortalController extends AppController
 	}
 	
 	public function saveWpf() {
+		
+		if(
+			isset( $this->request->data['id'] ) && 
+			isset( $this->request->data['wpf'] ) && 
+			isset( $this->request->data['wpf']['lat'] ) && 
+			isset( $this->request->data['wpf']['lon'] ) && 
+			isset( $this->request->data['wpf']['zoom'] ) 
+		) {
 					
-		$res = true;
+			$res = $this->Portal->saveWpf($this->request->data['id'], $this->request->data['wpf']['lat'], $this->request->data['wpf']['lon'], $this->request->data['wpf']['zoom']);
+		
+		} else {
+			$res = false;
+		}
 		
 		$this->set('res', $res);
 		$this->set('_serialize', 'res');

@@ -1,3 +1,3 @@
 <?
 	
-	return $this->DB->selectAssocs("SELECT id, nazwa, laczne_naklady_fin, lat, lon, zoom FROM `krakow_wpf_program` WHERE lat IS NOT NULL AND lon IS NOT NULL");
+	return $this->DB->selectAssocs("SELECT `krakow_wpf_program`.`id`, `krakow_wpf_program`.`nazwa`, `krakow_wpf_program`.`laczne_naklady_fin`, `krakow_wpf_program`.`lat`, `krakow_wpf_program`.`lon`, `krakow_wpf_program`.`zoom`, `krakow_wpf_przedsiewziecie`.`kategoria_id` FROM `krakow_wpf_program` JOIN `krakow_wpf_przedsiewziecie` ON `krakow_wpf_program`.`nazwa` = `krakow_wpf_przedsiewziecie`.`nazwa` WHERE `krakow_wpf_program`.`lat` IS NOT NULL AND `krakow_wpf_program`.`lon` IS NOT NULL GROUP BY `krakow_wpf_program`.`id`");

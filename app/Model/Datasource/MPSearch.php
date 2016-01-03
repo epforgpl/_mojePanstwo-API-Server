@@ -45,13 +45,30 @@ class MPSearch {
     }
     
     public function doc2object($doc) {
+				
 		$dataset = $doc['fields']['dataset'][0];
 		$id = $doc['fields']['id'][0];
 
 		if ($dataset == null or $id == null) {
 			throw new InternalErrorException("Empty dataset or id: " . $dataset . ' ' . $id);
 		}
-
+		
+		$data = array();
+		foreach( $doc['_source']['data'] as $k => $v ) {
+			
+			if( is_array($v) ) {
+				
+				foreach( $v as $_k => $_v )
+					$data[ $k . '.' . $_k ] = $_v;
+				
+			} else {
+				
+				$data[ $k ] = $v;
+				
+			}
+			
+		}
+				
 	    $output = array(
 			'id' => $id,
 			'dataset' => $dataset,
@@ -61,7 +78,7 @@ class MPSearch {
 			'global_id' => $doc['_id'],
     		'slug' => $doc['fields']['slug'][0],
             'score' => $doc['_score'],
-            'data' => $doc['fields']['source'][0]['data'],
+            'data' => $data,
     	);
 		
 		
@@ -77,18 +94,18 @@ class MPSearch {
 		
 
     	if( 
-	    	isset( $doc['fields']['source'][0]['static'] ) && 
-	    	!empty( $doc['fields']['source'][0]['static'] )
+	    	isset( $doc['_source']['static'] ) && 
+	    	!empty( $doc['_source']['static'] )
     	) {
 	    	
-			$output['static'] = $doc['fields']['source'][0]['static'];
+			$output['static'] = $doc['_source']['static'];
 	    	
 	    }
     
     	
     	if( 
-	    	isset( $doc['fields']['source'][0]['contexts'] ) && 
-	    	!empty( $doc['fields']['source'][0]['contexts'] )
+	    	isset( $doc['_source']['contexts'] ) && 
+	    	!empty( $doc['_source']['contexts'] )
     	) {
 	    	
 	    	$force_context = false;
@@ -103,7 +120,7 @@ class MPSearch {
 		    }
 		    	    		    	
 	    	$context = array();
-    		foreach( $doc['fields']['source'][0]['contexts'] as $key => $value ) {
+    		foreach( $doc['_source']['contexts'] as $key => $value ) {
 	    		
 	    		if( 
 		    		!$force_context || 
@@ -211,11 +228,14 @@ class MPSearch {
 			
 			$params['body'] = array_merge($params['body'], array(
 				'fields' => array('dataset', 'id', 'slug'),
+				'_source' => array('data', 'static'),
+				/*
 				'partial_fields' => array(
 					'source' => array(
 						'include' => array('data', 'static'),
 					),
 				),
+				*/
 			));
 			
 			$fields_prefix = 'data.';
@@ -311,6 +331,7 @@ class MPSearch {
 	    	}
     	}
         
+        // debug($queryData['conditions']);
         
         foreach( $queryData['conditions'] as $key => $value ) {
         	
@@ -380,35 +401,14 @@ class MPSearch {
 		        		'or' => $ors,
 	        		);
 	        		
-		        } else {
-	        		   
-	        		// echo "\n\n";
-	        		// var_export( $key );
-	        		// echo "\n\n";
-	        		    		
+	        	} else {
+	        		        		
 	        		$filter_type = is_array($value) ? 'terms' : 'term';
-	        		
-	        		if( $operator == '=' ) {
-	        		
-		        		$and_filters[] = array(
-			        		$filter_type => array(
-			        			$key => $value,
-			        		),
-			        	);
-		        	
-		        	} elseif( $operator == '!=' ) {
-			        	
-			        	$and_filters[] = array(
-			        		'bool' => array(
-				        		'must_not' => array(
-					        		$filter_type => array(
-					        			$key => $value,
-					        		),
-				        		),
-			        		),
-			        	);
-			        	
-		        	}
+	        		$and_filters[] = array(
+		        		$filter_type => array(
+		        			$key => $value,
+		        		),
+		        	);
 	        	
 	        	}
 	        	
@@ -428,7 +428,6 @@ class MPSearch {
 			        	'query' => mb_convert_encoding($value, 'UTF-8', 'UTF-8'),
 					    'type' => "phrase",
 					    'fields' => array('title', 'title.suggest', 'acronym', 'text'),
-						'analyzer' => 'pl',
 						'slop' => 5,
 		        	);
 		        	
@@ -586,7 +585,9 @@ class MPSearch {
 	        			),
         			);
         			
-        			$params['body']['partial_fields']['source']['include'][] = 'contexts.*';
+        			
+        			$params['body']['_source'] = array('data', 'static', 'contexts.*');
+        			// $params['body']['partial_fields']['source']['include'][] = 'contexts.*';
 	        		
 	        		
         		} elseif (
@@ -643,8 +644,9 @@ class MPSearch {
 		        			),
 	        			),
         			);
-	        		
-		        	$params['body']['partial_fields']['source']['include'][] = 'contexts.' . $value['dataset'] . '.' . $value['object_id'] . '.*';
+        			
+        			$params['body']['_source'] = array('data', 'static', 'contexts.' . $value['dataset'] . '.' . $value['object_id'] . '.*');
+		        	// $params['body']['partial_fields']['source']['include'][] = 'contexts.' . $value['dataset'] . '.' . $value['object_id'] . '.*';
 		        	
 		        	if( $value['dataset']=='rady_druki' ) {
 		        	
@@ -790,28 +792,6 @@ class MPSearch {
 		        		),
 	        		),
 	        	);
-	        	
-	        } elseif( $key=='OR' ) {
-		        
-		        $ors = array();
-		        
-		        foreach( $value as $k => $v ) {
-			        
-			        if( !is_array($v) )
-			        	$v = array($v);
-			        
-			        $ors[] = array(
-				        'terms' => array(
-					        $k => $v,
-				        ),
-			        );
-			        
-		        }
-		        		        
-		        $and_filters[] = array(
-			        'or' => $ors,
-		        );
-		        		        
         	
         	} else {
 	        	
@@ -1044,7 +1024,7 @@ class MPSearch {
 																							
 							$this->Aggs[ $agg_id ][ $agg_type ] = $agg_params;
 							$es_params = array();
-							
+														
 							foreach( $agg_params as $key => $value ) {
 										
 								if( 
@@ -1275,12 +1255,12 @@ class MPSearch {
 		
 		$params = $this->buildESQuery($queryData);
 				
-		// var_export( $params ); die();
+		// var_export( $params );
 		
 		$this->lastResponseStats = null;
 		$response = $this->API->search( $params );
 
-		// debug($response); die();
+		// echo "\n\n\n"; var_export($response); die();
 		
 		$this->lastResponseStats = array();
 		if (isset($response['hits']['total'])) {

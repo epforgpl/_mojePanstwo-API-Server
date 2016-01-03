@@ -97,6 +97,9 @@ CakePlugin::loadAll(array(
     'Sejmometr' => array(
         'routes' => true,
     ),
+    'Podatki' => array(
+        'routes' => true,
+    ),
     'PanstwoInternet' => array(
         'routes' => true,
     ),

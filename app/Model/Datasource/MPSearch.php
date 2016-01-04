@@ -207,13 +207,29 @@ class MPSearch {
 			),
 		);
 		
+		
 		if( !isset( $queryData['_type']) || ($queryData['_type']=='objects') ) {
+			
+			$include = array();
+			
+			if( isset($queryData['fields']) ) {
+				
+				foreach( $queryData['fields'] as $f )
+					$include[] = 'data.' . $f;
+				
+			} else {
+				
+				$include[] = 'data';
+				
+			}
+			
+			$include[] = 'static';
 			
 			$params['body'] = array_merge($params['body'], array(
 				'fields' => array('dataset', 'id', 'slug'),
 				'partial_fields' => array(
 					'source' => array(
-						'include' => array('data', 'static'),
+						'include' => $include,
 					),
 				),
 			));
@@ -1272,10 +1288,10 @@ class MPSearch {
 	}
 	
     public function read(Model $model, $queryData = array()) {
-		
+				
 		$params = $this->buildESQuery($queryData);
 				
-		// var_export( $params ); die();
+		// debug( $params ); die();
 		
 		$this->lastResponseStats = null;
 		$response = $this->API->search( $params );

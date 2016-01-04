@@ -19,7 +19,7 @@ class DataobjectsController extends AppController
 		if( $this->request->is('post') ) {
 			$this->request->query = array_merge($this->request->query, $this->request->data);
 		}
-				
+						
 		$this->_index(array(
 			'dataset' => $dataset
 		));
@@ -153,7 +153,11 @@ class DataobjectsController extends AppController
 		} else {
 			$query['limit'] = DataobjectsController::RESULTS_COUNT_DEFAULT;
 		}
-				
+		
+		
+		if( isset($this->request->query['fields']) )
+			$query['fields'] = $this->request->query['fields'];
+		
 		$objects = $this->Dataobject->find('all', $query);
 		$this->log($objects);
 

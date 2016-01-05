@@ -243,6 +243,7 @@ class Collection extends AppModel {
 				'kolekcje.user_id' => $data['user_id'],
 				'kolekcje.user_username' => $data['user_username'],
 				'kolekcje.is_public' => $data['is_public'],
+				'kolekcje.is_promoted' => $data['is_promoted'],
 				'kolekcje.object_id' => $data['object_id'],
 				'kolekcje.items_count' => $data['items_count'],
 				'kolekcje.page_name' => isset($data['page_name']) ? $data['page_name'] : '',

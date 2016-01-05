@@ -655,6 +655,7 @@ class Document extends AppModel
             'from_user_name' => $doc['from_user_name'],
             'to_dataset' => $doc['to_dataset'],
             'is_public' => $doc['is_public'],
+            'is_promoted' => $doc['is_promoted'],
             'to_id' => $doc['to_id'],
             'alphaid' => $doc['alphaid'],
             'to_label' => $doc['to_name'],

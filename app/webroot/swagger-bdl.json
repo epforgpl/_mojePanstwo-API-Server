@@ -20,8 +20,7 @@
   ],
   "tags": [
     {
-      "name": "bdl",
-      "description": "Przeglądaj statystyki GUS zebrane w Banku Danych Lokalnych"
+      "name": "BDL"
     }
   ],
   "parameters": {
@@ -160,102 +159,119 @@
     }
   },
   "paths": {
-    "/dane/{dataset}": {
+    "/bdl/categories": {
       "get": {
-        "summary": "Wyszukuj obiekty w danym zbiorze danych",
+        "summary": "Drzewo kategorii wskaźników",
+        "description": "Pobierz wszystkie wskaźniki Banku Danych Lokalnych zgrupowane w kategorie, grupy oraz podgrupy.\n",
         "tags": [
-          "dane"
-        ],
-        "parameters": [
-          {
-            "$ref": "#/parameters/dataset"
-          },
-          {
-            "name": "conditions",
-            "in": "query",
-            "description": "Warunki, które muszą być spełnione na konkretnych polach, np. 'conditions[imie]=Jan&conditions[nazwisko]=Kowalski'",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "q",
-            "in": "query",
-            "description": "Pełnotekstowe wyszukiwanie (z odmianą), np. ?q=epanstwo",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "order",
-            "in": "query",
-            "description": "Sortowanie w formacie '<pole> (desc|asc)' po polach zawartych w 'data', np. ?order=poslowie.nazwisko asc",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "description": "Numer strony wyników do zwrócenia. Można się także posłużyć linkami z sekcji Links odpowiedzi",
-            "required": false,
-            "type": "integer"
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "Ilość wyników zwróconych na stronie (domyślnie 50)",
-            "required": false,
-            "type": "integer"
-          }
+          "BDL"
         ],
         "responses": {
           "200": {
-            "description": "Stronicowana lista obiektów danego zbioru danych spełniająca kryteria",
+            "description": "Lista kategorii z grupami i podgrupami",
             "schema": {
-              "$ref": "#/definitions/DataobjectsList"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/BDL_Category"
+              }
             }
           }
         }
       }
     },
-    "/dane/{dataset}/{id}": {
+    "/bdl/search": {
       "get": {
-        "summary": "Pobierz dane konkretnego obiektu",
-        "tags": [
-          "dane"
-        ],
+        "summary": "Wyszukuj wskaźniki",
+        "description": "Wyszukuj wskaźniki w grupach i kategoriach  \n",
         "parameters": [
           {
-            "$ref": "#/parameters/dataset"
+            "name": "q",
+            "in": "query",
+            "description": "Fraza do wyszukania",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BDL"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista wskaźników pasujących do frazy",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/BDL_Metric"
+              }
+            }
           },
+          "400": {
+            "description": "Brak podanej frazy w parametrze `q`"
+          }
+        }
+      }
+    },
+    "/bdl/series": {
+      "get": {
+        "summary": "Zwróć dane dla wybranego wskaźnika",
+        "parameters": [
           {
-            "name": "id",
-            "in": "path",
-            "description": "Unikalny (w ramach tego zbioru danych) identyfikator obiektu",
+            "name": "metric_id",
+            "in": "query",
+            "description": "ID wskaźnika zwrócone przez /bdl/search, np. 762",
             "required": true,
             "type": "integer"
           },
           {
-            "name": "layers",
+            "name": "slice",
             "in": "query",
-            "description": "Lista warstw, które powinny zostać załadowane razem z obiektem. Załaduj obiekt bez warstw, aby poznać dostępne w tym zbiorze warstwy",
-            "type": "array",
-            "collectionFormat": "multi",
-            "items": {
-              "type": "string"
-            }
+            "type": "string",
+            "description": "Tablica id wymiarów, dla których przecięcia zostaną zwrócone dane. Format: [5478,*]. \nUzyj gwiazdki, aby zwrócić serie dla wszystkich punktów wymiaru. \nBrak argumentów oznacza wszystkie możliwe przecięcia.\nIdentyfikatory przecięć opisane są na warstwie dimensions wskaźnika, np. https://api-v3.mojepanstwo.pl/dane/bdl_wskazniki/762?layers=dimensions\n"
+          },
+          {
+            "name": "time_range",
+            "in": "query",
+            "type": "string",
+            "format": "time_range",
+            "description": "Podaj rok lub zakres (np. 2000:2010), z którego zostaną zwrócone dane. Brak argumentu oznacza pełen dostępny przedział."
+          },
+          {
+            "name": "wojewodztwo_id",
+            "in": "query",
+            "type": "integer",
+            "description": "ID województwa, dla którego zostaną zwrócone dane lub * dla wszystkich. Województwa można wyszukać pod adresem https://api-v3.mojepanstwo.pl/dane/wojewodztwa/"
+          },
+          {
+            "name": "powiat_id",
+            "in": "query",
+            "type": "integer",
+            "description": "ID powiatu, dla którego zostaną zwrócone dane lub * dla wszystkich. Powiaty można wyszukać pod adresem https://api-v3.mojepanstwo.pl/dane/powiaty/"
+          },
+          {
+            "name": "gmina_id",
+            "in": "query",
+            "type": "integer",
+            "description": "ID gminy, dla którego zostaną zwrócone dane lub * dla wszystkich. Gminy można wyszukać pod adresem https://api-v3.mojepanstwo.pl/dane/gminy/"
+          },
+          {
+            "name": "meta",
+            "in": "query",
+            "type": "boolean",
+            "description": "Czy zwrać metadane odpowiedzi? Metadane są domyślnie zwracane. Podaj false, aby je usunąć."
           }
+        ],
+        "tags": [
+          "BDL"
         ],
         "responses": {
           "200": {
-            "description": "Obiekt danych",
+            "description": "Dane Banku Danych Lokalnych",
             "schema": {
-              "$ref": "https://api-v3.mojepanstwo.pl/schemas/dane/dataobject.json"
+              "$ref": "#/definitions/BDL_Series"
             }
           },
-          "404": {
-            "$ref": "#/responses/NotFound"
+          "418": {
+            "$ref": "#/responses/418"
           }
         }
       }
@@ -333,6 +349,37 @@
             }
           },
           "required": ["self"]
+        }
+      }
+    },
+    "BDL_Series": {
+      "properties": {
+        "slices": {
+          "type": "array",
+          "items": {
+            "properties": {
+              "slice": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "description": "IDki wymiarów, dla których przecięcia zwracane są dane"
+                }
+              },
+              "units": {
+                "type": "string",
+                "description": "Jednostki w jakich zwracane są dane"
+              },
+              "series": {
+                "description": "Obiekt mapujący okres czasu (obecnie tylko dane roczne udostępniamy) na wartość wskaźnika w tym okresie. Okres czasu jest podany w ISO 8601 `^\\d{4}(-\\d{2})?%` (rok i opcjonalnie miesiąc).",
+                "additionalProperties": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        },
+        "meta": {
+          "description": "Opis zwracanych danych"
         }
       }
     }

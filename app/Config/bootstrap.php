@@ -154,6 +154,9 @@ CakePlugin::loadAll(array(
     'Mapa' => array(
         'routes' => true
     ),
+    'Krakow' => array(
+        'routes' => true
+    )
 ));
 
 /**

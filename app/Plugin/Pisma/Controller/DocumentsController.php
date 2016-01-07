@@ -162,12 +162,20 @@ class DocumentsController extends AppController
         App::import('model','DB');
 		$DB = new DB();
 
-
         $data = $this->request->data;
         if (empty($data)) {
             $data = array();
         }
-                          
+
+		CakeLog::write('letters', json_encode(array(
+			'action' => 'save',
+			'params' => array(
+				'id' => $id,
+				'user_id' => $this->Auth->user('id'),
+				'user_type' => $this->Auth->user('type'),
+			),
+			'data' => $data,
+		)));
                 
         if( 
 	        $id && 
@@ -635,7 +643,18 @@ class DocumentsController extends AppController
 		        'user_id' => $this->Auth->user('id'),
 		        'user_type' => $this->Auth->user('type'),
 	        ));
+
 	        $this->setSerialized('status', $status);
+
+			CakeLog::write('letters', json_encode(array(
+				'action' => 'send_account',
+				'params' => array(
+					'id' => $id,
+					'user_id' => $this->Auth->user('id'),
+					'user_type' => $this->Auth->user('type'),
+				),
+				'status' => $status,
+			)));
 	    
 	    } elseif( isset($this->request->data['email']) ) {
 	    
@@ -646,14 +665,26 @@ class DocumentsController extends AppController
 		        'email' => $this->request->data['email'],
 		        'name' => @$this->request->data['name'],
 	        ));
+
 	        $this->setSerialized('status', $status);
+
+			CakeLog::write('letters', json_encode(array(
+				'action' => 'send_guest',
+				'params' => array(
+					'id' => $id,
+					'user_id' => $this->Auth->user('id'),
+					'user_type' => $this->Auth->user('type'),
+					'email' => @$this->request->data['email'],
+					'name' => @$this->request->data['name'],
+				),
+				'status' => $status,
+			)));
 	    	
         } else throw new BadRequestException();
         
     }
 
     public function delete() {
-        
         $this->Auth->deny();
         
         $params = array(
@@ -662,8 +693,14 @@ class DocumentsController extends AppController
         );
                 
         $status = $this->Document->delete($this->request->data['id'], $params);
+
+		CakeLog::write('letters', json_encode(array(
+			'action' => 'delete',
+			'params' => $params,
+			'status' => $status
+		)));
+
         $this->setSerialized('status', $status);
-        
     }
 	
 	public function transfer_anonymous() {

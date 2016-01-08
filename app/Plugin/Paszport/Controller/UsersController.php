@@ -110,6 +110,7 @@ class UsersController extends PaszportAppController
             $this->FacebookRegistration->setFacebookUser($this->data);
             $this->FacebookRegistration->register();
             $response['user'] = $this->FacebookRegistration->getUser();
+            $this->sendWelcomeEmail($response['user']['User']['email']);
         } catch (Exception $e) {
             $response['errors'] = $e->getMessage();
         }
@@ -199,6 +200,7 @@ class UsersController extends PaszportAppController
                             'logged_at' => date('Y-m-d H:i:s', time())
                         ));
 
+                        $this->sendWelcomeEmail($user['email']);
 
                     } else $errors = array('Internal error');
                 } else $errors = $this->User->validationErrors; // email verification
@@ -213,6 +215,20 @@ class UsersController extends PaszportAppController
         } else {
             throw new BadRequestException();
         }
+    }
+
+    private function sendWelcomeEmail($email) {
+        App::uses('CakeEmail', 'Network/Email');
+        $Email = new CakeEmail('noreply');
+
+        return $Email->template('Paszport.welcome')
+            ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
+            ->emailFormat('html')
+            ->subject('Miło Cię gościć na Moim Państwie.')
+            ->to($email)
+            ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+            ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+            ->send();
     }
 
     public function login()

@@ -167,7 +167,7 @@ class UsersController extends PaszportAppController
                 $this->User->getDataSource()->begin();
 
                 $saved = $this->User->save($this->User->data, false, array(
-                    'id', 'email', 'password', 'username', 'group_id', 'language_id'
+                    'id', 'email', 'password', 'username', 'group_id', 'language_id', 'is_ngo'
                 ));
 
                 if ($saved) {
@@ -280,6 +280,27 @@ class UsersController extends PaszportAppController
         $this->set(array(
             'response' => $response,
             '_serialize' => 'response'
+        ));
+    }
+
+    public function setIsNgo() {
+        $this->Auth->deny();
+        if($this->Auth->user('type') != 'account')
+            throw new ForbiddenException();
+
+        $response = false;
+        $id = (int) $this->Auth->user('id');
+        if($this->request->isPost() && isset($this->data['is_ngo'])) {
+            $this->User->id = $id;
+            $this->User->save(array('User' => array(
+                'is_ngo' => $this->data['is_ngo'] == '1' ? '1' : '0',
+            )));
+            $response = true;
+        }
+
+        $this->set(array(
+            'response' => $response,
+            '_serialize' => 'response',
         ));
     }
 

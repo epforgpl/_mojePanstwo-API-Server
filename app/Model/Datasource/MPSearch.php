@@ -452,6 +452,52 @@ class MPSearch {
 			        	unset( $params['body']['sort'] );
 	        	
 	        	}
+	        	
+	        } elseif( $key == 'qs' ) {
+		        
+		        if( $value ) {
+			        
+			        if( !is_array($value) )
+			        	$value = array( $value );
+			        
+			        $should = array();
+			        $highlight_query = array();
+			        
+			        foreach( $value as $v ) {
+			        	
+			        	$_v = mb_convert_encoding($v, 'UTF-8', 'UTF-8');
+			        	
+			        	$should[] = array(
+				        	'query' => array(
+						        'multi_match' => array(
+							        'query' => $_v,
+								    'type' => "phrase",
+								    'fields' => array('title', 'title.suggest', 'acronym', 'text'),
+									'analyzer' => 'pl',
+									'slop' => 5,
+						        ),
+					        ),
+			        	);
+			        	
+			        	$highlight_query[] = array(
+		    				'match_phrase' => array(
+			    				'text' => array(
+				    				"query" => $_v,
+                                    "phrase_slop" => 5,
+                                    "boost" => 10,
+			    				),
+		    				),
+			        	);
+			        	
+			        }
+			        
+			        $and_filters[] = array(
+				        'bool' => array(
+					        'should' => $should,
+				        ),
+			        );
+			        				        
+		        }
         	
         	} elseif( $key == 'collection_id' ) {
 	        	
@@ -1247,11 +1293,30 @@ class MPSearch {
 	    				'number_of_fragments' => 1,
 	    				'fragment_size' => 200,
 	    			),
-	    		),
-	    		
+	    		),	    		
 	    	);
 			
 		}
+		
+		if( isset($highlight_query) && $highlight_query ) {
+			$params['body']['highlight'] = array(
+	    		'fields' => array(
+	    			'text' => array(
+	    				'index_options' => 'offsets',
+	    				'number_of_fragments' => 1,
+	    				'fragment_size' => 200,
+	    				'highlight_query' => array(
+		    				'bool' => array(
+			    				'should' => $highlight_query,
+		    				),
+	    				),
+	    			),
+	    		),
+	    	);
+    	}
+		
+		
+		
 		
 	
 		

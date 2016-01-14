@@ -25,8 +25,10 @@ class News extends AppModel {
             $fields['news.' . $name] = $value;
         }
 
-        $fields['news.created_at'] = date(self::$ES_DATE_FORMAT, strtotime($data['created_at']));
-        $fields['news.updated_at'] = date(self::$ES_DATE_FORMAT, strtotime($data['updated_at']));
+        if(isset($fields['news.created_at']))
+            $fields['news.created_at'] = date(self::$ES_DATE_FORMAT, strtotime($data['created_at']));
+        if(isset($fields['news.updated_at']))
+            $fields['news.updated_at'] = date(self::$ES_DATE_FORMAT, strtotime($data['updated_at']));
 
         $ES->API->index(array(
             'index' => 'mojepanstwo_v1',
@@ -40,9 +42,18 @@ class News extends AppModel {
                 'dataset' => self::$ES_DATASET,
                 'slug' => Inflector::slug($data['name']),
                 'data' => $fields,
-                'date' => date('Y-m-d', strtotime($data['created_at']))
+                'date' => date('Y-m-d', isset($data['created_at']) ? strtotime($data['created_at']) : time())
             )
         ));
+
+        if(isset($fields['news.crawler_page_id']) && $fields['news.crawler_page_id'] != '0') {
+            App::import('Model', 'Admin.CrawlerPage');
+            $page = new CrawlerPage();
+            $page->save(array(
+                'id' => (int) $fields['news.crawler_page_id'],
+                'status' => '1'
+            ));
+        }
     }
 
     public function beforeDelete($cascade = true) {

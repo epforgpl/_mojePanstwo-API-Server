@@ -95,12 +95,12 @@ class AppShell extends Shell
         }
 
         App::uses('CakeEmail', 'Network/Email');
-        $Email = new CakeEmail('pisma');
+        $Email = new CakeEmail('noreply');
 
         $status = $Email->template('Paszport.welcome')
             ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
             ->emailFormat('html')
-            ->subject('Miło Cię gościć na Moim Państwie.')
+            ->subject('MojePaństwo.pl - instrukcje i tutoriale')
             ->to($this->args[0], 'Jan Kowalski')
             ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
             ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
@@ -117,7 +117,7 @@ class AppShell extends Shell
             $status = $Email->template('Paszport.welcome')
                 ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
                 ->emailFormat('html')
-                ->subject('Miło Cię gościć na Moim Państwie.')
+                ->subject('MojePaństwo.pl - instrukcje i tutoriale')
                 ->to($user['User']['email'])
                 ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
                 ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')

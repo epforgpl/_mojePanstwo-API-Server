@@ -110,7 +110,9 @@ class UsersController extends PaszportAppController
             $this->FacebookRegistration->setFacebookUser($this->data);
             $this->FacebookRegistration->register();
             $response['user'] = $this->FacebookRegistration->getUser();
-            $this->sendWelcomeEmail($response['user']['User']['email']);
+            if(strtotime($response['user']['User']['created']) + 300 > time()) {
+                $this->sendWelcomeEmail($response['user']['User']['email']);
+            }
         } catch (Exception $e) {
             $response['errors'] = $e->getMessage();
         }

@@ -19,17 +19,19 @@ class FacebookRegistrationComponent extends Component {
     }
 
     public function register() {
+        
         $this->user = $this->Users->find('first', array(
             'conditions' => array(
                 'User.email' => $this->facebookUser['email']
             )
         ));
-
-        if(!$this->user)
+        
+        if(!$this->user) {
             $this->createNewUser();
-        else if($this->user['User']['facebook_id'] != $this->facebookUser['id'])
+        } elseif($this->user['User']['facebook_id'] != $this->facebookUser['id']) {
             $this->setFacebookId();
-
+        }
+					
         $this->updatePhoto();
         $this->updateLoggedAt();
     }
@@ -45,7 +47,7 @@ class FacebookRegistrationComponent extends Component {
                 'facebook_id'   => $this->facebookUser['id']
             )
         ));
-
+		
         if($this->Users->validates()) {
             $this->user = $this->Users->save($this->Users->data, false, array(
                 'id', 'email', 'username', 'facebook_id'

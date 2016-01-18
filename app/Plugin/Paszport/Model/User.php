@@ -17,10 +17,12 @@ class User extends PaszportAppModel
                 'rule' => 'isUnique',
                 'message' => __('LC_PASZPORT_USERNAME_MUST_BE_UNIQUE', true),
             ),
+            /*
             'alphanumeric' => array(
                 'rule' => 'alphaNumericDashUnderscore',
                 'message' => __('LC_PASZPORT_ALPHANUMERIC', true)
             )
+            */
         ));
 
         $this->validator()->add('email', array(

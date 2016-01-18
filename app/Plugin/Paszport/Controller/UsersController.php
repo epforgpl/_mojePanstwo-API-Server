@@ -105,7 +105,7 @@ class UsersController extends PaszportAppController
     public function registerFromFacebook()
     {
         $response = array();
-
+				
         try {
             $this->FacebookRegistration->setFacebookUser($this->data);
             $this->FacebookRegistration->register();
@@ -497,7 +497,7 @@ class UsersController extends PaszportAppController
             return true;
         }
         # check if user has already given permissions to the app
-        $user_data = $this->Connect->FB->api('/me/?fields=id,first_name,last_name,email,gender,picture.type(square).width(200),birthday,locale');
+        $user_data = $this->Connect->FB->api('/me/?fields=id,first_name,last_name,email,gender,picture.type(square).width(200),locale');
         if ($user_data['id']) { # merge, save, inform
             $this->User->id = $this->Auth->user('id');
             $to_save = array(

@@ -20,6 +20,51 @@ class News extends AppModel {
         }
 
         $data = $this->data['News'];
+        $areas = array();
+        $tags = array();
+
+        $this->query("DELETE FROM news_areas WHERE news_id = " . $this->data['News']['id']);
+        if(isset($data['areas'])) {
+            $areas = $data['areas'];
+            foreach($areas as $area) {
+                $this->query("INSERT INTO news_areas VALUES (" . (int) $this->data['News']['id'] . ", " . (int) $area. ")");
+            }
+
+            unset($data['areas']);
+        }
+
+        $this->query("DELETE FROM news_tags WHERE news_id = " . $this->data['News']['id']);
+        if(isset($data['tags'])) {
+            App::uses('Temat', 'Dane.Model');
+            $this->Temat = new Temat();
+            $tags = explode(',', $data['tags']);
+            $tags_ids = array();
+            foreach($tags as $tag) {
+                $q = trim($tag);
+                $topic = $this->Temat->find('first', array(
+                    'conditions' => array(
+                        'Temat.q' => $q
+                    )
+                ));
+
+                if(!$topic) {
+                    $this->Temat->clear();
+                    $this->Temat->save(array(
+                        'q' => $q,
+                    ));
+
+                    $tags_ids[] = (int) $this->Temat->getLastInsertId();
+                } else {
+                    $tags_ids[] = (int) $topic['Temat']['id'];
+                }
+            }
+
+            unset($data['tags']);
+            foreach($tags_ids as $tag_id) {
+                $this->query("INSERT INTO news_tags VALUES (" . (int) $this->data['News']['id'] . ", " . (int) $tag_id. ")");
+            }
+        }
+
         $fields = array();
         foreach($data as $name => $value) {
             $fields['news.' . $name] = $value;

@@ -41,6 +41,25 @@ class ObjectPage extends AppModel {
             'vine'
         );
 
+        $httpFields = array(
+            'www',
+            'facebook',
+            'twitter',
+            'instagram',
+            'youtube',
+            'vine'
+        );
+
+        foreach($httpFields as $field) {
+            if(isset($data[$field]) && $data[$field] != '') {
+                if($ret = parse_url($data[$field])) {
+                    if(!isset($ret['scheme'])) {
+                        $data[$field] = "http://{$data[$field]}";
+                    }
+                }
+            }
+        }
+
         if($object) {
             $d = array();
             foreach($fields as $i => $field)

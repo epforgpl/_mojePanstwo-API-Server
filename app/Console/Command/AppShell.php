@@ -87,5 +87,43 @@ class AppShell extends Shell
         }
         
     }
+
+    public function testWelcomeEmail() {
+        if(!isset($this->args[0])) {
+            echo "Usage: testWelcomeEmail example@domain.com";
+            return 1;
+        }
+
+        App::uses('CakeEmail', 'Network/Email');
+        $Email = new CakeEmail('pisma');
+
+        $status = $Email->template('Paszport.welcome')
+            ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
+            ->emailFormat('html')
+            ->subject('Miło Cię gościć na Moim Państwie.')
+            ->to($this->args[0], 'Jan Kowalski')
+            ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+            ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+            ->send();
+    }
+
+    public function sendWelcomeEmailToUsers() {
+        App::uses('CakeEmail', 'Network/Email');
+        $Email = new CakeEmail('noreply');
+
+        $this->loadModel('Paszport.User');
+        $users = $this->User->find('all');
+        foreach($users as $user) {
+            $status = $Email->template('Paszport.welcome')
+                ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
+                ->emailFormat('html')
+                ->subject('Miło Cię gościć na Moim Państwie.')
+                ->to($user['User']['email'])
+                ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+                ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+                ->send();
+            echo $user['User']['id'] . " : " . ($status ? '1' : '0') . "\n";
+        }
+    }
     
 }

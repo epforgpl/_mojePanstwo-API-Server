@@ -110,6 +110,7 @@ class UsersController extends PaszportAppController
             $this->FacebookRegistration->setFacebookUser($this->data);
             $this->FacebookRegistration->register();
             $response['user'] = $this->FacebookRegistration->getUser();
+            $this->sendWelcomeEmail($response['user']['User']['email']);
         } catch (Exception $e) {
             $response['errors'] = $e->getMessage();
         }
@@ -166,7 +167,7 @@ class UsersController extends PaszportAppController
                 $this->User->getDataSource()->begin();
 
                 $saved = $this->User->save($this->User->data, false, array(
-                    'id', 'email', 'password', 'username', 'group_id', 'language_id'
+                    'id', 'email', 'password', 'username', 'group_id', 'language_id', 'is_ngo'
                 ));
 
                 if ($saved) {
@@ -199,6 +200,7 @@ class UsersController extends PaszportAppController
                             'logged_at' => date('Y-m-d H:i:s', time())
                         ));
 
+                        $this->sendWelcomeEmail($user['email']);
 
                     } else $errors = array('Internal error');
                 } else $errors = $this->User->validationErrors; // email verification
@@ -213,6 +215,20 @@ class UsersController extends PaszportAppController
         } else {
             throw new BadRequestException();
         }
+    }
+
+    private function sendWelcomeEmail($email) {
+        App::uses('CakeEmail', 'Network/Email');
+        $Email = new CakeEmail('noreply');
+
+        return $Email->template('Paszport.welcome')
+            ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
+            ->emailFormat('html')
+            ->subject('Miło Cię gościć na Moim Państwie.')
+            ->to($email)
+            ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+            ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+            ->send();
     }
 
     public function login()
@@ -264,6 +280,27 @@ class UsersController extends PaszportAppController
         $this->set(array(
             'response' => $response,
             '_serialize' => 'response'
+        ));
+    }
+
+    public function setIsNgo() {
+        $this->Auth->deny();
+        if($this->Auth->user('type') != 'account')
+            throw new ForbiddenException();
+
+        $response = false;
+        $id = (int) $this->Auth->user('id');
+        if($this->request->isPost() && isset($this->data['is_ngo'])) {
+            $this->User->id = $id;
+            $this->User->save(array('User' => array(
+                'is_ngo' => $this->data['is_ngo'] == '1' ? '1' : '0',
+            )));
+            $response = true;
+        }
+
+        $this->set(array(
+            'response' => $response,
+            '_serialize' => 'response',
         ));
     }
 

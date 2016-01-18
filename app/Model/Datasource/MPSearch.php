@@ -1315,11 +1315,6 @@ class MPSearch {
 	    	);
     	}
 		
-		
-		
-		
-	
-		
 		return $params;
 		
 	}

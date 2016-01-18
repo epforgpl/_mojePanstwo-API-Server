@@ -103,6 +103,8 @@ class News extends AppModel {
 
     public function beforeDelete($cascade = true) {
         $id = (int) $this->id;
+        $this->query("DELETE FROM news_tags WHERE news_id = " . $id);
+        $this->query("DELETE FROM news_areas WHERE news_id = " . $id);
         $ES = ConnectionManager::getDataSource('MPSearch');
         $res = $this->query("SELECT id FROM objects WHERE `dataset_id` = '". self::$ES_DATASET_ID ."' AND `object_id`='" . addslashes( $id ) . "' LIMIT 1");
         $global_id = (int) (@$res[0]['objects']['id']);

@@ -5,7 +5,7 @@
 
 <p>Tutoriale dotyczące działania portalu znajdziesz <a href="https://www.youtube.com/playlist?list=PLa_8n5BEWSbnvu-owdDAOCmD2dbI0Zosv">tutaj</a> lub możesz zapoznać się z przygotowanymi <a href="http://epf.org.pl/pl/category/moje-panstwo/">instrukcjami</a> na naszym blogu.</p>
 
-<p>Jeśli działasz w organizacji pozarządowej, zobacz, jak założyć jej konto.</p>
+<p>Jeśli działasz w organizacji pozarządowej, zobacz, jak założyć jej <a href="http://epf.org.pl/pl/2015/11/19/dlaczego-warto-zalozyc-konto-ngo-na-mojepanstwo-pl/">konto</a>.</p>
 
 <p>Dlaczego warto?</p>
 

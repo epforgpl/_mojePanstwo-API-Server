@@ -12,8 +12,40 @@ class EmailsShell extends AppShell {
     private static $interval = 90;
     private static $maxCreatedAt = '2016-01-07 00:00:00';
 
-    public function sendWelcomeEmailToUsers()
-    {
+    public function sendPromoEmailToNGO() {
+        $emailService = new CakeEmail('ngo');
+
+        while(true) {
+
+            try {
+                $emailService->template('ngo-promo')
+                    ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
+                    ->emailFormat('html')
+                    ->attachments(array(
+                        array(
+                            'file' => ROOT . '/app/webroot/img/ngo_email_promo.png',
+                            'mimetype' => 'image/png',
+                            'contentId' => '1'
+                        ),
+                    ))
+                    ->subject('Uzupełnij konto swojej organizacji na mojepanstwo.pl!')
+                    ->to('marek.bielecki@epf.org.pl')
+                    ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+                    ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+                    ->send();
+
+                $status = 1;
+            } catch (SocketException $e) {
+                $this->out($e->getMessage());
+            }
+
+            return 1;
+
+            sleep(self::$interval);
+        }
+    }
+
+    public function sendWelcomeEmailToUsers() {
         $emailService = new CakeEmail('pisma');
 
         while(true) {
@@ -42,6 +74,7 @@ class EmailsShell extends AppShell {
 
                 $status = 1;
             } catch (SocketException $e) {
+                $this->out($e->getMessage());
                 $status = 2;
             }
 

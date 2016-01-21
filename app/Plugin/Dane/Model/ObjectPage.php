@@ -1,5 +1,7 @@
 <?php
 
+App::uses('CakeSession', 'Model/Datasource');
+
 class ObjectPage extends AppModel {
 
     public $useTable = 'objects-pages';
@@ -10,11 +12,49 @@ class ObjectPage extends AppModel {
         $this->request = $request;
     }
 
+    private function updateBankAccountNumber($bankAccountNumber, $id, $dataset) {
+        if($dataset !== 'krs_podmioty')
+            return false;
+
+        $bankAccountNumber = preg_replace('/\D/', '', $bankAccountNumber);
+        if(strlen($bankAccountNumber) != 26)
+            return false;
+
+        $row = $this->query('SELECT 1 FROM krs_pozycje WHERE krs_pozycje.forma_prawna_id IN(1, 15) AND krs_pozycje.id = '. $id);
+        if(!$row)
+            return false;
+
+        $latestBankAccount = $this->query('
+            SELECT id, krs_pozycje_id, bank_account, status
+            FROM krs_pozycje_bank_accounts
+            WHERE krs_pozycje_id = '. $id .'
+            ORDER BY id DESC
+            LIMIT 1
+        ');
+
+        if($latestBankAccount && $latestBankAccount[0]['krs_pozycje_bank_accounts']['status'] == '0')
+            return false;
+
+        if($latestBankAccount && $latestBankAccount[0]['krs_pozycje_bank_accounts']['bank_account'] == $bankAccountNumber)
+            return false;
+
+        $user_id = (int) CakeSession::read("Auth.User.id");
+
+        $this->query('
+            INSERT INTO krs_pozycje_bank_accounts
+            (krs_pozycje_id, user_id, bank_account, status, created_at) VALUES
+            ('. $id . ', '. $user_id . ', ' . addslashes($bankAccountNumber) . ', 0, NOW())
+        ');
+
+        return true;
+    }
+
     public function setData($data, $id, $dataset)
     {
+        $id = (int) $id;
         $conditions = array(
             'ObjectPage.dataset' => $dataset,
-            'ObjectPage.object_id' => (int) $id
+            'ObjectPage.object_id' => $id
         );
 
         $object = $this->find('first', array(
@@ -24,10 +64,14 @@ class ObjectPage extends AppModel {
         $db = ConnectionManager::getDataSource('default');
 
         if(isset($data['areas']) && is_array($data['areas'])) {
-            $db->query("DELETE FROM organizacja_obszar WHERE object_id = " . ((int) $id));
+            $db->query("DELETE FROM organizacja_obszar WHERE object_id = " . $id);
             foreach($data['areas'] as $area_id)
-                $db->query("INSERT INTO organizacja_obszar VALUES (" . (int) $id . ", " . (int) $area_id. ")");
+                $db->query("INSERT INTO organizacja_obszar VALUES (" . $id . ", " . (int) $area_id. ")");
         }
+
+        if(isset($data['bank_account_number']))
+            if($this->updateBankAccountNumber($data['bank_account_number'], $id, $dataset) === false)
+                return false;
 
         $fields = array(
             'description',

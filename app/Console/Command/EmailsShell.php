@@ -17,29 +17,53 @@ class EmailsShell extends AppShell {
 
         while(true) {
 
-            try {
-                $emailService->template('ngo-promo')
-                    ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
-                    ->emailFormat('html')
-                    ->attachments(array(
-                        array(
-                            'file' => ROOT . '/app/webroot/img/ngo_email_promo.png',
-                            'mimetype' => 'image/png',
-                            'contentId' => '1'
-                        ),
-                    ))
-                    ->subject('Uzupełnij konto swojej organizacji na mojepanstwo.pl!')
-                    ->to('marek.bielecki@epf.org.pl')
-                    ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
-                    ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
-                    ->send();
+            $row = $this->User->query("
+              SELECT
+                  krs_pozycje.id,
+                  krs_pozycje.forma_prawna_id,
+                  krs_pozycje.email,
+                  krs_pozycje.nazwa
+                FROM krs_pozycje
+                WHERE krs_pozycje.forma_prawna_id IN(1, 15) AND krs_pozycje.www != \"\"
+                AND NOT EXISTS (SELECT 1 FROM ngo_email_campaign c WHERE c.krs_pozycje_id = krs_pozycje.id)
+                ORDER BY krs_pozycje.id DESC
+                LIMIT 1
+            ");
 
-                $status = 1;
-            } catch (SocketException $e) {
-                $this->out($e->getMessage());
+            if(!$row)
+                return 1;
+
+            $status = 1;
+
+            if(filter_var($row[0]['krs_pozycje']['email'], FILTER_VALIDATE_EMAIL) === false) {
+                $status = 3;
+            } else {
+                try {
+                    $emailService->template('ngo-promo')
+                        ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
+                        ->emailFormat('html')
+                        ->attachments(array(
+                            array(
+                                'file' => ROOT . '/app/webroot/img/ngo_email_promo.png',
+                                'mimetype' => 'image/png',
+                                'contentId' => '1'
+                            ),
+                        ))
+                        ->subject('Uzupełnij konto swojej organizacji na mojepanstwo.pl!')
+                        ->to('marek.bielecki@epf.org.pl')
+                        ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+                        ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+                        ->send();
+                } catch (SocketException $e) {
+                    $this->out($e->getMessage());
+                    $status = 2;
+                }
             }
 
-            return 1;
+            $this->User->query("
+                INSERT INTO ngo_email_campaign VALUES
+                ({$row[0]['krs_pozycje']['id']}, NOW(), {$status})
+            ");
 
             sleep(self::$interval);
         }

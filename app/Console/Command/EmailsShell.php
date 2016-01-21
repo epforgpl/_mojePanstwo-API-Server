@@ -15,9 +15,7 @@ class EmailsShell extends AppShell {
     public function sendPromoEmailToNGO() {
         $emailService = new CakeEmail('ngo');
 
-        while(true) {
-
-            $row = $this->User->query("
+        $row = $this->User->query("
               SELECT
                   krs_pozycje.id,
                   krs_pozycje.forma_prawna_id,
@@ -30,50 +28,46 @@ class EmailsShell extends AppShell {
                 LIMIT 1
             ");
 
-            if(!$row)
-                return 1;
+        if(!$row)
+            return 1;
 
-            $status = 1;
+        $status = 1;
 
-            if(filter_var($row[0]['krs_pozycje']['email'], FILTER_VALIDATE_EMAIL) === false) {
-                $status = 3;
-            } else {
-                try {
-                    $emailService->template('ngo-promo')
-                        ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
-                        ->emailFormat('html')
-                        ->attachments(array(
-                            array(
-                                'file' => ROOT . '/app/webroot/img/ngo_email_promo.png',
-                                'mimetype' => 'image/png',
-                                'contentId' => '1'
-                            ),
-                        ))
-                        ->subject('Uzupełnij konto swojej organizacji na mojepanstwo.pl!')
-                        ->to('marek.bielecki@epf.org.pl')
-                        ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
-                        ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
-                        ->send();
-                } catch (SocketException $e) {
-                    $this->out($e->getMessage());
-                    $status = 2;
-                }
+        if(filter_var($row[0]['krs_pozycje']['email'], FILTER_VALIDATE_EMAIL) === false) {
+            $status = 3;
+        } else {
+            try {
+                $emailService->template('ngo-promo')
+                    ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
+                    ->emailFormat('html')
+                    ->attachments(array(
+                        array(
+                            'file' => ROOT . '/app/webroot/img/ngo_email_promo.png',
+                            'mimetype' => 'image/png',
+                            'contentId' => '1'
+                        ),
+                    ))
+                    ->subject('Uzupełnij konto swojej organizacji na mojepanstwo.pl!')
+                    ->to('marek.bielecki@epf.org.pl')
+                    ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+                    ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+                    ->send();
+            } catch (SocketException $e) {
+                $this->out($e->getMessage());
+                $status = 2;
             }
+        }
 
-            $this->User->query("
+        $this->User->query("
                 INSERT INTO ngo_email_campaign VALUES
                 ({$row[0]['krs_pozycje']['id']}, NOW(), {$status})
             ");
-
-            sleep(self::$interval);
-        }
     }
 
     public function sendWelcomeEmailToUsers() {
         $emailService = new CakeEmail('pisma');
 
-        while(true) {
-            $user = $this->User->query("
+        $user = $this->User->query("
               SELECT id, email
               FROM users
               WHERE
@@ -83,26 +77,26 @@ class EmailsShell extends AppShell {
               LIMIT 1
             ");
 
-            if(!$user)
-                return 1;
+        if(!$user)
+            return 1;
 
-            try {
-                $emailService->template('Paszport.welcome')
-                    ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
-                    ->emailFormat('html')
-                    ->subject('MojePaństwo.pl - instrukcje i tutoriale')
-                    ->to($user[0]['users']['email'])
-                    ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
-                    ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
-                    ->send();
+        try {
+            $emailService->template('Paszport.welcome')
+                ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
+                ->emailFormat('html')
+                ->subject('MojePaństwo.pl - instrukcje i tutoriale')
+                ->to($user[0]['users']['email'])
+                ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+                ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+                ->send();
 
-                $status = 1;
-            } catch (SocketException $e) {
-                $this->out($e->getMessage());
-                $status = 2;
-            }
+            $status = 1;
+        } catch (SocketException $e) {
+            $this->out($e->getMessage());
+            $status = 2;
+        }
 
-            $this->User->query("
+        $this->User->query("
               UPDATE users
               SET
                 email_status = {$status},
@@ -110,9 +104,6 @@ class EmailsShell extends AppShell {
               WHERE
                 id = ". $user[0]['users']['id'] ."
             ");
-
-            sleep(self::$interval);
-        }
     }
 
 }

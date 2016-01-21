@@ -48,7 +48,7 @@ class EmailsShell extends AppShell {
                         ),
                     ))
                     ->subject('Uzupełnij konto swojej organizacji na mojepanstwo.pl!')
-                    ->to('marek.bielecki@epf.org.pl')
+                    ->to($row[0]['krs_pozycje']['email'])
                     ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
                     ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
                     ->send();

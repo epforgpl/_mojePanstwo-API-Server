@@ -156,7 +156,10 @@ CakePlugin::loadAll(array(
     ),
     'Krakow' => array(
         'routes' => true
-    )
+    ),
+    'Transactions' => array(
+        'routes' => true
+    ),
 ));
 
 /**

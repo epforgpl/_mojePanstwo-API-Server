@@ -81,7 +81,7 @@ class EmailsShell extends AppShell {
             return 1;
 
         try {
-            $emailService->template('Paszport.welcome')
+            $emailService->template('Paszport.welcome_again')
                 ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
                 ->emailFormat('html')
                 ->subject('MojePaństwo.pl - instrukcje i tutoriale')

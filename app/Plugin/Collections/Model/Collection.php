@@ -135,7 +135,7 @@ class Collection extends AppModel {
 	    
 	    if( $data ) {
 		    
-	    	return $this->syncByData( $data , $public);
+	    	return $this->syncByData( $data , $public, $checkPermissions);
 	    
 	    } else
 	    	return false;

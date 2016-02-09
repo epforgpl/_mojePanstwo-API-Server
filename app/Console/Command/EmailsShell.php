@@ -39,6 +39,13 @@ class EmailsShell extends AppShell {
             $emailService->template('ngo-pdf-promo')
                 ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
                 ->emailFormat('html')
+                ->attachments(array(
+                    array(
+                        'file' => ROOT . '/app/webroot/img/pdf_email_promo.png',
+                        'mimetype' => 'image/png',
+                        'contentId' => '1'
+                    ),
+                ))
                 ->subject('Personal Democracy Forum PL CEE 2016 - Rejestracja Otwarta')
                 ->to($row[0]['krs_pozycje']['email'])
                 ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')

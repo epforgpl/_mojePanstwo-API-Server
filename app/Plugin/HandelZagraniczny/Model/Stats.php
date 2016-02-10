@@ -136,7 +136,7 @@ class Stats extends AppModel
 
     public function getSymbols($params)
     {
-        $year = isset($params['year']) ? (int) $params['year'] : 2014;
+        $year = isset($params['year']) ? (int) $params['year'] : 2015;
         $parent_id = isset($params['parent_id']) ? (int) $params['parent_id'] : 0;
         $type = isset($params['type']) && $params['type'] == 'import' ? 'import' : 'eksport';
         $limit = isset($params['limit']) ? (int) $params['limit'] : 5;

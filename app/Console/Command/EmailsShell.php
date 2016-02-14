@@ -12,6 +12,56 @@ class EmailsShell extends AppShell {
     private static $interval = 90;
     private static $maxCreatedAt = '2016-01-07 00:00:00';
 
+    public function sendPDFPromoEmailToNGO() {
+        $emailService = new CakeEmail('ngo');
+
+        $row = $this->User->query("
+              SELECT
+                  ngo_email_campaign.krs_pozycje_id,
+                  ngo_email_campaign.created_at,
+                  krs_pozycje.email
+              FROM
+                ngo_email_campaign
+              JOIN krs_pozycje ON krs_pozycje.id = ngo_email_campaign.krs_pozycje_id
+              WHERE
+                ngo_email_campaign.status = 1 AND
+                ngo_email_campaign.status_pdf = 0
+              ORDER BY ngo_email_campaign.created_at ASC
+              LIMIT 1
+            ");
+
+        if(!$row)
+            return 1;
+
+        $status = 1;
+
+        try {
+            $emailService->template('ngo-pdf-promo')
+                ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
+                ->emailFormat('html')
+                ->attachments(array(
+                    array(
+                        'file' => ROOT . '/app/webroot/img/pdf_email_promo.png',
+                        'mimetype' => 'image/png',
+                        'contentId' => '1'
+                    ),
+                ))
+                ->subject('Personal Democracy Forum PL CEE 2016 - Rejestracja Otwarta')
+                ->to($row[0]['krs_pozycje']['email'])
+                ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+                ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+                ->send();
+        } catch (SocketException $e) {
+            $this->out($e->getMessage());
+            $status = 2;
+        }
+
+        $this->User->query("
+            UPDATE ngo_email_campaign SET status_pdf = ".$status.", status_pdf_ts = NOW()
+            WHERE krs_pozycje_id = ". $row[0]['ngo_email_campaign']['krs_pozycje_id'] ."
+        ");
+    }
+
     public function sendPromoEmailToNGO() {
         $emailService = new CakeEmail('ngo');
 

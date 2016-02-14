@@ -69,7 +69,7 @@ class ObjectPage extends AppModel {
                 $db->query("INSERT INTO organizacja_obszar VALUES (" . $id . ", " . (int) $area_id. ")");
         }
 
-        if(isset($data['bank_account_number']))
+        if(isset($data['bank_account_number']) && strlen($data['bank_account_number'] > 0))
             if($this->updateBankAccountNumber($data['bank_account_number'], $id, $dataset) === false)
                 return false;
 

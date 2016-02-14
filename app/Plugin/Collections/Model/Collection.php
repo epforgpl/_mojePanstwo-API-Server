@@ -74,12 +74,12 @@ class Collection extends AppModel {
 		return $this->syncById($id);
 	}
 
-	public function syncAll($public = false) {
+	public function syncAll($public = false, $checkPermissions = true) {
 		foreach(
 			$this->query("SELECT id FROM `collections`")
 			as $obj
 		)
-			$this->syncById($obj['collections']['id'], $public);
+			$this->syncById($obj['collections']['id'], $public, $checkPermissions);
 	}
 
 	public function beforeSave($options = array()) {
@@ -122,7 +122,7 @@ class Collection extends AppModel {
 		}
 	}
     
-    public function syncById($id, $public = false) {
+    public function syncById($id, $public = false, $checkPermissions = true) {
 	    
 	    if( !$id )
 	    	return false;
@@ -135,14 +135,14 @@ class Collection extends AppModel {
 	    
 	    if( $data ) {
 		    
-	    	return $this->syncByData( $data , $public);
+	    	return $this->syncByData( $data , $public, $checkPermissions);
 	    
 	    } else
 	    	return false;
 	    
     }
     
-    public function syncByData($data, $public = false) {
+    public function syncByData($data, $public = false, $checkPermissions = true) {
 	    	        
 	    if( 
 	    	empty($data) || 
@@ -179,7 +179,7 @@ class Collection extends AppModel {
 						`objects`.`id` = ". addslashes($data['object_id']) ."
 				");
 
-			if( empty($r) )
+			if( $checkPermissions && empty($r) )
 				throw new ForbiddenException;
 
 			if( $r[0]['objects']['dataset']=='krs_podmioty' ) {

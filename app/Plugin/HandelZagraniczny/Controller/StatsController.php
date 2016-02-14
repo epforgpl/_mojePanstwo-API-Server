@@ -69,7 +69,7 @@ class StatsController extends AppController
     {
         $params = array(
             'parent_id'     => 0,
-            'year'          => 2014,
+            'year'          => 2015,
             'type'          => 'import',
             'limit'         => 5,
             'country_id'    => 0,
@@ -106,9 +106,9 @@ class StatsController extends AppController
     private function countriesDataYearValidator($query)
     {
         $year = (int) (isset($query['year']) ? $query['year'] : 2014);
-        if($year >= 2004 && $year <= 2014)
+        if($year >= 2004 && $year <= 2015)
             return $year;
-        return 2014;
+        return 2015;
     }
 
     private function countriesDataTypeValidator($query)

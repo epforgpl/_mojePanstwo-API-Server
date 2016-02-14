@@ -203,7 +203,7 @@ class Collection extends AppModel {
 			'text' => $data['name'],
 			'dataset' => 'kolekcje',
 			'slug' => Inflector::slug($data['name']),
-			'date' => date('Ymd\THis\Z', strtotime($data['created_at'])),
+			'date' => date('Y-m-d\TH:i:s\Z', strtotime($data['created_at'])),
 			'id' => $data['id'],
 			'nazwa' => $data['name'],
 			'description' => $data['description'],

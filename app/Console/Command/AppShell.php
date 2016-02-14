@@ -52,6 +52,11 @@ class AppShell extends Shell
         $this->loadModel('Collections.Collection');
         $this->Collection->syncAll(((bool) (@$this->args[0])));
     }
+    
+    public function collectionsSync() {
+        $this->loadModel('Collections.Collection');
+        $this->Collection->syncById(@$this->args[0]);
+    }
 
     public function usersSyncAll() {
         $this->loadModel('Paszport.User');

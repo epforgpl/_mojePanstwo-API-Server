@@ -30,7 +30,7 @@
 		        'user_id' => $this->Auth->user('id'),
 			   	'channel' => isset( $this->request->data['channel'] ) ? $this->request->data['channel'] : array(),
 	        );
-	        	            
+	        	        	            
 		    $message = $this->Subscription->add($data);
 		    		    
 	        $this->set(array(

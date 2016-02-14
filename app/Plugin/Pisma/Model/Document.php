@@ -277,11 +277,13 @@ class Document extends AppModel
                 'query' => array(
                     'filtered' => $filtered,
                 ),
+                /*
                 'partial_fields' => array(
                     'data' => array(
                         'include' => array('id', 'alphaid', 'name', 'slug', 'date', 'created_at', 'modified_at', 'to_label', 'hash', 'sent', 'sent_at'),
                     ),
                 ),
+                */
                 'sort' => array(
                     'modified_at' => 'desc',
                 ),
@@ -368,13 +370,11 @@ class Document extends AppModel
         // debug( $es_params );
         $data = $ES->API->search($es_params);
         // debug( $data ); die();
-
+				
         $items = array();
 
         foreach ($data['hits']['hits'] as $hit) {
-            $hit['fields']['data'][0]['to_name'] = $hit['fields']['data'][0]['to_label'];
-            unset($hit['fields']['data'][0]['to_label']);
-            $items[] = $hit['fields']['data'][0];
+            $items[] = $hit['_source'];
         }
 
         return array(
@@ -573,7 +573,7 @@ class Document extends AppModel
                 'body' => array(
                     'doc' => array(
                         'sent' => true,
-                        'sent_at' => date('Ymd\THis\Z'),
+                        'sent_at' => date('Y-m-d\TH:i:s\Z'),
                     ),
                 ),
                 'refresh' => true,
@@ -628,7 +628,7 @@ class Document extends AppModel
         $db = ConnectionManager::getDataSource('default');
         $ES = ConnectionManager::getDataSource('MPSearch');
 
-        $mask = "Ymd\THis\Z";
+        $mask = "Y-m-d\TH:i:s\Z";
 
         $doc = $db->query("SELECT * FROM pisma_documents WHERE alphaid='" . addslashes($id) . "'");
         $doc = $doc[0]['pisma_documents'];
@@ -764,7 +764,7 @@ class Document extends AppModel
         } else {
             $data['template_label'] = 'Bez szablonu';
         }
-
+		
         $response = $ES->API->index(array(
             'index' => 'mojepanstwo_v1',
             'type' => 'letters',
@@ -813,7 +813,7 @@ class Document extends AppModel
                     ),
                 )
             );
-                                    
+                                     
             $ES->API->index($params);
 
         } elseif($global_id) {

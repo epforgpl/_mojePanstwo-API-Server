@@ -137,6 +137,8 @@ class AppShell extends Shell
         if(!$id)
             throw new Exception('id is required');
 
+        $this->Document->sync($id);
+
         $document = $this->Document->find('first', array(
             'Document.id' => $id
         ));

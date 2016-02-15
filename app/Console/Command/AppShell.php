@@ -132,6 +132,7 @@ class AppShell extends Shell
     }
 
     public function sendLetterById() {
+        require_once(APP . 'Vendor/functions.php');
         $id = (int) $this->args[0];
         if(!$id)
             throw new Exception('id is required');

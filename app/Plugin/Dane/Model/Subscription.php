@@ -179,7 +179,7 @@ class Subscription extends AppModel
 			$params['parent'] = $_id;
 			
 			$cts = strtotime( $sub['cts'] );
-			$mask = "Ymd\THis\Z";
+			$mask = "Y-m-d\TH:i:s\Z";
 			
 			
 			/*

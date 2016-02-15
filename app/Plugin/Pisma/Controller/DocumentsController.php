@@ -135,7 +135,7 @@ class DocumentsController extends AppController
 	}
 	
     public function save($id = null) {
-        
+                
         $this->Auth->deny();
         
         $map = array(
@@ -176,7 +176,11 @@ class DocumentsController extends AppController
 			),
 			'data' => $data,
 		)));
-                
+        
+        
+        
+        // EDIT FROM INPUTS
+          
         if( 
 	        $id && 
 	        ($doc = $this->Document->find('first', array(
@@ -245,7 +249,12 @@ class DocumentsController extends AppController
 	        
 	        
         } else {
-						
+			
+			// SAVE OR UPDATE LETTER
+			
+			
+			// CHECK IF TRYING TO SAVE OR UPDATE LETTER IN BEHALF OF A PAGE
+			
 			if( isset($data['object_id']) && $data['object_id'] ) {
 	            $r = $this->Document->query("
 						SELECT
@@ -281,9 +290,9 @@ class DocumentsController extends AppController
 	        }
 			
 			
+			// PREPARE DATA
 			
 	        $adresat_id = isset($data['adresat_id']) ? $data['adresat_id'] : false;
-	        
 	        
 	        $temp = array();
 	        foreach( $data as $k => $v )
@@ -338,6 +347,8 @@ class DocumentsController extends AppController
 		    }
 		    		    
 		    
+		    // PROCESSING TEMPLATE
+		    
 	        if(
 		        isset( $data['template_id'] ) && 
 	        	$data['template_id'] && 
@@ -364,6 +375,8 @@ class DocumentsController extends AppController
 		        
 	        }
 	        
+	        
+	        // PROCESSING ADDRESSEE
 	        
 	        if(
 		        isset( $data['to_dataset'] ) && 
@@ -769,6 +782,16 @@ class DocumentsController extends AppController
 	        	
 	                
 	        $object['Document']['_inputs'] = $inputs;
+	        
+        }
+        
+        if( 
+        	@$params['template'] && 
+        	$object['Document']['template_id'] && 
+        	( $data = $this->Document->query("SELECT id, opis, podstawa_prawna FROM pisma_szablony WHERE `id`='" . $object['Document']['template_id'] . "'") )
+    	) {
+	        
+	        $object['Document']['_template'] = array_column($data, 'pisma_szablony');
 	        
         }
 

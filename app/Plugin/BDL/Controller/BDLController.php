@@ -84,7 +84,7 @@ class BDLController extends AppController
 					),
 				),
 			));
-			
+						
 			if(
 				isset( $this->request->query['local'] ) &&
 				in_array($this->request->query['local'], array('wojewodztwa', 'powiaty', 'gminy'))

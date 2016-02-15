@@ -115,7 +115,16 @@ class DataobjectsController extends AppController
 					return  $value['objects']['id'];
 				}, $objects),
 			);
-
+			
+		} elseif( $query['_type']=='letters' ) {
+			
+			
+			$query['conditions']['from_user_type'] = $this->Auth->user('type');
+			$query['conditions']['from_user_id'] = $this->Auth->user('id');
+			$query['order'] = array(
+				'created_at desc',
+			);
+						
 		} else {
 		
 			if( isset($params['dataset']) && $params['dataset'] )

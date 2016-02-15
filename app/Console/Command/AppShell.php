@@ -145,7 +145,7 @@ class AppShell extends Shell
             'user_type' => $document['Document']['from_user_type'],
             'name' => $document['Document']['from_user_name'],
             'user_id' => $document['Document']['from_user_id'],
-            'to_email' => $document['Document']['to_email'],
+            'email' => $document['Document']['to_email'],
         ));
     }
     

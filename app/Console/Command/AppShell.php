@@ -125,5 +125,21 @@ class AppShell extends Shell
             echo $user['User']['id'] . " : " . ($status ? '1' : '0') . "\n";
         }
     }
+
+    public function sendLetterById() {
+        $id = (int) $this->args[0];
+        if(!$id)
+            throw new Exception('id is required');
+
+        $document = $this->Document->find('first', array(
+            'Document.id' => $id
+        ));
+
+        $this->Document->send(array(
+            'id' => $document['Document']['id'],
+            'user_type' => $document['Document']['from_user_type'],
+            'user_id' => $document['Document']['from_user_id'],
+        ));
+    }
     
 }

@@ -109,7 +109,7 @@ class EmailsShell extends AppShell {
         }
 
         $this->User->query("
-                INSERT INTO ngo_email_campaign VALUES
+                INSERT INTO ngo_email_campaign (krs_pozycje_id, created_at, status) VALUES
                 ({$row[0]['krs_pozycje']['id']}, NOW(), {$status})
             ");
     }

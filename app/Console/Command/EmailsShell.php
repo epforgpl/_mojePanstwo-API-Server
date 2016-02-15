@@ -77,6 +77,24 @@ class EmailsShell extends AppShell {
                 ORDER BY krs_pozycje.id DESC
                 LIMIT 1
             ");
+        
+        /*
+	        
+	    MOŻE TAK?    
+	    
+        $row = $this->User->query("
+              SELECT
+                  krs_pozycje.id,
+                  krs_pozycje.forma_prawna_id,
+                  krs_pozycje.email,
+                  krs_pozycje.nazwa
+                FROM krs_pozycje
+                WHERE krs_pozycje.forma_prawna_id IN(1, 15) AND krs_pozycje.www != \"\"
+                AND id NOT IN (SELECT krs_pozycje_id FROM ngo_email_campaign) 
+                ORDER BY krs_pozycje.id DESC
+                LIMIT 1
+            ");
+        */
 
         if(!$row)
             return 1;

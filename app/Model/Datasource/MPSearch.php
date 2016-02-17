@@ -496,10 +496,10 @@ class MPSearch {
 			        	$should[] = array(
 				        	'query' => array(
 						        'multi_match' => array(
-							        'query' => $_v,
+									'query' => $_v,
+						        	'fields' => array('title', 'text', 'acronym'),
 								    'type' => "phrase",
-								    'fields' => array('title', 'title.suggest', 'acronym', 'text'),
-									'analyzer' => 'pl',
+								    // 'fields' => array('title', 'title.suggest', 'acronym', 'text'),
 									'slop' => 5,
 						        ),
 					        ),

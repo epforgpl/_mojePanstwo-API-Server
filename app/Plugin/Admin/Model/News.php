@@ -5,8 +5,25 @@ class News extends AppModel {
     public $useTable = 'news';
 
     private static $ES_DATE_FORMAT = "Ymd\THis\Z";
-    private static $ES_DATASET_ID = 225;
-    private static $ES_DATASET = 'news';
+    private static $ES_DATASET_ID = 226;
+    private static $ES_DATASET = 'ngo_konkursy';
+
+    private static $ES_FIELDS_MAP = array(
+        'id',
+        'instytucja_id',
+        array('db' => 'name', 'es' => 'tytul'),
+        array('db' => 'description', 'es' => 'opis'),
+        array('db' => 'date', 'es' => 'data'),
+        array('db' => 'deadline', 'es' => 'data_deadline'),
+        array('db' => 'range_min', 'es' => 'wartosc_min'),
+        array('db' => 'range_max', 'es' => 'wartosc_max'),
+        array('db' => 'is_promoted', 'es' => 'promo'),
+        array('db' => 'is_image', 'es' => 'img'),
+        array('db' => 'image_source', 'es' => 'img_src'),
+        array('db' => 'source_url', 'es' => 'url'),
+        array('db' => 'created_at', 'es' => 'czas_utowrzenia', 'type' => 'datetime'),
+        array('db' => 'updated_at', 'es' => 'czas_modyfikacji', 'type' => 'datetime'),
+    );
 
     public function afterSave($options = array()) {
         $ES = ConnectionManager::getDataSource('MPSearch');
@@ -65,16 +82,6 @@ class News extends AppModel {
             }
         }
 
-        $fields = array();
-        foreach($data as $name => $value) {
-            $fields['news.' . $name] = $value;
-        }
-
-        if(isset($fields['news.created_at']))
-            $fields['news.created_at'] = date(self::$ES_DATE_FORMAT, strtotime($data['created_at']));
-        if(isset($fields['news.updated_at']))
-            $fields['news.updated_at'] = date(self::$ES_DATE_FORMAT, strtotime($data['updated_at']));
-
         $ES->API->index(array(
             'index' => 'mojepanstwo_v1',
             'id' => $global_id,
@@ -86,19 +93,38 @@ class News extends AppModel {
                 'text' => $data['name'] . ' ' . $data['description'] . ' ' . strip_tags($data['content']),
                 'dataset' => self::$ES_DATASET,
                 'slug' => Inflector::slug($data['name']),
-                'data' => $fields,
+                'data' => $this->prepareDataToESFields($data),
                 'date' => date('Y-m-d', isset($data['created_at']) ? strtotime($data['created_at']) : time())
             )
         ));
 
-        if(isset($fields['news.crawler_page_id']) && $fields['news.crawler_page_id'] != '0') {
+        if(isset($data['crawler_page_id']) && $data['crawler_page_id'] != '0') {
             App::import('Model', 'Admin.CrawlerPage');
             $page = new CrawlerPage();
             $page->save(array(
-                'id' => (int) $fields['news.crawler_page_id'],
+                'id' => (int) $data['crawler_page_id'],
                 'status' => '1'
             ));
         }
+    }
+
+    private function prepareDataToESFields($data) {
+        $fields = array();
+        foreach(self::$ES_FIELDS_MAP as $field) {
+            if(!is_array($field) && isset($data[$field])) {
+                $fields[self::$ES_DATASET . '.' . $field] = $data[$field];
+            } else {
+                if(isset($data[$field['db']])) {
+                    if(isset($field['type']) && $field['type'] == 'datetime') {
+                        $fields[self::$ES_DATASET . '.' . $field['es']] = date(self::$ES_DATE_FORMAT, strtotime($data[$field['db']]));
+                    } else {
+                        $fields[self::$ES_DATASET . '.' . $field['es']] = $data[$field['db']];
+                    }
+                }
+            }
+        }
+
+        return $fields;
     }
 
     public function beforeDelete($cascade = true) {

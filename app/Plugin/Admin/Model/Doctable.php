@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @property DoctableData DoctableData
+ * @property DoctableDataTable DoctableDataTable
+ * @property DoctableDataTableValue DoctableDataTableValue
+ */
 class Doctable extends AppModel
 {
 
@@ -54,6 +59,55 @@ class Doctable extends AppModel
         return true;
     }
 
+    public function saveTablesData($id = 0, $data) {
+        $name = @$data['name'];
+        $tables = $data['tables'];
+
+        App::uses('DoctableData', 'Admin.Model');
+        $this->DoctableData = new DoctableData();
+
+        App::uses('DoctableDataTable', 'Admin.Model');
+        $this->DoctableDataTable = new DoctableDataTable();
+
+        App::uses('DoctableDataTableValue', 'Admin.Model');
+        $this->DoctableDataTableValue = new DoctableDataTableValue();
+
+        $this->DoctableData->save(array(
+            'document_id' => $id,
+            'user_id' => AuthComponent::user('id'),
+            'name' => $name,
+            'created_at' => date('Y-m-d H:i:s')
+        ));
+
+        $doctableDataID = $this->DoctableData->getLastInsertID();
+        foreach($tables as $table) {
+            $this->DoctableDataTable->clear();
+            $this->DoctableDataTable->save(array(
+                'doctable_data_id' => $doctableDataID,
+                'name' => $table['name'],
+                'rows' => count($table['data']),
+                'cols' => count($table['data'][0])
+            ));
+
+            $doctableDataTableID = $this->DoctableDataTable->getLastInsertID();
+            $index = 0;
+            foreach($table['data'] as $row) {
+                foreach($row as $value) {
+                    $this->DoctableDataTableValue->clear();
+                    $this->DoctableDataTableValue->save(array(
+                        'doctable_data_table_id' => $doctableDataTableID,
+                        'index' => $index,
+                        'value' => $value
+                    ));
+
+                    $index++;
+                }
+            }
+        }
+
+        return true;
+    }
+
     public function getTables($document_id = 0)
     {
         return $this->query('
@@ -65,6 +119,20 @@ class Doctable extends AppModel
             LEFT JOIN `doctable_cols` ON `doctable_cols`.`doctable_id` = `doctables`.`id`
             WHERE `doctables`.`document_id` = ' . (int)$document_id . '
             GROUP BY `doctables`.`id`
+        ');
+    }
+
+    public function getTablesData($document_id = 0)
+    {
+        return $this->query('
+            SELECT `doctable_data`.*,
+            COUNT(`doctable_data_table`.`id`) as `tables`,
+            `users`.`username`
+            FROM `doctable_data`
+            LEFT JOIN `doctable_data_table` ON `doctable_data_table`.`doctable_data_id` = `doctable_data`.`id`
+            LEFT JOIN `users` ON `users`.`id` = `doctable_data`.`user_id`
+            WHERE `doctable_data`.`document_id` = ' . (int)$document_id . '
+            GROUP BY `doctable_data`.`id`
         ');
     }
 

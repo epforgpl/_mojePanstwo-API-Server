@@ -570,45 +570,73 @@ class Dataobject extends AppModel
     }
 
     public function moderate_request($data, $object_id, $dataset) {
-        $request = new PageRequest();
-        $user_id = (int) $this->getCurrentUser('id');
+        $row = false;
 
-        if(!$user_id)
-            return false;
+        CakeLog::write('moderate_request', json_encode(array(
+            'data' => $data,
+            'object_id' => $object_id,
+            'dataset' => $dataset,
+            'user_id' => (int) $this->getCurrentUser('id')
+        )));
 
-        $form = array();
-        $form_fields = array('firstname', 'lastname', 'position', 'organization', 'email', 'phone');
-        foreach($form_fields as $field)
-            if(isset($data[$field]))
-                $form[$field] = $data[$field];
+        try {
 
-        App::uses('CakeEmail', 'Network/Email');
-        $Email = new CakeEmail('noreply');
+            $request = new PageRequest();
+            $user_id = (int) $this->getCurrentUser('id');
+            if(!$user_id)
+                throw new Exception('Musisz być zalogowany');
 
-        if( defined('MODERATE_REQUEST_test_email') ) {
-            $to_email = MODERATE_REQUEST_test_email;
-            $to_name = MODERATE_REQUEST_test_name;
-        } else {
-            $to_email = $data['email'];
-            $to_name =  $data['firstname'] . ' ' . $data['lastname'];
+            $form = array();
+            $form_fields = array('firstname', 'lastname', 'position', 'organization', 'email', 'phone');
+            foreach($form_fields as $field)
+                if(isset($data[$field]))
+                    $form[$field] = $data[$field];
+
+            App::uses('CakeEmail', 'Network/Email');
+            $Email = new CakeEmail('noreply');
+
+            if( defined('MODERATE_REQUEST_test_email') ) {
+                $to_email = MODERATE_REQUEST_test_email;
+                $to_name = MODERATE_REQUEST_test_name;
+            } else {
+                $to_email = $data['email'];
+                $to_name =  $data['firstname'] . ' ' . $data['lastname'];
+            }
+
+            try {
+                $status = $Email->template('Dane.moderate_request_begin')
+                    ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
+                    ->emailFormat('html')
+                    ->subject('Cześć! Fajnie, że jesteś!')
+                    ->to($to_email, $to_name)
+                    ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+                    ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+                    ->send();
+            } catch(SocketException $e) {
+                throw new Exception('Wystąpił błąd podczas wysyłania wiadomości email (' .
+                    $e->getMessage() . '). Spróbuj ponownie później.');
+            }
+
+            $row = $request->save(array(
+                'PageRequest' => array_merge($form, array(
+                    'dataset' => $dataset,
+                    'object_id' => $object_id,
+                    'user_id' => $user_id
+                ))
+            ));
+
+            if(!$row)
+                throw new Exception('Wystąpił błąd podczas zapisywania danych. Spróbuj ponownie później.');
+
+        } catch(Exception $e) {
+            return array(
+                'error' => $e->getMessage()
+            );
         }
 
-        $status = $Email->template('Dane.moderate_request_begin')
-            ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
-            ->emailFormat('html')
-            ->subject('Cześć! Fajnie, że jesteś!')
-            ->to($to_email, $to_name)
-            ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
-            ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
-            ->send();
-
-        return $request->save(array(
-            'PageRequest' => array_merge($form, array(
-                'dataset' => $dataset,
-                'object_id' => $object_id,
-                'user_id' => $user_id
-            ))
-        ));
+        return array(
+            'row' => $row
+        );
     }
 
     public function save_edit_data_form($data, $id, $dataset) {

@@ -136,4 +136,25 @@ class Doctable extends AppModel
         ');
     }
 
+    public function getTableData($doctable_data_id = 0) {
+        return array(
+            'doctable_data' => $this->query('
+                SELECT *
+                FROM `doctable_data`
+                WHERE `id` = ?
+            ', array($doctable_data_id)),
+            'doctable_data_tables' => $this->query('
+                SELECT
+                  `doctable_data_table`.*,
+                  GROUP_CONCAT(`doctable_data_table_value`.`value` ORDER BY `doctable_data_table_value`.`index` ASC SEPARATOR "[{~}]") as `values`,
+                  COUNT(`doctable_data_table_value`.`value`) as `values_count`
+                FROM `doctable_data_table`
+                LEFT JOIN `doctable_data_table_value`
+                  ON `doctable_data_table_value`.`doctable_data_table_id` = `doctable_data_table`.`id`
+                WHERE `doctable_data_id` = ?
+                GROUP BY `doctable_data_table`.`id`
+            ', array($doctable_data_id))
+        );
+    }
+
 }

@@ -9,7 +9,7 @@
 
 <p>Rejestracja: <a href="http://epf.org.pl/pl/wydarzenia/pdfplcee16/">http://epf.org.pl/pl/wydarzenia/pdfplcee16/</a></p>
 
-<p>W zeszłym roku Forum zgromadziło ponad 400 osób z 29 krajów. PDF PL CEE 2016 organizowany jest przez Fundację ePaństwo we współpracy z TechSoup Polska i Miastem Gdańsk. Wydarzenie jest wspierane przez Personal Democracy Media, Code for All i Departament Stanu USA w ramach Programu "Promocja technologii dla przejrzystości i odpowiedzialności". Patronami medialnymi są: Forum Samorządowe, Tygodnik Solidarność oraz 300polityka.</p>
+<p>W zeszłym roku Forum zgromadziło ponad 400 osób z 29 krajów. PDF PL CEE 2016 organizowany jest przez Fundację ePaństwo we współpracy z TechSoup Polska i Miastem Gdańsk. Wydarzenie jest wspierane przez Personal Democracy Media, Code for All, Teplitsa i Departament Stanu USA w ramach Programu "Promocja technologii dla przejrzystości i odpowiedzialności". Patronami medialnymi są: Gazeta Wyborcza, Gazeta Wyborcza Trójmiasto, Respublica, Forum Samorządowe, Tygodnik Solidarność oraz 300polityka i ngo.pl.</p>
 
 <p>W przypadku Państwa pytań - chętnie na nie odpowiem.</p>
 

@@ -232,8 +232,29 @@ class DocumentsController extends AppController
 			    $text = $inputs[0];
 			    
 		    }
-		    		    
-		    $this->Document->query("UPDATE `pisma_documents` SET `saved` = '1', `content`='" . addslashes( $text ) . "' WHERE `alphaid`='$id' LIMIT 1");
+		    
+		    
+		    
+		    $query = array(
+			    '`saved` = "1"',
+			    '`content` = "' . addslashes( $text ) . '"',
+		    );
+		    
+		    
+		    
+		    if( isset($data['nadawca']) )
+		    	$query[] = '`from_str` = "' . addslashes( $data['nadawca'] ) . '"';
+		    	
+		    if( isset($data['podpis']) )
+		    	$query[] = '`from_signature` = "' . addslashes( $data['podpis'] ) . '"';
+		    	
+		    if( isset($data['miejscowosc']) )
+		    	$query[] = '`from_location` = "' . addslashes( $data['miejscowosc'] ) . '"';
+		    	
+		    if( isset($data['data_pisma']) )
+		    	$query[] = '`date` = "' . addslashes( $data['data_pisma'] ) . '"';		    
+		        
+		    $this->Document->query("UPDATE `pisma_documents` SET " . implode(', ', $query) . " WHERE `alphaid`='$id' LIMIT 1");
 	            
             $url = '/moje-pisma/' . $id;
                         
@@ -343,6 +364,7 @@ class DocumentsController extends AppController
 	            $data['alphaid'] = $this->generateID(5);
 		        $data['name'] = false;
 		        $data['saved'] = '0';
+		        $data['date'] = date('Y-m-d');
 		       
 		    }
 		    		    

@@ -8,6 +8,7 @@ class MPSearch {
 	public $API;
     public $lastResponseStats = null;
     
+    public $profile = false;
     public $Aggs = array();
     private $aggs_allowed = array(
 	    'date_histogram' => array('field', 'interval', 'format'),
@@ -217,9 +218,11 @@ class MPSearch {
 					array(
 						'date' => 'desc',
 					),
+					/*
 					array(
 						'title' => 'asc',
 					)
+					*/
 				),
 			),
 		);
@@ -331,6 +334,7 @@ class MPSearch {
 		        $and_filters[] = array(
 		    		'term' => array(
 		    			'weights.main.enabled' => true,
+		    			'_cache' => true
 		    		),
 		    	);
 		    	
@@ -469,8 +473,9 @@ class MPSearch {
 		        	$params['body']['query']['function_score']['query']['filtered']['query']['multi_match'] = array(
 			        	'query' => mb_convert_encoding($value, 'UTF-8', 'UTF-8'),
 			        	'fields' => array('title', 'text', 'acronym'),
+			        	// 'cutoff_frequency' => 0.001
 					    'type' => "phrase",
-					    // 'fields' => array('title', 'title.suggest', 'acronym', 'text'),
+					    // 'fields' => array('title', 'acronym', 'text'),
 						'slop' => 5,
 		        	);
 		        	
@@ -498,19 +503,19 @@ class MPSearch {
 						        'multi_match' => array(
 									'query' => $_v,
 						        	'fields' => array('title', 'text', 'acronym'),
-								    'type' => "phrase",
+								    // 'type' => "phrase",
 								    // 'fields' => array('title', 'title.suggest', 'acronym', 'text'),
-									'slop' => 5,
+									// 'slop' => 5,
 						        ),
 					        ),
 			        	);
 			        	
 			        	$highlight_query[] = array(
-		    				'match_phrase' => array(
+		    				'match' => array(
 			    				'text' => array(
 				    				"query" => $_v,
-                                    "phrase_slop" => 5,
-                                    "boost" => 10,
+                                    // "phrase_slop" => 5,
+                                    // "boost" => 10,
 			    				),
 		    				),
 			        	);
@@ -1385,13 +1390,18 @@ class MPSearch {
     public function read(Model $model, $queryData = array()) {
 		
 		$params = $this->buildESQuery($queryData);
-				
+		$params['body']['profile'] = true;
+		
 		// echo "\n\n\nQUERY= "; var_export( $params ); echo "\nEND\n";
 		
 		$this->lastResponseStats = null;
 		$response = $this->API->search( $params );
 
 		// echo "\n\n\nRESPONSE= "; var_export($response); die();
+		
+		if (isset($response['profile'])) {
+			$this->profile = $response['profile'];
+		}
 		
 		$this->lastResponseStats = array();
 		if (isset($response['hits']['total'])) {

@@ -206,23 +206,11 @@ class MPSearch {
 			'body' => array(
 				'from' => $from, 
 				'size' => $size,
-				'query' => array(
-					'function_score' => array(
-		        		'query' => array(),
-		        		'field_value_factor' => array(
-							'field' => 'weights.main.score'
-				        ),
-		        	),
-				),
+				'query' => array(),
 				'sort' => array(
 					array(
 						'date' => 'desc',
 					),
-					/*
-					array(
-						'title' => 'asc',
-					)
-					*/
 				),
 			),
 		);
@@ -232,13 +220,6 @@ class MPSearch {
 			$params['body'] = array_merge($params['body'], array(
 				'fields' => array('dataset', 'id', 'slug'),
 				'_source' => array('data', 'static'),
-				/*
-				'partial_fields' => array(
-					'source' => array(
-						'include' => array('data', 'static'),
-					),
-				),
-				*/
 			));
 			
 			$fields_prefix = 'data.';
@@ -249,10 +230,7 @@ class MPSearch {
 			
 		}
 		
-		$_fields_prefix = false;
-		
-		// debug($queryData); die();
-		
+		$_fields_prefix = false;		
 		$has_order = false;
 		
 		if( isset($queryData['order']) && is_array($queryData['order']) ) {
@@ -470,14 +448,26 @@ class MPSearch {
 				
 				if( $value ) {
 					
-		        	$params['body']['query']['function_score']['query']['filtered']['query']['multi_match'] = array(
-			        	'query' => mb_convert_encoding($value, 'UTF-8', 'UTF-8'),
-			        	'fields' => array('title', 'text', 'acronym'),
-			        	// 'cutoff_frequency' => 0.001
-					    'type' => "phrase",
-					    // 'fields' => array('title', 'acronym', 'text'),
-						'slop' => 5,
-		        	);
+					$params['body']['query'] = array(
+						'function_score' => array(
+			        		'query' => array(
+				        		'filtered' => array(
+					        		'query' => array(
+						        		'multi_match' => array(
+							        		'query' => mb_convert_encoding($value, 'UTF-8', 'UTF-8'),
+								        	'fields' => array('title', 'text', 'acronym'),
+								        	'cutoff_frequency' => 0.001,
+										    'type' => "phrase",
+											'slop' => 5,
+						        		),
+					        		),
+				        		),
+			        		),
+			        		'field_value_factor' => array(
+								'field' => 'weights.main.score'
+					        ),
+			        	),
+					);
 		        	
 		        	if( !$has_order )
 			        	unset( $params['body']['sort'] );
@@ -1203,7 +1193,7 @@ class MPSearch {
 					array_key_exists('filters_exclude', $aggs) || 
 					array_key_exists('query_main', $aggs) 
 				) {
-					
+										
 					if( isset($params['body']['query']['function_score']['query']['filtered']['query']) )
 						$filter = array(
 							'query' => $params['body']['query']['function_score']['query']['filtered']['query'],
@@ -1313,10 +1303,30 @@ class MPSearch {
 										
 		}
 		
-		// debug($params); die();
-		$params['body']['query']['function_score']['query']['filtered']['filter']['and']['filters'] = $and_filters;
 		
+		if( isset($params['body']['query']['function_score']) ) {
+			
+			$params['body']['query']['function_score']['query']['filtered']['filter'] = array(
+				'bool' => array(
+					'must' => $and_filters,
+				),
+			);
+			
+		} else {
+			
+			$params['body']['query'] = array(
+				'filtered' => array(
+					'filter' => array(
+						'bool' => array(
+							'must' => $and_filters,
+						),
+					),
+				),
+			);
+			
+		}
 		
+						
 		
 		if( 
 			isset($queryData['highlight']) && 
@@ -1390,9 +1400,9 @@ class MPSearch {
     public function read(Model $model, $queryData = array()) {
 		
 		$params = $this->buildESQuery($queryData);
-		$params['body']['profile'] = true;
+		// $params['body']['profile'] = true;
 		
-		// echo "\n\n\nQUERY= "; var_export( $params ); echo "\nEND\n";
+		// echo "\n\n\nQUERY= "; var_export( $params ); echo "\nEND\n"; die();
 		
 		$this->lastResponseStats = null;
 		$response = $this->API->search( $params );

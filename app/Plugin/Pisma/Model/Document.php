@@ -843,16 +843,21 @@ class Document extends AppModel
         }
 
 
-        $Email = new CakeEmail('powiadomienia');
+        $Email = new CakeEmail('pisma');
 
-        $status = $Email->template($template)
-            ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
-            ->emailFormat('html')
-            ->subject($title)
-            ->to($to_email)
-            ->from('pisma@mojepanstwo.pl', 'Pisma | mojePaństwo')
-            ->send();
+        try {
+            $status = $Email->template($template)
+                ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
+                ->emailFormat('html')
+                ->subject($title)
+                ->to($to_email)
+                ->from('pisma@mojepanstwo.pl', 'Pisma | mojePaństwo')
+                ->send();
+        } Catch(SocketException $e) {
+            $this->log($e->getMessage());
+            return false;
+        }
 
-        return (boolean)$status;
+        return (boolean) $status;
     }
 }

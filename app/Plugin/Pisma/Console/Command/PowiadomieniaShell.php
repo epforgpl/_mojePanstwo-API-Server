@@ -5,71 +5,57 @@ class PowiadomieniaShell extends Shell
 {
     public $uses = array('Pisma.Document');
 
-    public function NotificationPastLoop()
-    {
-        while (1) {
-            if (
-            $pismo = $this->Document->find('first', array(
-                'conditions' => array(
-                    "sent = '1'",
-                    "TIMESTAMPADD(DAY,14,`sent_at`)<NOW()",
-                    "TIMESTAMPADD(DAY,21,`sent_at`)>'2015-10-22'",
-                    "`from_user_type`='account'",
-                    "`powiadomienie_termin`='0'",
-                    "`name`='Wniosek o udostępnienie informacji publicznej'",
+    public function send() {
+        $db = ConnectionManager::getDataSource('default');
+        $options = array(
+            'final' => array(
+                'data' => $db->query("
+                    SELECT
+                        `pisma_documents`.`id`,
+                        `users`.`email`
+                    FROM `pisma_documents`
+                    RIGHT JOIN `users` ON `users`.`id` = `pisma_documents`.`from_user_id`
+                    WHERE
+                      `pisma_documents`.`sent` = '1' AND
+                      `pisma_documents`.`from_user_type` = 'account' AND
+                      `pisma_documents`.`powiadomienie_termin` = 0 AND
+                      `pisma_documents`.`name` = 'Wniosek o udostępnienie informacji publicznej' AND
+                      TIMESTAMPDIFF(DAY, `pisma_documents`.`sent_at`, NOW()) > 14 AND
+                      TIMESTAMPDIFF(DAY, `pisma_documents`.`sent_at`, NOW()) < 30
+                "),
+                'flag' => 'powiadomienie_termin',
+                'timestamp' => 'powiadomienie_termin_ts'
+            ),
+            '3dni' => array(
+                'data' => $db->query("
+                    SELECT
+                        `pisma_documents`.`id`,
+                        `users`.`email`
+                    FROM `pisma_documents`
+                    RIGHT JOIN `users` ON `users`.`id` = `pisma_documents`.`from_user_id`
+                    WHERE
+                      `pisma_documents`.`sent` = '1' AND
+                      `pisma_documents`.`from_user_type` = 'account' AND
+                      `pisma_documents`.`powiadomienie_termin` = 0 AND
+                      `pisma_documents`.`powiadomienie_zbliza` = 0 AND
+                      `pisma_documents`.`name` = 'Wniosek o udostępnienie informacji publicznej' AND
+                      TIMESTAMPDIFF(DAY, `pisma_documents`.`sent_at`, NOW()) < 14 AND
+                      TIMESTAMPDIFF(DAY, `pisma_documents`.`sent_at`, NOW()) > 11
+                "),
+                'flag' => 'powiadomienie_zbliza',
+                'timestamp' => 'powiadomienie_zbliza_ts'
+            )
+        );
 
-                ),
-                'fields' => array('id', 'from_user_id', 'sent_at'),
-                'order' => array('sent_at' => 'ASC')
-            ))
-            ) {
-
-                $db = ConnectionManager::getDataSource('default');
-                $user = $db->query("SELECT email FROM users WHERE id=" . $pismo['Document']['from_user_id'] . " LIMIT 1");
-
-
-                $status = $this->Document->notify($user['email'], 'final');
-
-                if ($status == true) {
-                    $db->query("UPDATE `pisma_documents` SET `powiadomienie_termin`='1', `powiadomienie_termin_ts`=NOW() WHERE `alphaid`='" . addslashes($pismo['id']) . "'");
-                }
-                var_dump($status);
+        foreach($options as $type => $opt)
+        {
+            foreach($opt['data'] as $row) {
+                $status = $this->Document->notify($row['users']['email'], $type);
+                $db->query("UPDATE `pisma_documents` SET `{$opt['flag']}` = ?, `{$opt['timestamp']}` = NOW() WHERE `id` = ?", array(
+                    $status ? 1 : 2,
+                    $row['pisma_documents']['id']
+                ));
             }
-            sleep(15);
-        }
-    }
-
-    public function Notification2DaysLoop()
-    {
-        while (1) {
-            if ($pismo = $this->Document->find('first', array(
-                'conditions' => array(
-                    "sent = '1'",
-                    "TIMESTAMPADD(DAY,11,`sent_at`)<NOW()",
-                    "TIMESTAMPADD(DAY,14,`sent_at`)>NOW()",
-                    "`from_user_type`='account'",
-                    "`powiadomienie_termin`='0'",
-                    "`powiadomienie_zbliza`='0'",
-                    "`name`='Wniosek o udostępnienie informacji publicznej'",
-
-                ),
-                'fields' => array('alphaid', 'from_user_id', 'sent_at'),
-                'order' => array('sent_at' => 'ASC')
-            ))
-            ) {
-
-                $db = ConnectionManager::getDataSource('default');
-                $user = $db->query("SELECT email FROM users WHERE id=" . $pismo['Document']['from_user_id'] . " LIMIT 1");
-
-
-                $status = $this->Document->notify($user['email'], '3dni');
-
-                if ($status == true) {
-                    $db->query("UPDATE `pisma_documents` SET `powiadomienie_zbliza`='1', `powiadomienie_zbliza_ts`=NOW() WHERE `alphaid`='" . addslashes($pismo['id']) . "'");
-                }
-                var_dump($status);
-            }
-            sleep(15);
         }
     }
 }

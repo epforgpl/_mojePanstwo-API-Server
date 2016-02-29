@@ -493,9 +493,8 @@ class MPSearch {
 						        'multi_match' => array(
 									'query' => $_v,
 						        	'fields' => array('title', 'text', 'acronym'),
-								    // 'type' => "phrase",
-								    // 'fields' => array('title', 'title.suggest', 'acronym', 'text'),
-									// 'slop' => 5,
+								    'type' => "phrase",
+									'slop' => 5,
 						        ),
 					        ),
 			        	);

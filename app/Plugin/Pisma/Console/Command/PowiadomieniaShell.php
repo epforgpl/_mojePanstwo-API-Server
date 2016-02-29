@@ -7,7 +7,7 @@ class PowiadomieniaShell extends Shell
 
     public function send() {
         $db = ConnectionManager::getDataSource('default');
-        $options = array(
+        $types = array(
             'final' => array(
                 'data' => $db->query("
                     SELECT
@@ -47,11 +47,11 @@ class PowiadomieniaShell extends Shell
             )
         );
 
-        foreach($options as $type => $opt)
+        foreach($types as $type => $options)
         {
-            foreach($opt['data'] as $row) {
+            foreach($options['data'] as $row) {
                 $status = $this->Document->notify($row['users']['email'], $type);
-                $db->query("UPDATE `pisma_documents` SET `{$opt['flag']}` = ?, `{$opt['timestamp']}` = NOW() WHERE `id` = ?", array(
+                $db->query("UPDATE `pisma_documents` SET `{$options['flag']}` = ?, `{$options['timestamp']}` = NOW() WHERE `id` = ?", array(
                     $status ? 1 : 2,
                     $row['pisma_documents']['id']
                 ));

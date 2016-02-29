@@ -2,6 +2,10 @@
 
 App::uses('CakeSession', 'Model/Datasource');
 
+/**
+ * @property ObjectPageTag ObjectPageTag
+ * @property Temat Temat
+ */
 class ObjectPage extends AppModel {
 
     public $useTable = 'objects-pages';
@@ -49,8 +53,63 @@ class ObjectPage extends AppModel {
         return true;
     }
 
+    private function updateTags($object_global_id, $object_id, $tags) {
+        App::uses('ObjectPageTag', 'Dane.Model');
+        $this->ObjectPageTag = new ObjectPageTag();
+
+        App::uses('Temat', 'Dane.Model');
+        $this->Temat = new Temat();
+
+        $tags = explode(',', $tags);
+        $this->ObjectPageTag->deleteAll(array(
+            'ObjectPageTag.object_global_id' => $object_global_id
+        ), false);
+
+        $update = array();
+
+        if(!$tags)
+            return true;
+
+        foreach($tags as $tag) {
+            $q = trim($tag);
+            $temat = $this->Temat->find('first', array(
+                'conditions' => array(
+                    'Temat.q' => $q
+                )
+            ));
+
+            if(!$temat) {
+                $this->Temat->clear();
+                $this->Temat->save(array(
+                    'q' => $q,
+                ));
+
+                $update[] = (int) $this->Temat->getLastInsertId();
+            } else {
+                $update[] = (int) $temat['Temat']['id'];
+            }
+        }
+
+        $update = array_unique($update);
+
+        foreach($update as $tag_id) {
+            $this->ObjectPageTag->clear();
+            $this->ObjectPageTag->save(array(
+                'object_global_id' => $object_global_id,
+                'object_id' => $object_id,
+                'tag_id' => $tag_id
+            ));
+        }
+    }
+
     public function setData($data, $id, $dataset)
     {
+        $this->log(array(
+            'data' => $data,
+            'id' => $id,
+            'dataset' => $dataset
+        ));
+
         $id = (int) $id;
         $conditions = array(
             'ObjectPage.dataset' => $dataset,
@@ -134,10 +193,13 @@ class ObjectPage extends AppModel {
             $id
         ));
 
-        $id = $row[0]['objects']['id'];
+        $global_id = $row[0]['objects']['id'];
 
-        if($id)
-            $this->syncById($id);
+        if(isset($data['tagi']))
+            $this->updateTags($global_id, $id, $data['tagi']);
+
+        if($global_id)
+            $this->syncById($global_id);
 
         return (bool) $success;
     }

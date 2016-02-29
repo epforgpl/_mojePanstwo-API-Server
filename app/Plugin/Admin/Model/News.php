@@ -93,7 +93,9 @@ class News extends AppModel {
                 'text' => $data['name'] . ' ' . $data['description'] . ' ' . strip_tags($data['content']),
                 'dataset' => self::$ES_DATASET,
                 'slug' => Inflector::slug($data['name']),
-                'data' => $this->prepareDataToESFields($data),
+                'data' => array(
+                    self::$ES_DATASET => $this->prepareDataToESFields($data)
+                ),
                 'date' => date('Y-m-d', isset($data['created_at']) ? strtotime($data['created_at']) : time())
             )
         ));
@@ -112,13 +114,13 @@ class News extends AppModel {
         $fields = array();
         foreach(self::$ES_FIELDS_MAP as $field) {
             if(!is_array($field) && isset($data[$field])) {
-                $fields[self::$ES_DATASET . '.' . $field] = $data[$field];
+                $fields[$field] = $data[$field];
             } else {
                 if(isset($data[$field['db']])) {
                     if(isset($field['type']) && $field['type'] == 'datetime') {
-                        $fields[self::$ES_DATASET . '.' . $field['es']] = date(self::$ES_DATE_FORMAT, strtotime($data[$field['db']]));
+                        $fields[$field['es']] = date(self::$ES_DATE_FORMAT, strtotime($data[$field['db']]));
                     } else {
-                        $fields[self::$ES_DATASET . '.' . $field['es']] = $data[$field['db']];
+                        $fields[$field['es']] = $data[$field['db']];
                     }
                 }
             }

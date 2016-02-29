@@ -222,9 +222,11 @@ class User extends PaszportAppModel
                 'dataset' => 'uzytkownicy',
                 'slug' => Inflector::slug($user['username']),
                 'data' => array(
-                    'uzytkownicy.id' => $user['id'],
-                    'uzytkownicy.username' => $user['username'],
-                    'uzytkownicy.created' => date('Ymd\THis\Z', strtotime($user['created']))
+                    'uzytkownicy' => array(
+                        'id' => $user['id'],
+                        'username' => $user['username'],
+                        'created' => date('Ymd\THis\Z', strtotime($user['created']))
+                    ),
                 )
             )
         ));

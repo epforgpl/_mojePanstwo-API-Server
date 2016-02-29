@@ -236,20 +236,22 @@ class Collection extends AppModel {
 
 			$params['id'] = $global_id;
 			$params['body']['data'] = array(
-				'kolekcje.czas_utworzenia' => $data['created_at'],
-				'kolekcje.id' => $data['id'],
-				'kolekcje.nazwa' => $data['name'],
-				'kolekcje.notatka' => $data['description'],
-				'kolekcje.user_id' => $data['user_id'],
-				'kolekcje.user_username' => $data['user_username'],
-				'kolekcje.is_public' => $data['is_public'],
-				'kolekcje.is_promoted' => $data['is_promoted'],
-				'kolekcje.object_id' => $data['object_id'],
-				'kolekcje.items_count' => $data['items_count'],
-				'kolekcje.page_name' => isset($data['page_name']) ? $data['page_name'] : '',
-				'kolekcje.page_dataset' => isset($data['page_dataset']) ? $data['page_dataset'] : '',
-				'kolekcje.page_object_id' => isset($data['page_object_id']) ? $data['page_object_id'] : '',
-				'kolekcje.page_slug' => isset($data['page_slug']) ? $data['page_slug'] : '',
+				'kolekcje' => array(
+					'czas_utworzenia' => $data['created_at'],
+					'id' => $data['id'],
+					'nazwa' => $data['name'],
+					'notatka' => $data['description'],
+					'user_id' => $data['user_id'],
+					'user_username' => $data['user_username'],
+					'is_public' => $data['is_public'],
+					'is_promoted' => $data['is_promoted'],
+					'object_id' => $data['object_id'],
+					'items_count' => $data['items_count'],
+					'page_name' => isset($data['page_name']) ? $data['page_name'] : '',
+					'page_dataset' => isset($data['page_dataset']) ? $data['page_dataset'] : '',
+					'page_object_id' => isset($data['page_object_id']) ? $data['page_object_id'] : '',
+					'page_slug' => isset($data['page_slug']) ? $data['page_slug'] : '',
+				)
 			);
 			$params['type'] = 'objects';
 			$ES->API->index($params);

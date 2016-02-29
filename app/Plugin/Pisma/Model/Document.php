@@ -784,13 +784,6 @@ class Document extends AppModel
                 $res = $this->query('select last_insert_id() as id;');
                 $global_id = $res[0][0]['id'];
             }
-			
-			
-            $paramsData = array();
-            foreach($data as $name => $value) {
-                $paramsData['pisma.' . $name] = $value;
-            }
-            
             						
             $params = array(
                 'index' => 'mojepanstwo_v1',
@@ -803,8 +796,10 @@ class Document extends AppModel
                     'text' => $dataText,
                     'dataset' => 'pisma',
                     'slug' => Inflector::slug($data['name']),
-                    'data' => $paramsData,
-                    'date' => $paramsData['pisma.date'],
+                    'data' => array(
+                        'pisma' => $data
+                    ),
+                    'date' => $data['date'],
                     'weights' => array(
 	                    'main' => array(
 		                    'score' => 1.3,

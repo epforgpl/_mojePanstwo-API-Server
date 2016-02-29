@@ -823,14 +823,9 @@ class Document extends AppModel
 
     }
 
-
     public function notify($to_email, $type)
     {
-        App::uses('CakeEmail', 'Network/Email');
-
-        $title='';
-        $tresc='';
-        if ($type == '3dni') {
+        if($type == '3dni') {
             $title = 'Za 3 dni mija czas uzyskania odpowiedzi!';
             $template='Pisma.powiadomienie_3dni';
         } else {
@@ -842,7 +837,7 @@ class Document extends AppModel
             $to_email = POWIADOMIENIA_test_mail;
         }
 
-
+        App::uses('CakeEmail', 'Network/Email');
         $Email = new CakeEmail('pisma');
 
         try {

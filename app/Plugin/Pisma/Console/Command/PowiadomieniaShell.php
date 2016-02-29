@@ -1,5 +1,5 @@
 <?php
-App::uses('CakeEmail', 'Network/Email');
+
 
 class PowiadomieniaShell extends Shell
 {

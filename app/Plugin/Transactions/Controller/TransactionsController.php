@@ -57,7 +57,10 @@ class TransactionsController extends AppController {
 
         $this->Transaction->clear();
         $this->setSerialized(array(
-            'transaction' => $this->Transaction->save($update)
+            'transaction' => $this->Transaction->save(array(
+                'Transaction' => $update
+                )
+            )
         ));
     }
 

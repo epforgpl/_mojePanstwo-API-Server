@@ -52,7 +52,8 @@ class TransactionsController extends AppController {
         );
 
         foreach($map as $from => $to)
-            $update[$to] = $data[$from];
+            if(isset($data[$from]))
+                $update[$to] = $data[$from];
 
         $this->Transaction->clear();
         $this->setSerialized(array(

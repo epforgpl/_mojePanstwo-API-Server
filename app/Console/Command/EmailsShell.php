@@ -36,7 +36,7 @@ class EmailsShell extends AppShell {
         $status = 1;
 
         try {
-            $emailService->template('ngo-pdf-promo')
+            $emailService->template('ngo-promo-march')
                 ->addHeaders(array('X-Mailer' => 'mojePaństwo'))
                 ->emailFormat('html')
                 ->attachments(array(
@@ -46,7 +46,7 @@ class EmailsShell extends AppShell {
                         'contentId' => '1'
                     ),
                 ))
-                ->subject('Personal Democracy Forum PL CEE 2016 - Rejestracja Otwarta')
+                ->subject('Uzupełnij konto swojej organizacji na mojepanstwo.pl!')
                 ->to($row[0]['krs_pozycje']['email'])
                 ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
                 ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')

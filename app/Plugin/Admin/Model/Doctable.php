@@ -110,6 +110,7 @@ class Doctable extends AppModel
 
     public function getTables($document_id = 0)
     {
+        $this->query('SET SESSION group_concat_max_len = 1000000;');
         return $this->query('
             SELECT `doctables`.*,
             GROUP_CONCAT(DISTINCT `doctable_cols`.`left` SEPARATOR ";") as `c`,
@@ -137,6 +138,7 @@ class Doctable extends AppModel
     }
 
     public function getTableData($doctable_data_id = 0) {
+        $this->query('SET SESSION group_concat_max_len = 1000000;');
         return array(
             'doctable_data' => $this->query('
                 SELECT *

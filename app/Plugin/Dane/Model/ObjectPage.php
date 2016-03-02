@@ -39,7 +39,7 @@ class ObjectPage extends AppModel {
         if($latestBankAccount && $latestBankAccount[0]['krs_pozycje_bank_accounts']['status'] == '0')
             return true;
 
-        if($latestBankAccount && $latestBankAccount[0]['krs_pozycje_bank_accounts']['bank_account'] == $bankAccountNumber)
+        if($latestBankAccount && $latestBankAccount[0]['krs_pozycje_bank_accounts']['bank_account'] === $bankAccountNumber)
             return true;
 
         $user_id = (int) CakeSession::read("Auth.User.id");

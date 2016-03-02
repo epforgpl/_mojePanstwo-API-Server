@@ -47,7 +47,7 @@ class ObjectPage extends AppModel {
         $this->query('
             INSERT INTO krs_pozycje_bank_accounts
             (krs_pozycje_id, user_id, bank_account, status, created_at) VALUES
-            ('. $id . ', '. $user_id . ', ' . addslashes($bankAccountNumber) . ', 0, NOW())
+            ('. $id . ', '. $user_id . ', "' . addslashes($bankAccountNumber) . '", 0, NOW())
         ');
 
         return true;

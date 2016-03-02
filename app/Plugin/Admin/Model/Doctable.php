@@ -157,4 +157,12 @@ class Doctable extends AppModel
         );
     }
 
+    public function exportMySQL($data) {
+        return $this->query($data['sql']);
+    }
+
+    public function getDict() {
+        return $this->query('SELECT * FROM `doctable_dict`');
+    }
+
 }

@@ -5,6 +5,7 @@ App::uses('Layer', 'Dane.Model');
 App::uses('PageRequest','Dane.Model');
 
 App::uses('OrganizacjeDzialaniaPisma', 'Dane.Model');
+App::uses('ObjectPage', 'Dane.Model');
 App::uses('OrganizacjeDzialaniaTematy', 'Dane.Model');
 App::uses('PismoSzablon', 'Dane.Model');
 App::uses('OrganizacjeDzialania', 'Dane.Model');
@@ -478,7 +479,7 @@ class Dataobject extends AppModel
         $user_id = (int) $data['user_id'];
         $username = $data['username'];
         $title = $data['title'];
-        $role = (int) $data['role'];
+        $role = (int) @$data['role'];
 
         if(!$role)
             $role = 2;
@@ -503,11 +504,23 @@ class Dataobject extends AppModel
             }
 
             $this->DB->q("INSERT INTO `objects-users` (dataset, object_id, user_id, role) VALUES ('$dataset', $object_id, $user_id, $role)");
-            
-            // pobieramy global_id dla obietku
-            // INSERT INGORE dla tabeli objects-pages
-            // ObjectPage->syncById( $global_id );
-            
+
+            $objectPageID = (int) $this->DB->selectValue("SELECT `id` FROM `objects-pages` WHERE `dataset` = '{$dataset}' AND `object_id` = " . $object_id);
+            if(!$objectPageID) {
+                $objectPageID = (int) $this->DB->selectValue("SELECT id FROM objects WHERE `dataset` = '{$dataset}' AND `object_id` = " . $object_id);
+                $this->DB->q("INSERT INTO `objects-pages` (id, dataset, object_id) VALUES ($objectPageID, '$dataset', $object_id)");
+                $this->DB->q("UPDATE `objects-pages` SET `id` = $objectPageID WHERE `dataset` = '{$dataset}' AND `object_id` = " . $object_id);
+            }
+
+            $this->ObjectPage = new ObjectPage();
+            $this->ObjectPage->syncById($objectPageID);
+
+            CakeLog::write('lolo', json_encode(array(
+                $objectPageID,
+                $dataset,
+                $object_id
+            )));
+
             if ($send_email) {
                 $email = $this->DB->selectValue("SELECT email FROM users WHERE id = $user_id");
                 App::uses('CakeEmail', 'Network/Email');

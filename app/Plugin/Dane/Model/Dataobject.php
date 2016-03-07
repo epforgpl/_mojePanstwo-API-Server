@@ -503,7 +503,11 @@ class Dataobject extends AppModel
             }
 
             $this->DB->q("INSERT INTO `objects-users` (dataset, object_id, user_id, role) VALUES ('$dataset', $object_id, $user_id, $role)");
-
+            
+            // pobieramy global_id dla obietku
+            // INSERT INGORE dla tabeli objects-pages
+            // ObjectPage->syncById( $global_id );
+            
             if ($send_email) {
                 $email = $this->DB->selectValue("SELECT email FROM users WHERE id = $user_id");
                 App::uses('CakeEmail', 'Network/Email');

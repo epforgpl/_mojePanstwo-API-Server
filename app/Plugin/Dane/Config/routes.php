@@ -1,5 +1,13 @@
 <?
 
+Router::connect('/dane/objectFromSlug/:slug', array(
+	'plugin' => 'Dane',
+	'controller' => 'Dataobjects',
+	'action' => 'objectFromSlug'
+), array(
+	'pass' => array('slug'), 
+));
+
 Router::mapResources('Dane.subscriptions', array('prefix' => '/dane/'));
 Router::connect('/dane/subscriptions/transfer_anonymous', array(
 	'plugin' => 'Dane', 

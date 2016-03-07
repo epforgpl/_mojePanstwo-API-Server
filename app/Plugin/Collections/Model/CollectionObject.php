@@ -21,6 +21,33 @@ class CollectionObject extends AppModel {
 	    
     }
     
+    public function syncAll() {
+	    
+	    $ids = $this->find('all', array(
+		    'fields' => array('id'),
+	    ));
+	    
+	    foreach( $ids as $id ) {
+		    		    
+		    $id = $id['CollectionObject']['id'];
+		    $this->syncById($id);
+		    
+	    }
+	    	    
+    }
+    
+    public function syncById($id) {
+	    
+	    $data = $this->find('first', array(
+		    'conditions' => array(
+			    'id' => $id,
+		    ),
+	    ));
+	    
+	    $this->syncByData( $data );
+	    
+    }
+    
     public function syncByData($data) {
 	    
 	    if( 

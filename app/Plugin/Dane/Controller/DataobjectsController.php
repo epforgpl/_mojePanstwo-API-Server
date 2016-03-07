@@ -651,5 +651,23 @@ class DataobjectsController extends AppController
 		$this->set('_serialize', array('status'));
 		
 	}
+	
+	public function objectFromSlug() {
+	    
+	    $output = false;
+	    	    
+	    if( @$this->request->params['slug'] ) {
+		    
+		    App::import('model','DB');
+	        $DB = new DB();
+	        
+	        $output = $DB->selectAssoc("SELECT `dataset`, `object_id` FROM `objects_slugs` WHERE `slug`='" . addslashes( $this->request->params['slug'] ) . "' ORDER BY id DESC LIMIT 1");
+		    		    
+	    }
+	    	    
+	    $this->set('output', $output);
+	    $this->set('_serialize', 'output');
+	    
+    }
 
 }

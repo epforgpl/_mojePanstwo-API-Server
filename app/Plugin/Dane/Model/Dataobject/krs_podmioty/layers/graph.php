@@ -31,12 +31,13 @@
 			$nodes[] = array(
 				'label' => 'osoba',
 				'id' => 'osoba' . $d['osoba_id'],
+				'mp_id' => $d['osoba_id'],
 				'data' => array(
 					'privacy_level' => $d['privacy_level'],
-					'data_urodzenia' => $d['data_urodzenia'],
-					'plec' => $d['plec'],
 					'nazwisko' => $d['nazwisko'],
 					'imiona' => $d['imiona'],
+					'data_urodzenia' => $d['data_urodzenia'],
+					'plec' => $d['plec'],
 				),
 			);
 			
@@ -48,13 +49,14 @@
 			$nodes[] = array(
 				'label' => 'podmiot',
 				'id' => 'podmiot' . $d['organizacja_id'],
+				'mp_id' => $d['organizacja_id'],
 				'data' => array(
+					'nazwa' => $d['nazwa'],
+					'forma' => $d['forma'],
 					'krs' => $d['krs'],
 					// 'kapital_zakladowy' => $d['kapital_zakladowy'],
 					'miejscowosc' => $d['miejscowosc'],
 					'data_rejestracji' => $d['data_rejestracji'],
-					'forma' => $d['forma'],
-					'nazwa' => $d['nazwa'],
 				),
 			);
 			

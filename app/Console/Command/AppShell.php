@@ -68,6 +68,26 @@ class AppShell extends Shell
         $this->User->sync((int) $this->args[0]);
     }
     
+    public function subscriptionSync() {
+        $this->loadModel('Dane.Subscription');
+        $this->Subscription->syncById($this->args[0]);
+    }
+    
+    public function subscriptionSyncAll() {
+        $this->loadModel('Dane.Subscription');
+        $this->Subscription->syncAll();
+    }
+    
+    public function collectionsObjectsSync() {
+        $this->loadModel('Collections.CollectionObject');
+        $this->CollectionObject->syncById($this->args[0]);
+    }
+    
+    public function collectionsObjectsSyncAll() {
+        $this->loadModel('Collections.CollectionObject');
+        $this->CollectionObject->syncAll();
+    }
+    
     public function projectsSyncAll() {
 
 	    $this->loadModel('Dane.OrganizacjeDzialania');

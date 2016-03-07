@@ -120,6 +120,34 @@ class Subscription extends AppModel
 	    
     }
     
+    public function syncAll() {
+	    
+	    $ids = $this->find('all', array(
+		    'fields' => array('id'),
+	    ));
+	    
+	    foreach( $ids as $id ) {
+		    
+		    $id = $id['Subscription']['id'];
+		    $this->syncById($id);
+		    
+	    }
+	    	    
+    }
+    
+    public function syncById($id) {
+	    
+	    if( $data = $this->find('first', array(
+		    'conditions' => array(
+			    'id' => $id,
+		    ),
+	    )) ) {
+		    
+		    $this->syncByData($data);
+		    
+	    }
+	    	    
+    }
     
     public function syncByData($data = array()) {
 	    	    
@@ -214,16 +242,18 @@ class Subscription extends AppModel
 			$es_query = $ES->buildESQuery(array(
 				'conditions' => $es_conditions,
 			));
-						
+			
+			$query = isset( $es_query['body']['query']['function_score']['query'] ) ? $es_query['body']['query']['function_score']['query'] : $es_query['body']['query'];
+								
 			$params['body']  = array(
 				'id' => $sub['id'],
-				'query' => $es_query['body']['query']['function_score']['query'],
+				'query' => $query,
 				'cts' => date($mask, $cts),
 				'user_type' => $sub['user_type'],
 				'user_id' => $sub['user_id'],
 				'channels' => isset($data['SubscriptionChannel']) ? $data['SubscriptionChannel'] : array(),
 			);
-			
+							
 			/*
 			if( isset($data['q']) && $data['q'] )
 				$params['body']['q'] = $data['q'];

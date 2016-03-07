@@ -160,6 +160,9 @@ CakePlugin::loadAll(array(
     'Transactions' => array(
         'routes' => true
     ),
+    'Srodowisko' => array(
+        'routes' => true
+    ),
 ));
 
 /**

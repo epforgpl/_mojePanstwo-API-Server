@@ -515,12 +515,6 @@ class Dataobject extends AppModel
             $this->ObjectPage = new ObjectPage();
             $this->ObjectPage->syncById($objectPageID);
 
-            CakeLog::write('lolo', json_encode(array(
-                $objectPageID,
-                $dataset,
-                $object_id
-            )));
-
             if ($send_email) {
                 $email = $this->DB->selectValue("SELECT email FROM users WHERE id = $user_id");
                 App::uses('CakeEmail', 'Network/Email');

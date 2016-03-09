@@ -15,6 +15,15 @@ class SrodowiskoController extends AppController
         $this->set('_serialize', 'response');
     }
 
+    public function getRankingData() {
+        $this->set('response', $this->Srodowisko->getRankingData(
+            $this->request->data['param'],
+            $this->request->data['option']
+        ));
+
+        $this->set('_serialize', 'response');
+    }
+
     public function data()
     {		    
         $data = $this->Srodowisko->getData( $this->request->query['param'] );

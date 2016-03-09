@@ -86,6 +86,43 @@ class Srodowisko extends AppModel
 		
     }
 
+	public function getRankingData($param, $option) {
+		$response = array(
+			'most' => array(),
+			'least' => array()
+		);
+
+		$options = array(
+			'3d' => time() - 259200,
+			'1w' => time() - 604800,
+			'1m' => time() - 2592000
+		);
+
+		if(!array_key_exists($option, $options))
+			return $response;
+
+		$date = date('Y-m-d', $options[$option]);
+
+		foreach($response as $key => $values) {
+			$response[$key] = $this->query("
+			  SELECT
+				`value`,
+				`station_id`
+			  FROM `srodowisko_pomiary`
+			  WHERE
+				`param` = ? AND
+				`timestamp` BETWEEN ? AND NOW()
+			  ORDER BY `value` " . ($key == 'most' ? 'ASC' : 'DESC') . "
+			  LIMIT 5
+			", array(
+				$param,
+				$date
+			));
+		}
+
+		return $response;
+	}
+
     public function getChartData($station_id, $param, $timestamp) {
 
 		switch($timestamp) {
@@ -134,8 +171,6 @@ class Srodowisko extends AppModel
 				list($from, $to) = explode('_', $timestamp);
 				$from = strtotime($from);
 				$to = strtotime($to);
-
-				CakeLog::write('asdasd', $timestamp);
 
 				if($from === false || $to === false)
 					return array();

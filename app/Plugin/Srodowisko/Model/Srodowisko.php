@@ -86,21 +86,85 @@ class Srodowisko extends AppModel
 		
     }
 
-    public function getChartData($station_id, $param) {
-        return $this->query("
-          SELECT
-            AVG(`value`) as `avg`,
-            `timestamp`
-            FROM `srodowisko_pomiary`
-            WHERE
-              `station_id` = ? AND
-              `param` = ?
-            GROUP BY day(`timestamp`)
-            ORDER BY `timestamp` DESC
-        ", array(
-            (int) $station_id,
-            $param
-        ));
+    public function getChartData($station_id, $param, $timestamp) {
+
+		switch($timestamp) {
+
+			case 'd':
+
+				return $this->query("
+				  SELECT
+					AVG(`value`) as `avg`,
+					`timestamp`
+					FROM `srodowisko_pomiary`
+					WHERE
+					  `station_id` = ? AND
+					  `param` = ?
+					GROUP BY day(`timestamp`)
+					ORDER BY `timestamp` DESC
+					LIMIT 30
+				", array(
+					(int) $station_id,
+					$param
+				));
+
+			break;
+
+			case 'h':
+
+				return $this->query("
+				  SELECT
+					`value` as `avg`,
+					`timestamp`
+					FROM `srodowisko_pomiary`
+					WHERE
+					  `station_id` = ? AND
+					  `param` = ?
+					ORDER BY `timestamp` DESC
+					LIMIT 30
+				", array(
+					(int) $station_id,
+					$param
+				));
+
+			break;
+
+			default:
+
+				list($from, $to) = explode('_', $timestamp);
+				$from = strtotime($from);
+				$to = strtotime($to);
+
+				CakeLog::write('asdasd', $timestamp);
+
+				if($from === false || $to === false)
+					return array();
+
+				$from = date('Y-m-d', $from);
+				$to = date('Y-m-d', $to);
+
+				return $this->query("
+				  SELECT
+					AVG(`value`) as `avg`,
+					`timestamp`
+					FROM `srodowisko_pomiary`
+					WHERE
+					  `station_id` = ? AND
+					  `param` = ? AND
+					  `timestamp` BETWEEN ? AND ?
+					GROUP BY day(`timestamp`)
+					ORDER BY `timestamp` DESC
+					LIMIT 30
+				", array(
+					(int) $station_id,
+					$param,
+					$from,
+					$to
+				));
+
+			break;
+
+		}
     }
 
 }

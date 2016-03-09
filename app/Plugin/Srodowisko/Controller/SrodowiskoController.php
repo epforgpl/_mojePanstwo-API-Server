@@ -8,7 +8,8 @@ class SrodowiskoController extends AppController
     public function getData() {
         $this->set('response', $this->Srodowisko->getChartData(
             $this->request->data['station_id'],
-            $this->request->data['param']
+            $this->request->data['param'],
+            $this->request->data['timestamp']
         ));
 
         $this->set('_serialize', 'response');

@@ -18,7 +18,8 @@ class SrodowiskoController extends AppController
     public function getRankingData() {
         $this->set('response', $this->Srodowisko->getRankingData(
             $this->request->data['param'],
-            $this->request->data['option']
+            $this->request->data['option'],
+            isset($this->request->data['limit']) ? true : false
         ));
 
         $this->set('_serialize', 'response');

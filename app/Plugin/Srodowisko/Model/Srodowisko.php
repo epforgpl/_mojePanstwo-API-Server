@@ -86,7 +86,7 @@ class Srodowisko extends AppModel
 		
     }
 
-	public function getRankingData($param, $option) {
+	public function getRankingData($param, $option, $limit = false) {
 		$response = array(
 			'most' => array(),
 			'least' => array()
@@ -106,14 +106,15 @@ class Srodowisko extends AppModel
 		foreach($response as $key => $values) {
 			$response[$key] = $this->query("
 			  SELECT
-				`value`,
+				AVG(`value`) as `val`,
 				`station_id`
 			  FROM `srodowisko_pomiary`
 			  WHERE
 				`param` = ? AND
 				`timestamp` BETWEEN ? AND NOW()
-			  ORDER BY `value` " . ($key == 'most' ? 'ASC' : 'DESC') . "
-			  LIMIT 5
+			  GROUP BY `station_id`
+			  ORDER BY `val` " . ($key == 'most' ? 'ASC' : 'DESC') . "
+			  " . ($limit === false ? 'LIMIT 10' : '') . "
 			", array(
 				$param,
 				$date

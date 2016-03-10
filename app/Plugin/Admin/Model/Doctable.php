@@ -160,7 +160,132 @@ class Doctable extends AppModel
     }
 
     public function exportMySQL($data) {
-        return $this->query($data['sql']);
+        $errors = array();
+        $tables = $data['tables'];
+
+        $SQLTransaction = $this->tablesToSQLTransaction($tables);
+
+        try {
+
+            $results = $this->query($SQLTransaction);
+
+            if ($results === false) {
+                $errors[] = 'Wystąpił błąd składniowy, sprawdź nazwy kolumn, poprawność typów danych itd.';
+            }
+
+            foreach ($tables as $t => $table) {
+                $results = $this->query('SELECT COUNT(*) FROM `docd_' . $table['dbName'] . '`');
+                $count = (int)@$results[0][0]['COUNT(*)'];
+                $rowsCount = count($table['rows']);
+                if ($count != $rowsCount) {
+                    $errors[] = 'Wystąpił błąd podczas dodawania rekordów do tabeli ' . $table['dbName'] . ' (' . $count . '/' . $rowsCount . '). Sprawdź jeszcze raz poprawność danych.';
+                }
+            }
+        } catch(PDOException $e) {
+            $errors[] = $e->getMessage();
+        }
+
+        if(count($errors) > 0)
+            $this->query('ROLLBACK');
+
+        return count($errors) == 0 ? true : $errors;
+    }
+
+    private function prepareSQLValue($value, $type)
+    {
+        switch(strtolower($type)) {
+
+            case 'char':
+                $value = '"' . str_replace('"', "'", trim($value)) . '"';
+            break;
+
+            case 'varchar':
+                $value = '"' . str_replace('"', "'", trim($value)) . '"';
+            break;
+
+            case 'int':
+                $value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
+            break;
+
+            case 'bigint':
+                $value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
+            break;
+
+            case 'float':
+                $value = str_replace(' ', '', $value);
+
+                $dotParts = explode('.', $value);
+                $comParts = explode(',', $value);
+
+                if(strpos($value, ',') !== false &&
+                    count($comParts) == 2 &&
+                    strpos($value, '.' === false))
+                {
+
+                    $value = str_replace(',', '.', $value);
+
+                } else if(strpos($value, ',') !== false &&
+                    strpos($value, '.') !== false &&
+                    count($dotParts) == 2 &&
+                    count($comParts) == 2)
+                {
+
+                    if(strpos($value, '.') > strpos($value, ',')) {
+                        $value = str_replace(',', '', $value);
+                    } else {
+                        $value = str_replace('.', '', $value);
+                        $value = str_replace(',', '.', $value);
+                    }
+                }
+
+            break;
+
+            default:
+                $value = trim($value);
+            break;
+
+        }
+
+        return $value;
+    }
+
+    private function tablesToSQLTransaction($tables) {
+        $sql = ['START TRANSACTION;'];
+
+        foreach($tables as $t => $table) {
+            $sql[] = 'CREATE TABLE IF NOT EXISTS `docd_'. $table['dbName'] .'` (`id` INT(11) UNSIGNED AUTO_INCREMENT, `parent_id` INT(11) UNSIGNED DEFAULT 0,';
+            foreach($table['cols'] as $c => $col) {
+                $sql[] = ' `' . $col['name'] . '` ' . $col['type'] . '(' . $col['size'] . '),';
+            }
+            $sql[] = ' PRIMARY KEY (`id`));';
+            $sql[] = 'INSERT INTO `docd_'. $table['dbName'] .'` (`id`, `parent_id`, `'. implode('`,`', array_column($table['cols'], 'name')) .'`) VALUES ';
+            foreach($table['rows'] as $r => $row)
+            {
+                $row = $table['rows'][$r];
+                $parent_id = 0;
+
+                if($r > 0 && $table['rowParents'][$r] > 0)
+                {
+                    $rr = $r;
+                    do {
+                        $rr--;
+                    } while($table['rowParents'][$r] - 1 != $table['rowParents'][$rr]);
+                    $parent_id = $rr + 1;
+                }
+
+                $sql[] = '("", ' . $parent_id . ', ';
+                foreach($row as $v => $value)
+                {
+                    $preparedValue = $this->prepareSQLValue($value, $table['cols'][$v]['type']);
+                    $sql[] = $preparedValue . '' . ($v == count($row) - 1 ? '' : ', ');
+                }
+
+                $sql[] = ')' . ($r == count($table['rows']) - 1 ? ';' : ', ');
+            }
+        }
+
+        $sql[] = 'COMMIT;';
+        return implode('', $sql);
     }
 
     public function getDict() {

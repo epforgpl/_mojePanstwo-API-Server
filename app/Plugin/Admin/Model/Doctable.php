@@ -250,7 +250,7 @@ class Doctable extends AppModel
     }
 
     private function tablesToSQLTransaction($tables) {
-        $sql = ['START TRANSACTION;'];
+        $sql = array('START TRANSACTION;');
 
         foreach($tables as $t => $table) {
             $sql[] = 'CREATE TABLE IF NOT EXISTS `docd_'. $table['dbName'] .'` (`id` INT(11) UNSIGNED AUTO_INCREMENT, `parent_id` INT(11) UNSIGNED DEFAULT 0,';

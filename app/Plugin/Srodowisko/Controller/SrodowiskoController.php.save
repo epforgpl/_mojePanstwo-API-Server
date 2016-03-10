@@ -1,0 +1,31 @@
+<?php
+
+class SrodowiskoController extends AppController
+{
+
+    public function data()
+ 
+        $data = $this->Srodowisko->getData( $this->request->query['param'] );
+
+        $this->set('data', $data);
+        $this->set('_serialize', 'data');
+    }
+    
+} 
+=======
+/**
+ * @property Srodowisko
+
+    public $uses = array('Srodowisko.Srodowisko');
+
+    public function getData() {
+        $this->set('response', $this->Srodowisko->getData(
+            $this->request->data['station_id'],
+            $this->request->data['param']
+        ));
+
+        $this->set('_serialize', 'response');
+    }
+
+}
+>>>>>>> 8480e3227ec9bee3c876a2468f6b213b17aab4fd

@@ -165,6 +165,8 @@ class Doctable extends AppModel
 
         $SQLTransaction = $this->tablesToSQLTransaction($tables);
 
+        CakeLog::write('doctables_sql_dumps', $SQLTransaction);
+
         try {
 
             $results = $this->query($SQLTransaction);
@@ -181,12 +183,16 @@ class Doctable extends AppModel
                     $errors[] = 'Wystąpił błąd podczas dodawania rekordów do tabeli ' . $table['dbName'] . ' (' . $count . '/' . $rowsCount . '). Sprawdź jeszcze raz poprawność danych.';
                 }
             }
+
         } catch(PDOException $e) {
             $errors[] = $e->getMessage();
         }
 
-        if(count($errors) > 0)
-            $this->query('ROLLBACK');
+        if(count($errors) > 0) {
+            foreach ($tables as $t => $table) {
+                $this->query('DROP TABLE IF EXISTS `docd_' . $table['dbName'] . '`');
+            }
+        }
 
         return count($errors) == 0 ? true : $errors;
     }

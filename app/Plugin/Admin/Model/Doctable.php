@@ -214,11 +214,11 @@ class Doctable extends AppModel
             break;
 
             case 'int':
-                $value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
+                $value = (int) filter_var($value, FILTER_SANITIZE_NUMBER_INT);
             break;
 
             case 'bigint':
-                $value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
+                $value = (int) filter_var($value, FILTER_SANITIZE_NUMBER_INT);
             break;
 
             case 'float':

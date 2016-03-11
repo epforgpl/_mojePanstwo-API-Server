@@ -163,6 +163,10 @@ class Doctable extends AppModel
         $errors = array();
         $tables = $data['tables'];
 
+        foreach($tables as $table) {
+            $this->query('DROP TABLE IF EXISTS `docd_' . $table['dbName'] . '`');
+        }
+
         $SQLTransaction = $this->tablesToSQLTransaction($tables);
 
         CakeLog::write('doctables_sql_dumps', $SQLTransaction);

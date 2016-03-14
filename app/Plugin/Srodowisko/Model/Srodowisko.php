@@ -138,7 +138,7 @@ class Srodowisko extends AppModel
 					WHERE
 					  `station_id` = ? AND
 					  `param` = ?
-					GROUP BY day(`timestamp`)
+					GROUP BY YEAR(`timestamp`), MONTH(`timestamp`), DAY(`timestamp`)
 					ORDER BY `timestamp` DESC
 					LIMIT 30
 				", array(
@@ -188,7 +188,7 @@ class Srodowisko extends AppModel
 					  `station_id` = ? AND
 					  `param` = ? AND
 					  `timestamp` BETWEEN ? AND ?
-					GROUP BY day(`timestamp`)
+					GROUP BY YEAR(`timestamp`), MONTH(`timestamp`), DAY(`timestamp`)
 					ORDER BY `timestamp` DESC
 					LIMIT 30
 				", array(

@@ -407,6 +407,8 @@ class DocumentsController extends AppController
 	        	$data['to_id']
 	        ) {
 		       	
+		       	
+		       	
 		       	if( $data['to_dataset']=='pisma_adresaci' ) {
 			       	$pisma_adresaci = $this->DB->selectAssoc("SELECT dataset, object_id FROM pisma_adresaci WHERE id='" . addslashes( $data['to_id'] ) . "' LIMIT 1");
 			       	$data['to_dataset'] = $pisma_adresaci['dataset'];
@@ -418,7 +420,7 @@ class DocumentsController extends AppController
 		        	( $to = $DB->selectAssoc("SELECT id, nazwa, email, adres_str, pisma_adresat_nazwa FROM instytucje WHERE id='" . addslashes( $data['to_id'] ) . "'" ) ) 
 		        ) {
 		       		
-		       		$nazwa = $to['pisma_adresat_nazwa'] ? $to['nazwa'] : $to['pisma_adresat_nazwa'];
+		       		$nazwa = $to['pisma_adresat_nazwa'] ? $to['pisma_adresat_nazwa'] : $to['nazwa'];
 		       		
 		        	$data['to_str'] = '<p>' . $nazwa . '</p><p>' . $to['adres_str'] . '</p>';
 		        	$data['to_name'] = $to['nazwa'];
@@ -567,8 +569,7 @@ class DocumentsController extends AppController
 		        	
 	        	}
 	        	
-	        }
-		                
+	        }		                
 	        	        	        	        
 	
 			if( !isset($data['to_dataset']) )

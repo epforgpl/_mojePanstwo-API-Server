@@ -159,6 +159,23 @@ class UsersController extends PaszportAppController
 
             $errors = array();
             $user = false;
+            $moderateRequestFields = array(
+                'krs_pozycje_nazwa',
+                'organization_object_id',
+                'organization_firstname',
+                'organization_lastname',
+                'organization_function',
+                'organization_phone_number'
+            );
+
+            $createModerateRequest = false;
+
+            if(isset($this->data['User']['is_ngo']) && $this->data['User']['is_ngo'] == '1') {
+                $createModerateRequest = array();
+                foreach($moderateRequestFields as $field)
+                    $createModerateRequest[$field] = isset($this->data[$field]) ? $this->data[$field] : NULL;
+            }
+
             $this->User->set($this->data);
 
             if($this->User->validates()) {
@@ -203,6 +220,28 @@ class UsersController extends PaszportAppController
                         ));
 
                         $this->sendWelcomeEmail($user['email']);
+
+                        if(is_array($createModerateRequest)) {
+                            App::import('Model','Dane.Dataobject');
+                            $dataObjectModel = new Dataobject();
+
+                            $results = $dataObjectModel->moderate_request(
+                                array(
+                                    'firstname' => $createModerateRequest['organization_firstname'],
+                                    'lastname' => $createModerateRequest['organization_lastname'],
+                                    'position' => $createModerateRequest['organization_function'],
+                                    'organization' => $createModerateRequest['krs_pozycje_nazwa'],
+                                    'email' => $user['email'],
+                                    'phone' => $createModerateRequest['organization_phone_number']
+                                ),
+                                (int) $createModerateRequest['organization_object_id'],
+                                'krs_podmioty'
+                            );
+
+                            if(isset($results['error'])) {
+                                $errors[] = $results['error'];
+                            }
+                        }
 
                     } else $errors = array('Internal error');
                 } else $errors = $this->User->validationErrors; // email verification

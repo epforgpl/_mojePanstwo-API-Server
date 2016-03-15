@@ -20,3 +20,7 @@ Router::connect('/paszport/user/canCreatePassword', array('plugin' => 'Paszport'
 Router::connect('/paszport/users/email', array('plugin' => 'paszport', 'controller' => 'Users', 'action' => 'getUsersByEmail', '[method]' => 'POST'));
 
 Router::connect('/paszport/user/getObjects', array('plugin' => 'Paszport', 'controller' => 'Users', 'action' => 'getObjects', '[method]' => 'GET'));
+
+
+Router::connect('/users/modals', array('plugin' => 'Paszport', 'controller' => 'Modals', 'action' => 'get', '[method]' => 'GET'));
+Router::connect('/users/modals', array('plugin' => 'Paszport', 'controller' => 'Modals', 'action' => 'add', '[method]' => 'POST'));

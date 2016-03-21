@@ -1,5 +1,29 @@
 <?php
 
+function array_msort($array, $cols)
+{
+    $colarr = array();
+    foreach ($cols as $col => $order) {
+        $colarr[$col] = array();
+        foreach ($array as $k => $row) { $colarr[$col]['_'.$k] = strtolower($row[$col]); }
+    }
+    $eval = 'array_multisort(';
+    foreach ($cols as $col => $order) {
+        $eval .= '$colarr[\''.$col.'\'],'.$order.',';
+    }
+    $eval = substr($eval,0,-1).');';
+    eval($eval);
+    $ret = array();
+    foreach ($colarr as $col => $arr) {
+        foreach ($arr as $k => $v) {
+            $k = substr($k,1);
+            if (!isset($ret[$k])) $ret[$k] = $array[$k];
+            $ret[$k][$col] = $array[$k][$col];
+        }
+    }
+    return $ret;
+
+}
 
 class Srodowisko extends AppModel
 {
@@ -17,41 +41,56 @@ class Srodowisko extends AppModel
             ),
             'limit' => 0,
             'aggs' => array(
-	            'stacje' => array(
-		            'terms' => array(
-			            'field' => 'srodowisko_stacje_pomiarowe.id',
-			            'size' => 500,
+	            'pomiary' => array(
+		            'nested' => array(
+			            'path' => 'stacje_pomiarowe-pomiary'
 		            ),
 		            'aggs' => array(
-			            'pomiary' => array(
-				            'nested' => array(
-					            'path' => 'stacje_pomiarowe-pomiary'
-				            ),
-				            'aggs' => array(
-					            'filter' => array(
-						            'filter' => array(
-							            'term' => array(
-								            'stacje_pomiarowe-pomiary.param' => $param,
+			            'filter' => array(
+				            'filter' => array(
+					            'bool' => array(
+						            'must' => array(
+							            array(
+								            'term' => array(
+									            'stacje_pomiarowe-pomiary.param' => $param,
+								            ),
 							            ),
-						            ),
-						            'aggs' => array(
-							            'top' => array(
-								            'top_hits' => array(
-									            'size' => 1,
-									            'sort' => array(
-										            'stacje_pomiarowe-pomiary.time' => array(
-											            'order' => 'desc',
-										            ),
-									            ),
-									            '_source' => array(
-										            'include' => array(
-											            'time', 'value'
-										            ),
+							            array(
+								            'range' => array(
+									            'stacje_pomiarowe-pomiary.time' => array(
+										            'gte' => "now-3h/h"
 									            ),
 								            ),
 							            ),
 						            ),
 					            ),
+				            ),
+				            'aggs' => array(
+					            'stacje' => array(
+						            'terms' => array(
+							            'field' => 'stacje_pomiarowe-pomiary.station_id',
+							            'size' => 500,
+						            ),
+						            'aggs' => array(
+							            'time' => array(
+								            'terms' => array(
+									            'field' => 'stacje_pomiarowe-pomiary.time',
+									            'size' => 1,
+									            'order' => array(
+									            	'_term' => 'desc'
+									            ),
+								            ),
+								            'aggs' => array(
+									            'value' => array(
+										            'avg' => array(
+											            'field' => 'stacje_pomiarowe-pomiary.value',
+											            // 'size' => 1,
+										            ),
+									            ),
+								            ),
+							            ),
+						            ),
+					            ),							            
 				            ),
 			            ),
 		            ),
@@ -59,22 +98,122 @@ class Srodowisko extends AppModel
             ),
         ));
         
-        $data = $Dataobject->getDataSource()->Aggs['stacje'];
+        $data = $Dataobject->getDataSource()->Aggs['pomiary']['filter']['stacje']['buckets'];
         $stacje = array();
-        
-        
-        foreach( $data['buckets'] as $b ) {
+                
+        foreach( $data as $b ) {
 	        
-	        if( $source = @$b['pomiary']['filter']['top']['hits']['hits'][0]['_source'] ) {
+	        // if( $source = @$b['top']['hits']['hits'][0]['_source'] ) {
 		        
-		        $v = (float) $source['value'];
+		        // $v = (float) $source['value'];
 		        
 		        $stacje[] = array(
 			        'id' => $b['key'],
-			        'time' => $source['time'],
-			        'value' => $v,
+			        'time' => $b['time']['buckets'][0]['key_as_string'],
+			        'value' => $b['time']['buckets'][0]['value']['value'],
 		        );
-	        }
+	        // }
+	        
+        }
+        
+
+		$stacje = array_values(array_msort($stacje, array('value'=>SORT_ASC)));        
+        
+        return array(
+	        'stations' => $stacje,
+        );
+		
+    }
+
+	public function getRankingData($param, $option, $order = 'best') {
+		
+		$options = array(
+			'3d' => 'now-3d/d',
+			'1w' => 'now-1w/d',
+			'1m' => 'now-1M/d',
+		);
+		
+		if( $order=='best' )
+			$order = 'asc';
+		else
+			$order = 'desc';
+		
+		
+		
+		
+		if(!array_key_exists($option, $options))
+			return false;
+		
+		$Dataobject = ClassRegistry::init('Dane.Dataobject');
+		
+		$data = $Dataobject->find('all', array(
+            'conditions' => array(
+	            'dataset' => 'srodowisko_stacje_pomiarowe',
+            ),
+            'limit' => 0,
+            'aggs' => array(
+	            'pomiary' => array(
+		            'nested' => array(
+			            'path' => 'stacje_pomiarowe-pomiary'
+		            ),
+		            'aggs' => array(
+			            'filter' => array(
+				            'filter' => array(
+					            'bool' => array(
+						            'must' => array(
+							            array(
+								            'term' => array(
+									            'stacje_pomiarowe-pomiary.param' => $param,
+								            ),
+							            ),
+							            array(
+								            'range' => array(
+									            'stacje_pomiarowe-pomiary.time' => array(
+										            'gt' => $options[ $option ]
+									            ),
+								            ),
+							            ),
+						            ),
+					            ),
+				            ),
+				            'aggs' => array(
+					            'stacje' => array(
+						            'terms' => array(
+							            'field' => 'stacje_pomiarowe-pomiary.station_id',
+							            'size' => 500,
+							            'order' => array(
+								            'value.value' => $order,
+							            ),
+						            ),
+						            'aggs' => array(
+							            'value' => array(
+								            'avg' => array(
+									            'field' => 'stacje_pomiarowe-pomiary.value',
+								            ),
+							            ),
+						            ),
+					            ),							            
+				            ),
+			            ),
+		            ),
+	            ),
+            ),            
+        ));
+        
+        $data = $Dataobject->getDataSource()->Aggs['pomiary']['filter']['stacje']['buckets'];
+        $stacje = array();
+                
+        foreach( $data as $b ) {
+	        
+	        // if( $source = @$b['top']['hits']['hits'][0]['_source'] ) {
+		        
+		        // $v = (float) $source['value'];
+		        
+		        $stacje[] = array(
+			        'id' => $b['key'],
+			        'value' => $b['value']['value'],
+		        );
+	        // }
 	        
         }
         
@@ -84,9 +223,17 @@ class Srodowisko extends AppModel
 	        'stations' => $stacje,
         );
 		
-    }
-
-	public function getRankingData($param, $option, $limit = false) {
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		/*
 		$response = array(
 			'most' => array(),
 			'least' => array()
@@ -122,6 +269,8 @@ class Srodowisko extends AppModel
 		}
 
 		return $response;
+		*/
+		
 	}
 
     public function getChartData($station_id, $param, $timestamp) {

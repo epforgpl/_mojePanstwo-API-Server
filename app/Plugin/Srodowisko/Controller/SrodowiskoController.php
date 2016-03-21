@@ -16,6 +16,10 @@ class SrodowiskoController extends AppController
     }
 
     public function getRankingData() {
+	    
+	    if( $this->request->data['param']=='PM2_5' )
+	    	$this->request->data['param']='PM2.5';
+	    
         $this->set('response', $this->Srodowisko->getRankingData(
             $this->request->data['param'],
             $this->request->data['option'],

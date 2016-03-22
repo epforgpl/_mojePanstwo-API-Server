@@ -30,8 +30,24 @@ class SrodowiskoController extends AppController
     }
 
     public function data()
-    {		    
-        $data = $this->Srodowisko->getData( $this->request->query['param'] );
+    {	
+	    
+	    if(
+		    @$this->request->query['rank'] &&
+		    in_array($this->request->query['rank'], array('3d', '1w', '1m'))
+	    ) {
+	    
+	    	$data = $this->Srodowisko->getRankingData(
+	            $this->request->query['param'],
+	            $this->request->query['rank'],
+	            isset($this->request->data['order']) ? $this->request->data['order'] : 'best'
+	        );
+	    
+	    } else {
+	    
+	        $data = $this->Srodowisko->getData( $this->request->query['param'], $this->request->query['rank'] );
+        
+        }
 
         $this->set('data', $data);
         $this->set('_serialize', 'data');

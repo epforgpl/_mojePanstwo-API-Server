@@ -30,7 +30,7 @@ class Srodowisko extends AppModel
 
     public $useTable = 'srodowisko_pomiary';
 
-    public function getData($param)
+    public function getData($param, $rank = 'latest')
     {
 		
 		$Dataobject = ClassRegistry::init('Dane.Dataobject');

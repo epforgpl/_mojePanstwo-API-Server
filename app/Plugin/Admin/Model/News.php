@@ -4,7 +4,7 @@ class News extends AppModel {
 
     public $useTable = 'news';
 
-    private static $ES_DATE_FORMAT = "Ymd\THis\Z";
+    private static $ES_DATE_FORMAT = "Y-m-d H:i:s";
     private static $ES_DATASET_ID = 226;
     private static $ES_DATASET = 'ngo_konkursy';
 
@@ -27,6 +27,9 @@ class News extends AppModel {
 
     public function afterSave($options = array()) {
         $ES = ConnectionManager::getDataSource('MPSearch');
+        
+        $item = $this->query("SELECT id, created_at FROM news WHERE id='" . addslashes( $this->data['News']['id'] ) . "'");
+                
         $res = $this->query("SELECT id FROM objects WHERE `dataset_id` = '". self::$ES_DATASET_ID ."' AND `object_id`='" . addslashes( $this->data['News']['id'] ) . "' LIMIT 1");
         $global_id = (int) (@$res[0]['objects']['id']);
 
@@ -39,14 +42,15 @@ class News extends AppModel {
         $data = $this->data['News'];
         $areas = array();
         $tags = array();
-
+		
         $this->query("DELETE FROM news_areas WHERE news_id = " . $this->data['News']['id']);
         if(isset($data['areas'])) {
             $areas = $data['areas'];
             foreach($areas as $area) {
                 $this->query("INSERT INTO news_areas VALUES (" . (int) $this->data['News']['id'] . ", " . (int) $area. ")");
             }
-
+			
+			$data['area_id'] = $data['areas'];
             unset($data['areas']);
         }
 
@@ -81,8 +85,11 @@ class News extends AppModel {
                 $this->query("INSERT INTO news_tags VALUES (" . (int) $this->data['News']['id'] . ", " . (int) $tag_id. ")");
             }
         }
-
-        $ES->API->index(array(
+		
+		if( $item[0]['news']['created_at']  )
+			$data['created_at'] = $item[0]['news']['created_at'] ;
+		
+		$es_object = array(
             'index' => 'mojepanstwo_v1',
             'id' => $global_id,
             'type' => 'objects',
@@ -98,7 +105,9 @@ class News extends AppModel {
                 ),
                 'date' => date('Y-m-d', isset($data['created_at']) ? strtotime($data['created_at']) : time())
             )
-        ));
+        );
+                
+        $ES->API->index($es_object);
 
         if(isset($data['crawler_page_id']) && $data['crawler_page_id'] != '0') {
             App::import('Model', 'Admin.CrawlerPage');
@@ -125,7 +134,10 @@ class News extends AppModel {
                 }
             }
         }
-
+        
+        if( isset($data['area_id']) )
+        	$fields['area_id'] = $data['area_id'];
+        
         return $fields;
     }
 

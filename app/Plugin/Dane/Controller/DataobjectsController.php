@@ -526,14 +526,111 @@ class DataobjectsController extends AppController
 				$object['layers']['page'] = $page;
 
 			} elseif( $layer=='channels' ) {
-
-				$object['layers']['channels'] = $this->DatasetChannel->find('all', array(
-					'fields' => array('channel', 'title', 'subject_dataset'),
-					'conditions' => array(
-						'creator_dataset' => $object['dataset'],
-					),
-					'order' => 'ord asc',
-				));
+				
+				if( $object['dataset'] == 'zbiory' ) {
+					
+					if( $object['id'] == 226 ) {
+						
+						$object['layers']['channels'] = array(
+							array(
+								'DatasetChannel' => array(
+									'channel' => '1',
+									'title' => 'Działalność charytatywna',
+									'subject_dataset' => 'ngo_konkursy{area_id:1}',
+								),
+							),
+							array(
+								'DatasetChannel' => array(
+									'channel' => '2',
+									'title' => 'Pomoc społeczna',
+									'subject_dataset' => 'ngo_konkursy{area_id:2}',
+								),
+							),
+							array(
+								'DatasetChannel' => array(
+									'channel' => '3',
+									'title' => 'Ochrona praw obywatelskich i praw człowieka',
+									'subject_dataset' => 'ngo_konkursy{area_id:3}',
+								),
+							),
+							array(
+								'DatasetChannel' => array(
+									'channel' => '4',
+									'title' => 'Rozwój przedsiębiorczości',
+									'subject_dataset' => 'ngo_konkursy{area_id:4}',
+								),
+							),
+							array(
+								'DatasetChannel' => array(
+									'channel' => '5',
+									'title' => 'Nauka, kultura, edukacja',
+									'subject_dataset' => 'ngo_konkursy{area_id:5}',
+								),
+							),
+							array(
+								'DatasetChannel' => array(
+									'channel' => '6',
+									'title' => 'Ekologia',
+									'subject_dataset' => 'ngo_konkursy{area_id:6}',
+								),
+							),
+							array(
+								'DatasetChannel' => array(
+									'channel' => '7',
+									'title' => 'Działalność międzynarodowa',
+									'subject_dataset' => 'ngo_konkursy{area_id:7}',
+								),
+							),
+							array(
+								'DatasetChannel' => array(
+									'channel' => '8',
+									'title' => 'Aktywność społeczna',
+									'subject_dataset' => 'ngo_konkursy{area_id:8}',
+								),
+							),
+							array(
+								'DatasetChannel' => array(
+									'channel' => '9',
+									'title' => 'Sport, turystyka',
+									'subject_dataset' => 'ngo_konkursy{area_id:9}',
+								),
+							),
+							array(
+								'DatasetChannel' => array(
+									'channel' => '10',
+									'title' => 'Bezpieczeństwo publiczne',
+									'subject_dataset' => 'ngo_konkursy{area_id:10}',
+								),
+							),
+							array(
+								'DatasetChannel' => array(
+									'channel' => '11',
+									'title' => 'Pozostałe',
+									'subject_dataset' => 'ngo_konkursy{area_id:11}',
+								),
+							),
+							array(
+								'DatasetChannel' => array(
+									'channel' => '12',
+									'title' => 'Uchodźcy',
+									'subject_dataset' => 'ngo_konkursy{area_id:12}',
+								),
+							),
+						);
+						
+					}
+					
+				} else {
+				
+					$object['layers']['channels'] = $this->DatasetChannel->find('all', array(
+						'fields' => array('channel', 'title', 'subject_dataset'),
+						'conditions' => array(
+							'creator_dataset' => $object['dataset'],
+						),
+						'order' => 'ord asc',
+					));
+				
+				}
 
 			} elseif( $layer == 'subscription' ) {
 

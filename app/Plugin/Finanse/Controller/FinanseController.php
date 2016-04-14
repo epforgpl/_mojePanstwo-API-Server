@@ -6,7 +6,6 @@ class FinanseController extends AppController
     public function getBudgetSpendings()
     {
         $data = $this->Finanse->getBudgetSpendings();
-
         $this->set('data', $data);
         $this->set('_serialize', 'data');
     }
@@ -20,7 +19,6 @@ class FinanseController extends AppController
     public function getBudgetSections()
     {
         $data = $this->Finanse->getBudgetSections();
-
         $this->set('data', $data);
         $this->set('_serialize', 'data');
     }
@@ -58,7 +56,6 @@ class FinanseController extends AppController
     public function getPkb()
     {
         $data = $this->Finanse->getPkb();
-
         $this->set('data', $data);
         $this->set('_serialize', 'data');
     }
@@ -72,11 +69,17 @@ class FinanseController extends AppController
     
     public function getSpendings()
     {
-	    
 	    $data = $this->Finanse->getSpendings( $this->request->params['id'] );
 	    $this->set('data', $data);
         $this->set('_serialize', 'data');
 	    
+    }
+    
+    public function getTables()
+    {        
+        $data = $this->Finanse->getTables( $this->request->params['id'] );
+        $this->set('data', $data);
+        $this->set('_serialize', 'data');
     }
 
 } 

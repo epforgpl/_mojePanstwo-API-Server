@@ -937,4 +937,125 @@ GROUP BY pl_budzety_wydatki.rozdzial_str, pl_budzety_wydatki.rocznik");
 	    
     }
     
+    function getTable($table) {
+	    
+	    App::import('model', 'DB');
+        $DB = new DB();
+        
+        if( $table_data = $DB->selectAssoc("SELECT `table`, `document_id`, `name` FROM `doctables` WHERE `table`='" . addslashes( $table ) . "'") ) {
+        	        
+	        $columns = array();
+	        $data = $DB->query("SHOW FULL COLUMNS FROM `$table`");
+	        
+	        foreach( $data as $d ) {
+		        $columns[] = array(
+			        'field' => $d['COLUMNS']['Field'],
+			        'title' => $d['COLUMNS']['Comment'],
+		        );
+	        }
+	        
+	        $result = array(
+		        'table' => $table_data,
+		        'columns' => $columns,
+		        'data' => $DB->selectAssocs("SELECT * FROM `$table`"),
+	        );
+	        	    
+		    return $result;
+	    
+	    }
+	    
+    }
+    
+    function getTables($id) {
+	    
+        $result = array();
+	    
+	    if( $id == 'wskazniki_makroekonomiczne' ) {
+		    
+		    $result = array(
+			    $this->getTable('docd_podst_wskaz_makroeko_2011_2014'),
+			    $this->getTable('docd_tab1_pods_wskaz_makroeko_2010_2013'),
+		    );
+		    
+	    } elseif( $id == 'dochody_i_wydatki_sektora_finansow_publicznych' ) {
+		    
+		    $result = array(
+			    $this->getTable('docd_sfp_zestawienie_2014'),
+			    $this->getTable('docd_sfp_zestawienie_2013'),
+			    $this->getTable('docd_sfp_zestawienie_2012'),
+		    );
+		    
+	    } elseif( $id == 'dlug_publiczny' ) {
+		    
+		    $result = array(
+			    $this->getTable('docd_dlug_publiczny_2014'),
+			    $this->getTable('docd_dlug_publiczny_2013'),
+			    $this->getTable('docd_dlug_publiczny_2012'),
+			    $this->getTable('docd_dlug_publiczny_2010'),			    
+		    );
+		    
+	    } elseif( $id == 'fundusze_celowe' ) {
+		    
+		    $result = array(
+			    $this->getTable('docd_fundusze_celowe_2014'),			    
+		    );
+		    
+	    } elseif( $id == 'dochody_ue' ) {
+		    
+		    $result = array(
+			    $this->getTable('docd_dochody_budzetu_srodkow_europejskich_2014'),			    
+			    $this->getTable('docd_dochody_budzetu_srodkow_europejskich_2013'),			    
+			    $this->getTable('docd_dochody_budzetu_srodkow_europejskich_2012'),			    
+			    $this->getTable('docd_dochody_budzetu_srodkow_europejskich_2011'),			    
+			    $this->getTable('docd_dochody_budzetu_srodkow_europejskich_2010'),			    
+		    );
+		    
+	    } elseif( $id == 'wykonanie_fus' ) {
+		    
+		    $result = array(
+			    $this->getTable('docd_fus_2014'),			    			    
+		    );
+		    
+	    } elseif( $id == 'wykonanie_budzetu_panstwa' ) {
+		    
+		    $result = array(
+			    $this->getTable('docd_bp_wykonanie_2014'),			    			    
+		    );
+		    
+	    } elseif( $id == 'dochody_budzetu_panstwa' ) {
+		    
+		    $result = array(
+			    $this->getTable('docd_dochody_2014'),			    			    
+			    $this->getTable('docd_dochody_2013'),			    			    
+			    $this->getTable('docd_dochody_2012'),			    			    
+			    $this->getTable('docd_dochody_2011'),			    			    
+			    $this->getTable('docd_dochody_2010'),			    			    
+			    $this->getTable('docd_dochody_2009'),			    			    
+		    );
+		    
+	    } elseif( $id == 'wydatki_budzetu_panstwa_wedlug_dzialow' ) {
+		    
+		    $result = array(
+			    $this->getTable('docd_wydatki_2014'),			    			    
+			    $this->getTable('docd_wydatki_2013'),			    			    
+			    $this->getTable('docd_wydatki_2012'),			    			    
+			    $this->getTable('docd_wydatki_2011'),			    			    
+			    $this->getTable('docd_wydatki_2010'),			    			    
+			    $this->getTable('docd_wydatki_2009'),			    			    
+			    $this->getTable('docd_wydatki_2008'),			    			    
+		    );
+		    
+	    }
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    $result = array_filter($result);
+	    return $result;
+	    
+    }
+    
 }

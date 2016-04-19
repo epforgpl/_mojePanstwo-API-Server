@@ -1043,9 +1043,9 @@ GROUP BY pl_budzety_wydatki.rozdzial_str, pl_budzety_wydatki.rocznik");
 		    
 		    $result = array(
 			    $this->getTable('docd_wydatki_eu_2014'),			    
-			    $this->getTable('docd_wydatki_eu_2013'),			    
-			    $this->getTable('docd_wydatki_eu_2012'),			    
-			    $this->getTable('docd_wydatki_eu_2011'),			    
+			    // $this->getTable('docd_wydatki_eu_2013'),			    
+			    // $this->getTable('docd_wydatki_eu_2012'),			    
+			    // $this->getTable('docd_wydatki_eu_2011'),			    
 		    );
 	    
 	    } elseif( $id == 'dotacje_i_subwencje_budzetu_panstwa' ) {

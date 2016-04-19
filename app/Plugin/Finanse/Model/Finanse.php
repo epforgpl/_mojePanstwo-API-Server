@@ -955,6 +955,7 @@ GROUP BY pl_budzety_wydatki.rozdzial_str, pl_budzety_wydatki.rocznik");
 			        'field' => $d['COLUMNS']['Field'],
 			        'title' => @$column_data['title'],
 			        'type' => @$column_data['type'],
+			        'rowspan' => (boolean) @$column_data['rowspan'],
 		        );
 		        
 	        }
@@ -1145,7 +1146,7 @@ GROUP BY pl_budzety_wydatki.rozdzial_str, pl_budzety_wydatki.rocznik");
 		    
 		    $result = array(
 			    $this->getTable('docd_wydatki_czesci_2014'),			    			    
-			    $this->getTable('docd_wydatki_czesci_2013'),
+			    // $this->getTable('docd_wydatki_czesci_2013'),
 		    );
 		    
 	    }

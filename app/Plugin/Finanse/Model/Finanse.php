@@ -571,7 +571,8 @@ class Finanse extends AppModel
     {
         App::import('model', 'DB');
         $DB = new DB();
-
+		
+		/*
         $wyd_czesci = $DB->selectAssocs("SELECT pl_budzety_wydatki.rocznik, pl_budzety_wydatki.czesc_str, pl_budzety_wydatki.tresc, SUM( pl_budzety_wydatki.plan ) AS plan
           FROM pl_budzety_wydatki
           WHERE pl_budzety_wydatki.rocznik
@@ -632,6 +633,8 @@ class Finanse extends AppModel
             }
 
         }
+        */
+        
         $wyd_dzial = $DB->selectAssocs("SELECT pl_budzety_wydatki.rocznik, pl_budzety_wydatki.dzial_str, pl_budzety_wydatki.tresc, SUM( pl_budzety_wydatki.plan ) AS plan
           FROM pl_budzety_wydatki
           WHERE pl_budzety_wydatki.rocznik
@@ -689,7 +692,8 @@ class Finanse extends AppModel
                 );
             }
         }
-
+		
+		/*
         $wyd_rozdzial = $DB->selectAssocs("SELECT pl_budzety_wydatki.rocznik, pl_budzety_wydatki.rozdzial_str, pl_budzety_wydatki.tresc, SUM( pl_budzety_wydatki.plan ) AS plan FROM pl_budzety_wydatki
 JOIN pl_budzety_wydatki_rozdzialy
 ON pl_budzety_wydatki.rozdzial_str = pl_budzety_wydatki_rozdzialy.src
@@ -749,7 +753,7 @@ GROUP BY pl_budzety_wydatki.rozdzial_str, pl_budzety_wydatki.rocznik");
                 );
             }
         }
-
+		*/
 
         $doch_dzial = $DB->selectAssocs("SELECT rocznik, dzial_str, tresc, SUM( plan ) AS plan
           FROM pl_budzety_wydatki
@@ -809,7 +813,7 @@ GROUP BY pl_budzety_wydatki.rozdzial_str, pl_budzety_wydatki.rocznik");
             }
         }
 
-
+		/*
         $doch_czesci = $DB->selectAssocs("SELECT rocznik, czesc_str, tresc, SUM( plan ) AS plan
           FROM pl_budzety_wydatki
           WHERE rocznik
@@ -867,48 +871,54 @@ GROUP BY pl_budzety_wydatki.rozdzial_str, pl_budzety_wydatki.rocznik");
                 );
             }
         }
+		*/
 
-
+		/*
         usort($wyd_rozdzial['spadek'], function ($a, $b) {
             return $a['zmiana'] - $b['zmiana'];
         });
         usort($wyd_rozdzial['wzrost'], function ($a, $b) {
             return $b['zmiana'] - $a['zmiana'];
         });
+        */
         usort($wyd_dzial['spadek'], function ($a, $b) {
             return $a['zmiana'] - $b['zmiana'];
         });
         usort($wyd_dzial['wzrost'], function ($a, $b) {
             return $b['zmiana'] - $a['zmiana'];
         });
+        /*
         usort($wyd_czesci['spadek'], function ($a, $b) {
             return $a['zmiana'] - $b['zmiana'];
         });
         usort($wyd_czesci['wzrost'], function ($a, $b) {
             return $b['zmiana'] - $a['zmiana'];
         });
+        */
         usort($doch_dzial['spadek'], function ($a, $b) {
             return $a['zmiana'] - $b['zmiana'];
         });
         usort($doch_dzial['wzrost'], function ($a, $b) {
             return $b['zmiana'] - $a['zmiana'];
         });
+        /*
         usort($doch_czesci['spadek'], function ($a, $b) {
             return $a['zmiana'] - $b['zmiana'];
         });
         usort($doch_czesci['wzrost'], function ($a, $b) {
             return $b['zmiana'] - $a['zmiana'];
         });
+        */
 
         return array(
             'wydatki' => array(
-                'czesci' => $wyd_czesci,
+                // 'czesci' => $wyd_czesci,
                 'dzialy' => $wyd_dzial,
-                'rozdzialy' => $wyd_rozdzial
+                // 'rozdzialy' => $wyd_rozdzial
 
             ),
             'dochody' => array(
-                'czesci' => $doch_czesci,
+                // 'czesci' => $doch_czesci,
                 'dzialy' => $doch_dzial
             )
         );

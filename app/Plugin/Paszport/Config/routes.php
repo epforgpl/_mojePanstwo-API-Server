@@ -21,6 +21,8 @@ Router::connect('/paszport/users/email', array('plugin' => 'paszport', 'controll
 
 Router::connect('/paszport/user/getObjects', array('plugin' => 'Paszport', 'controller' => 'Users', 'action' => 'getObjects', '[method]' => 'GET'));
 
+Router::connect('/paszport/tutorials/index', array('plugin' => 'Paszport', 'controller' => 'Tutorials', 'action' => 'index', '[method]' => 'GET'));
+Router::connect('/paszport/tutorials/:id', array('plugin' => 'Paszport', 'controller' => 'Tutorials', 'action' => 'edit', '[method]' => 'POST'), array('id' => '[0-9]+', 'pass' => array('id')));
 
 Router::connect('/users/modals', array('plugin' => 'Paszport', 'controller' => 'Modals', 'action' => 'get', '[method]' => 'GET'));
 Router::connect('/users/modals', array('plugin' => 'Paszport', 'controller' => 'Modals', 'action' => 'add', '[method]' => 'POST'));

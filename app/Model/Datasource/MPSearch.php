@@ -256,6 +256,8 @@ class MPSearch {
 						
 						if( $field ) {
 							
+							$prefix = '';
+							
 							if( $field=='weight' ) {
 								
 								$field = 'weights.main.score';
@@ -264,9 +266,11 @@ class MPSearch {
 								
 								$field = 'title.raw';
 								
-							}
+							} else {
 							
-							$prefix = in_array($field, array('date', 'dataset')) ? '' : 'data.';
+								$prefix = in_array($field, array('date', 'dataset')) ? '' : 'data.';
+							
+							}
 							
 							if( isset( $queryData['_type']) && ($queryData['_type']=='letters') ) 
 								$prefix = '';
@@ -280,7 +284,7 @@ class MPSearch {
 					}
 				}
 			}
-						
+									
 			if( !empty($sort) )
 				$params['body']['sort'] = $sort;
 			

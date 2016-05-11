@@ -68,9 +68,9 @@ class Tutorial extends PaszportAppModel {
 	        $params = array(
 		        'tutorial_id' => $tutorial_id,
 		        'user_id' => $user_id,
-		        'completed' => $data['completed'] ? '1' : '0',
+		        'completed' => ($data['completed'] && ($data['completed']!=='false')) ? '1' : '0',
 	        );
-	        
+	        	        
 	        $DB->insertUpdateAssoc('tutorials_users', $params);
 			return true;
 			

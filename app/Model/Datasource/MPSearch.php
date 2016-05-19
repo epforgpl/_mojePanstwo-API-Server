@@ -743,6 +743,13 @@ class MPSearch {
 				        	'feed_dataset_order.rady_druki' => 'asc',
 			        	);
 		        	
+		        	} elseif( $value['dataset']=='prawo_projekty' ) {
+		        	
+			        	$params['body']['sort'] = array(
+				        	'date' => 'asc',
+				        	'feed_dataset_order.prawo_projekty' => 'asc',
+			        	);
+		        	
 		        	}
 		        	
 		        	// unset( $params['body']['sort'] );
@@ -1405,7 +1412,9 @@ class MPSearch {
 		$params = $this->buildESQuery($queryData);
 		// $params['body']['profile'] = true;
 		
-		// echo "\n\n\nQUERY= "; var_export( $params ); echo "\nEND\n"; die();
+		if( !isset($params['body']['aggs']['_page']) ) {
+			// echo "\n\n\nQUERY= "; var_export( $params ); echo "\nEND\n"; die();
+		}
 		
 		$this->lastResponseStats = null;
 		$response = $this->API->search( $params );

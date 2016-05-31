@@ -167,7 +167,7 @@ class MPSearch {
     	) {
 	    	
 	    	foreach( $doc['inner_hits']['inner']['hits']['hits'] as $hit ) {
-		    	
+		    			    	
 		    	$output['inner_hits'][] = array(
 			    	'id' => $hit['_id'],
 			    	'title' => @$hit['fields']['title'][0],
@@ -175,6 +175,20 @@ class MPSearch {
 		    	
 	    	}	    	
     	}
+    	
+    	if(
+    		isset($doc['inner_hits']) && 
+    		isset($doc['inner_hits']['subscribtions']) && 
+    		isset($doc['inner_hits']['subscribtions']['hits']) && 
+    		isset($doc['inner_hits']['subscribtions']['hits']['hits']) 
+    	) {
+	    	
+	    	foreach( $doc['inner_hits']['subscribtions']['hits']['hits'] as $hit ) {
+		    			    	
+		    	$output['subscribtions'][] = $hit['_source'];
+		    	
+	    	}	    	
+    	}    	
     	
     	return $output;
 	    
@@ -313,12 +327,13 @@ class MPSearch {
 		        )
 	        ) {
 		        
-		        $and_filters[] = array(
-		    		'term' => array(
-		    			'weights.main.enabled' => true,
-		    			'_cache' => true
-		    		),
-		    	);
+		        if( !@array_key_exists('subscribtions', $queryData['conditions']) ) 
+			        $and_filters[] = array(
+			    		'term' => array(
+			    			'weights.main.enabled' => true,
+			    			'_cache' => true
+			    		),
+			    	);
 		    	
 	    	}
     	}
@@ -864,29 +879,63 @@ class MPSearch {
 	        	
 	        	$and_filters[] = array(
 	        		'has_child' => array(
-	        			'type' => '.percolator',
-	        			'filter' => array(
-		        			'and' => array(
-			        			'filters' => array(
-				        			array(
-					        			'term' => array(
-						        			'user_type' => $value['user_type'],
-					        			),
-				        			),
-				        			array(
-					        			'term' => array(
-						        			'user_id' => $value['user_id'],
-					        			),
-				        			),
-			        			),
-		        			),
-	        			),
+	        			'type' => '.percolator',   
+	        			"score_mode" => "max",   			
+	        			'query' => array(
+			        		'filtered' => array(
+				        		'query' => array(
+					        		'bool' => array(
+						        		'must' => array(
+							        		array(
+							        			'term' => array(
+								        			'user_type' => $value['user_type'],
+							        			),
+						        			),
+						        			array(
+							        			'term' => array(
+								        			'user_id' => $value['user_id'],
+							        			),
+						        			),
+						        			array(
+							        			'term' => array(
+								        			'deleted' => false,
+							        			),
+						        			),
+						        		),
+					        		),
+				        		),
+			        		),
+		        		),
 	        			'inner_hits' => array(
-		        			'name' => 'inner',
-			        		'fields' => array('id', 'title', 'url'),
+		        			'name' => 'subscribtions',
+			        		'_source' => array('id', 'title', 'url', 'cts', 'channels'),
+			        		'size' => 100,
+			        		'track_scores' => 1,
+			        		'sort' => array(
+				        		array(
+					        		'cts' => 'desc',
+				        		),
+			        		),
 		        		),
 	        		),
 	        	);
+	        	
+	        	$params['body']['sort'] = array(
+		        	'sub-cts.cts' => array(
+			        	'order' => 'desc',
+			        	'mode' => 'max',
+			        	'nested_path' => 'sub-cts',
+			        	'nested_filter' => array(
+				        	'term' => array(
+					        	'sub-cts.user_id' => $value['user_id'],
+				        	),
+			        	),
+			        	'missing' => '_first',
+		        	),
+	        	);
+				
+				
+  		        	
 	        	
 	        } elseif( $key=='OR' ) {
 		        
@@ -951,9 +1000,11 @@ class MPSearch {
 	        		} else {
 	        			        		
 		        		if( $operator==='=' ) {
-			        		 	
+			        		
+			        		$term_filter = is_array($value) ? 'terms' : 'term';
+			        		
 			        		$and_filters[] = array(
-					        	'term' => array(
+					        	$term_filter => array(
 						        	$fields_prefix . $key => $value,
 					        	),
 				        	);
@@ -1412,9 +1463,7 @@ class MPSearch {
 		$params = $this->buildESQuery($queryData);
 		// $params['body']['profile'] = true;
 		
-		if( !isset($params['body']['aggs']['_page']) ) {
-			// echo "\n\n\nQUERY= "; var_export( $params ); echo "\nEND\n"; die();
-		}
+		// echo "\n\n\nQUERY= "; var_export( $params ); echo "\nEND\n";
 		
 		$this->lastResponseStats = null;
 		$response = $this->API->search( $params );

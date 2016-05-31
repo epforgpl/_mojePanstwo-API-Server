@@ -29,6 +29,7 @@
 		        'user_type' => $this->Auth->user('type'),
 		        'user_id' => $this->Auth->user('id'),
 			   	'channel' => isset( $this->request->data['channel'] ) ? $this->request->data['channel'] : array(),
+			   	'qs' => isset( $this->request->data['qs'] ) ? $this->request->data['qs'] : array(),
 	        );
 	        	        	            
 		    $message = $this->Subscription->add($data);

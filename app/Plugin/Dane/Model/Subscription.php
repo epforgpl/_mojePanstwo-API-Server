@@ -5,6 +5,7 @@ class Subscription extends AppModel
     
     public $hasMany = array(
 	    'SubscriptionChannel' => array(),
+	    'SubscriptionQuery' => array(),
     );
     
     public function afterSave($created, $options) {
@@ -14,7 +15,7 @@ class Subscription extends AppModel
     }
     
     public function add($data = array()) {
-	    
+	    	    
 	    $this->create();
         
         $sub = array(
@@ -22,7 +23,6 @@ class Subscription extends AppModel
 	        'object_id' => $data['object_id'],
 	        'user_type' => $data['user_type'],
 	        'user_id' => $data['user_id'],
-		   	'cts' => date('Y-m-d h:i:j'),
         );
                 	        
         if( $_sub = $this->find('first', array(
@@ -36,22 +36,31 @@ class Subscription extends AppModel
         )) ) {
 	    	
 	    	$sub['id'] = $_sub['Subscription']['id'];
+	    	$sub['cts'] = date('Y-m-d h:i:j');
 	        
-	    }        
+	    }    
         
         $channels = array();
     	foreach( $data['channel'] as $ch )
     		$channels[] = array(
         		'channel' => $ch,
     		);
+    		
+    	$queries = array();
+    	foreach( $data['qs'] as $q )
+    		$queries[] = array(
+        		'q' => $q,
+    		);
         
 		$data = array(
 			'Subscription' => $sub,
 			'SubscriptionChannel' => $channels,
-		);		
-		
+			'SubscriptionQuery' => $queries,
+		);
+				
 		if( isset($sub['id']) ) {
 			$this->query("DELETE FROM `subscription_channels` WHERE `subscription_id`='" . addslashes( $sub['id'] ) . "'");
+			$this->query("DELETE FROM `subscription_queries` WHERE `subscription_id`='" . addslashes( $sub['id'] ) . "'");
 		}
 				
 		$return = $this->saveAssociated($data, array('deep' => true));
@@ -159,16 +168,35 @@ class Subscription extends AppModel
 	    		    
 	    $sub = $data['Subscription'];
 	    $channels = array();
+	    $queries = array();
+	    
+	    $db = ConnectionManager::getDataSource('default');
 	    
 	    if( isset($data['SubscriptionChannel']) ) {
 		    foreach( $data['SubscriptionChannel'] as &$ch ) {
+		    	
+		    	$name = $db->query("SELECT `title` FROM `dataset_channels` WHERE `creator_dataset`='" . $sub['dataset'] . "' AND `channel`='" . $ch['channel'] . "' LIMIT 1");
+		    			    	
 		    	$ch['qs'] = array();
 		    	$ch['channel'] = (int) $ch['channel'];
+		    	
+		    	if( $name )
+			    	$ch['name'] = $name[0]['dataset_channels']['title'];
+		    	
 		    	$channels[] = (int) $ch['channel'];
+		    	
 		    }
 	    }
 	    
+	    if( isset($data['SubscriptionQuery']) ) {
+		    foreach( $data['SubscriptionQuery'] as &$q ) {
+		    	$queries[] = $q['q'];
+		    }
+	    }
+	    
+	    
 	    $channels = array_unique($channels);
+	    $queries = array_unique($queries);
 	    		    
 	    $ES = ConnectionManager::getDataSource('MPSearch');	    
 	    
@@ -200,13 +228,18 @@ class Subscription extends AppModel
 	    	( $_id = $parent_doc['hits']['hits'][0]['_id'] )
 	    ) {
 		    		    	    
+		    
+		    $db = ConnectionManager::getDataSource('default');
+		    $db->query("UPDATE `objects` SET `a`='1', `a_ts`=NOW() WHERE id='" . $_id . "'");
+		    	    
 		    $params = array();
 			$params['index'] = 'mojepanstwo_v1';
 			$params['type']  = '.percolator';
 			$params['id']    = $sub['id'];
 			$params['parent'] = $_id;
-			
-			$cts = strtotime( $sub['cts'] );
+			$params['refresh'] = true;
+						
+			$cts = strtotime( $data['Subscription']['cts'] );
 			$mask = "Y-m-d\TH:i:s\Z";
 			
 			
@@ -223,10 +256,33 @@ class Subscription extends AppModel
 			*/
 			
 			$es_conditions = array();
-			$es_conditions['_feed'] = array (
-				'dataset' => $sub['dataset'],
-				'object_id' => $sub['object_id'],
-			);
+			
+			if( 
+				( $sub['dataset'] == 'zbiory' )
+			) {
+				
+				$_dataset = $db->query("SELECT base_alias FROM datasets WHERE `id`='" . addslashes( $sub['object_id'] ) . "' LIMIT 1");
+				
+				$es_conditions = array(
+					'dataset' => $_dataset[0]['datasets']['base_alias'],
+				);
+				
+				if( isset($data['SubscriptionChannel']) ) {
+				    $value = array();
+				    foreach( $data['SubscriptionChannel'] as $ch ) {
+					    $value[] = (string) $ch['channel'];
+				    }
+				    $es_conditions['ngo_konkursy.area_id'] = $value;
+				}
+								
+			} else {
+			
+				$es_conditions['_feed'] = array (
+					'dataset' => $sub['dataset'],
+					'object_id' => $sub['object_id'],
+				);
+			
+			}
 			
 			/*
 			if( isset($data['q']) && $data['q'] )
@@ -239,10 +295,13 @@ class Subscription extends AppModel
 			if( !empty($channels) )
 				$es_conditions['_feed']['channel'] = $channels;
 			
+			if( !empty($queries) )
+				$es_conditions['qs'] = $queries;
+			
 			$es_query = $ES->buildESQuery(array(
 				'conditions' => $es_conditions,
 			));
-			
+									
 			$query = isset( $es_query['body']['query']['function_score']['query'] ) ? $es_query['body']['query']['function_score']['query'] : $es_query['body']['query'];
 								
 			$params['body']  = array(
@@ -252,8 +311,10 @@ class Subscription extends AppModel
 				'user_type' => $sub['user_type'],
 				'user_id' => $sub['user_id'],
 				'channels' => isset($data['SubscriptionChannel']) ? $data['SubscriptionChannel'] : array(),
+				'queries' => $queries,
+				'deleted' => false,
 			);
-							
+										
 			/*
 			if( isset($data['q']) && $data['q'] )
 				$params['body']['q'] = $data['q'];
@@ -261,6 +322,8 @@ class Subscription extends AppModel
 			if( isset($data['channel']) && $data['channel'] )
 				$params['body']['channel'] = $data['channel'];
 			*/
+			
+			// debug( $params );
 			
 			$ret = $ES->API->index($params);	
 			// debug( $ret );

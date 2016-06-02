@@ -26,7 +26,7 @@ class Subscription extends AppModel
         );
                 	        
         if( $_sub = $this->find('first', array(
-	        'fields' => array('id'),
+	        'fields' => array('id', 'cts'),
 	        'conditions' => array(
 		        'user_type' => $sub['user_type'],
 		        'user_id' => $sub['user_id'],
@@ -36,9 +36,13 @@ class Subscription extends AppModel
         )) ) {
 	    	
 	    	$sub['id'] = $_sub['Subscription']['id'];
-	    	$sub['cts'] = date('Y-m-d h:i:j');
+	    	$sub['cts'] = $_sub['Subscription']['cts'];
 	        
-	    }    
+	    } else {
+		    
+	    	$sub['cts'] = date('Y-m-d h:i:j');
+		    
+	    }
         
         $channels = array();
     	foreach( $data['channel'] as $ch )
@@ -159,7 +163,7 @@ class Subscription extends AppModel
     }
     
     public function syncByData($data = array()) {
-	    	    
+	   		   	  
 	    if( 
 	    	empty($data) || 
 	    	!isset($data['Subscription'])
@@ -239,7 +243,7 @@ class Subscription extends AppModel
 			$params['parent'] = $_id;
 			$params['refresh'] = true;
 						
-			$cts = strtotime( $data['Subscription']['cts'] );
+			$cts = strtotime( $sub['cts'] );
 			$mask = "Y-m-d\TH:i:s\Z";
 			
 			
@@ -322,11 +326,8 @@ class Subscription extends AppModel
 			if( isset($data['channel']) && $data['channel'] )
 				$params['body']['channel'] = $data['channel'];
 			*/
-			
-			// debug( $params );
-			
+						
 			$ret = $ES->API->index($params);	
-			// debug( $ret );
 			return $_id;	    
 		    
 		}

@@ -3,6 +3,342 @@
 class Subscription extends AppModel
 {
     
+    public $apps = array(
+	    array(
+		    'id' => 1,
+		    'title' => 'KRS',
+		    'slug' => 'krs',
+	    ),
+	    array(
+		    'id' => 2,
+		    'title' => 'NGO',
+		    'slug' => 'ngo',
+	    ),
+	    array(
+		    'id' => 3,
+		    'title' => 'Kultura',
+		    'slug' => 'kultura',
+	    ),
+	    array(
+		    'id' => 4,
+		    'title' => 'Prawo',
+		    'slug' => 'prawo',
+	    ),
+	    array(
+		    'id' => 5,
+		    'title' => 'Kto Tu Rządzi?',
+		    'slug' => 'kto_tu_rzadzi',
+	    ),
+	    array(
+		    'id' => 6,
+		    'title' => 'Media',
+		    'slug' => 'media',
+	    ),
+	    array(
+		    'id' => 7,
+		    'title' => 'Zamówienia Publiczne',
+		    'slug' => 'zamowienia_publiczne',
+	    ),
+	    array(
+		    'id' => 8,
+		    'title' => 'Orzecznictwo',
+		    'slug' => 'orzecznictwo',
+	    ),
+	    array(
+		    'id' => 9,
+		    'title' => 'Sejmometr',
+		    'slug' => 'sejmometr',
+	    ),
+    );
+    
+    public $datasets = array(
+	    'krs' => array(
+            'krs_podmioty' => array(
+                'label' => 'Organizacje',
+                'browserTitle' => 'Organizacje w Krajowym Rejestrze Sądowym',
+                'searchTitle' => 'Szukaj organizacji...',
+                'menu_id' => 'organizacje',
+                'autocompletion' => array(
+                    'dataset' => 'krs_podmioty',
+                ),
+                'id' => 122,
+            ),
+            'krs_osoby' => array(
+                'label' => 'Osoby',
+                'browserTitle' => 'Osoby w Krajowym Rejestrze Sądowym',
+                'searchTitle' => 'Szukaj osób...',
+                'menu_id' => 'osoby',
+                'id' => 136,
+            ),
+            'msig' => array(
+                'label' => 'Monitor Sądowy i Gospodarczy',
+                'browserTitle' => 'Wydania Monitora Sądowego i Gospodarczego',
+                'searchTitle' => 'Szukaj w Monitorze Sądowym i Gospodarczym',
+                'menu_id' => 'msig',
+                'id' => 138,
+            ),
+        ),
+        'srodowisko' => array(
+            'srodowisko_stacje_pomiarowe' => array(
+                'label' => 'Stacje pomiarowe',
+                'menu_id' => '',
+                'id' => 228,
+           ),
+        ),
+        'kultura' => array(
+            'kultura_ankiety' => array(
+                'label' => 'Pytania o kulturę',
+                'menu_id' => '',
+                'id' => 229,
+           ),
+        ),
+        'bdl' => array(
+            'bdl_wskazniki' => array(
+                'label' => 'Wskaźniki',
+                'id' => 3,
+            ),
+            'bdl_wskazniki_grupy' => array(
+                'label' => 'Grupy wskaźników',
+                'id' => 1,
+            ),
+            'bdl_wskazniki_kategorie' => array(
+                'label' => 'Kategorie wskaźników',
+                'id' => 2,
+            ),
+        ),
+        'prawo' => array(
+            'prawo' => array(
+                'label' => 'Prawo powszechne',
+                'searchTitle' => 'Szukaj w prawie powszechnym...',
+                'menu_id' => 'powszechne',
+                'autocompletion' => array(
+                    'dataset' => 'prawo',
+                ),
+                'id' => 36,
+            ),
+            'prawo_wojewodztwa' => array(
+                'label' => 'Prawo lokalne',
+                'searchTitle' => 'Szukaj w prawie lokalnym...',
+                'menu_id' => 'lokalne',
+            ),
+            'prawo_urzedowe' => array(
+                'label' => 'Prawo urzędowe',
+                'searchTitle' => 'Szukaj w prawie urzędowym...',
+                'menu_id' => 'urzedowe',
+                'id' => 182,
+            ),
+            'prawo_hasla' => array(
+                'label' => 'Tematy w prawie',
+                'searchTitle' => 'Szukaj w tematach...',
+                'menu_id' => 'tematy',
+                'autocompletion' => array(
+                    'dataset' => 'prawo_hasla',
+                ),
+                'id' => 151,
+            ),
+        ),
+        'orzecznictwo' => array(
+            'sa_orzeczenia' => array(
+                'label' => 'Orzeczenia sądów administracyjnych',
+                'searchTitle' => 'Szukaj w orzeczeniach sądów administracyjnych...',
+                'menu_id' => 'sa',
+                'id' => 44,
+            ),
+            'sp_orzeczenia' => array(
+                'label' => 'Orzeczenia sądów powszechnych',
+                'searchTitle' => 'Szukaj w orzeczeniach sądów powszechnych...',
+                'menu_id' => 'sp',
+                'id' => 93,
+            ),
+            'sn_orzeczenia' => array(
+                'label' => 'Orzeczenia Sądu Najwyższego',
+                'searchTitle' => 'Szukaj w orzeczeniach Sądu Najwyższego...',
+                'menu_id' => 'sn',
+                'id' => 85,
+            ),
+        ),
+        'ngo' => array(
+            'ngo_tematy' => array(
+                'label' => 'Tematy',
+                'menu_id' => 'tematy',
+                'id' => 220,
+            ),
+            'ngo_konkursy' => array(
+                'label' => 'Konkursy',
+                'menu_id' => 'konkursy',
+                'id' => 226,
+            ),
+            'dzialania' => array(
+                'label' => 'Działania',
+                'menu_id' => 'dzialania',
+                'id' => 199,
+            ),
+            'pisma' => array(
+                'label' => 'Pisma',
+                'menu_id' => 'pisma',
+                'id' => 23,
+            ),
+            'zbiorki_publiczne' => array(
+                'label' => 'Zbiórki publiczne',
+                'menu_id' => 'zbiorki',
+                'id' => 219,
+            ),
+            'sprawozdania_opp' => array(
+                'label' => 'Sprawozdania Organizacji Pożytku Publicznego',
+                'menu_id' => 'sprawozdania_opp',
+                'id' => 227,
+            ),
+        ),
+        'zamowienia_publiczne' => array(
+            'zamowienia_publiczne' => array(
+                'label' => 'Zamówienia publiczne',
+                'id' => 126,
+            ),
+            'zamowienia_publiczne_zamawiajacy' => array(
+                'label' => 'Zamawiający',
+                'menu_id' => 'zamawiajacy',
+                'id' => 198,
+            ),
+            'zamowienia_publiczne_wykonawcy' => array(
+                'label' => 'Wykonawcy',
+                'menu_id' => 'wykonawcy',
+                'id' => 145,
+            ),
+        ),
+        'media' => array(
+            'twitter_accounts' => array(
+                'label' => 'Obserwowane konta Twitter',
+                'searchTitle' => 'Szukaj w kontach Twitter...',
+                'menu_id' => 'twitter_konta',
+                'default_order' => 'twitter_accounts.liczba_obserwujacych desc',
+                'default_conditions' => array(
+                    'twitter_accounts.liczba_tweetow>' => 0,
+                ),
+                'id' => 137,
+            ),
+            'twitter' => array(
+                'label' => 'Tweety',
+                'searchTitle' => 'Szukaj w tweetach...',
+                'menu_id' => 'tweety',
+                'id' => 101,
+            ),
+            'fb_accounts' => array(
+                'label' => 'Obserwowane konta Facebook',
+                'searchTitle' => 'Szukaj w kontach Facebook...',
+                'menu_id' => 'fb_accounts',
+                'default_order' => 'fb_accounts.likes desc',
+                'id' => 230,
+            ),
+            'fb_posts' => array(
+                'label' => 'Posty',
+                'searchTitle' => 'Szukaj w postach...',
+                'menu_id' => 'posts',
+                'id' => 231,
+            ),
+        ),
+        'sejmometr' => array(
+            'poslowie' => array(
+                'label' => 'Posłowie',
+                'menu_id' => 'poslowie',
+                'autocompletion' => array(
+                    'dataset' => 'poslowie',
+                ),
+                'id' => 28,
+            ),
+            'prawo_projekty' => array(
+                'label' => 'Projekty aktów prawnych',
+                'menu_id' => 'prawo_projekty',
+                'id' => 13,
+            ),
+            'sejm_dezyderaty' => array(
+                'label' => 'Dezyderaty komisji',
+                'menu_id' => 'dezyderaty',
+                'id' => 50,
+            ),
+            'sejm_druki' => array(
+                'label' => 'Druki sejmowe',
+                'menu_id' => 'druki',
+                'id' => 51,
+            ),
+            'sejm_glosowania' => array(
+                'label' => 'Głosowania',
+                'menu_id' => 'glosowania',
+                'id' => 53,
+            ),
+            'sejm_interpelacje' => array(
+                'label' => 'Interpelacje',
+                'menu_id' => 'interpelacje',
+                'id' => 57,
+            ),
+            'sejm_kluby' => array(
+                'label' => 'Kluby sejmowe',
+                'menu_id' => 'kluby',
+                'id' => 59,
+            ),
+            'sejm_komisje' => array(
+                'label' => 'Komisje sejmowe',
+                'menu_id' => 'komisje',
+                'id' => 60,
+            ),
+            'sejm_komunikaty' => array(
+                'label' => 'Komunikaty Kancelarii Sejmu',
+                'menu_id' => 'komunikaty',
+                'id' => 61,
+            ),
+            'sejm_posiedzenia' => array(
+                'label' => 'Posiedzenia Sejmu',
+                'menu_id' => 'posiedzenia',
+                'id' => 63,
+            ),
+            'sejm_posiedzenia_punkty' => array(
+                'label' => 'Punkty porządku dziennego',
+                'menu_id' => 'punkty',
+                'id' => 65,
+            ),
+            'sejm_wystapienia' => array(
+                'label' => 'Wystąpienia podczas posiedzeń Sejmu',
+                'menu_id' => 'wystapienia',
+                'id' => 69,
+            ),
+            'sejm_komisje_opinie' => array(
+                'label' => 'Opinie komisji sejmowych',
+                'menu_id' => 'komisje_opinie',
+                'id' => 134,
+            ),
+            'sejm_komisje_uchwaly' => array(
+                'label' => 'Uchwały komisji sejmowych',
+                'menu_id' => 'komisje_uchwaly',
+                'id' => 146,
+            ),
+            'poslowie_oswiadczenia_majatkowe' => array(
+                'label' => 'Oświadczenia majątkowe posłów',
+                'menu_id' => 'poslowie_oswiadczenia',
+                'id' => 32,
+            ),
+            'poslowie_rejestr_korzysci' => array(
+                'label' => 'Rejestr korzyści posłów',
+                'menu_id' => 'poslowie_korzysci',
+                'id' => 33,
+            ),
+            'poslowie_wspolpracownicy' => array(
+                'label' => 'Współpracownicy posłów',
+                'menu_id' => 'poslowie_wspolpracownicy',
+                'id' => 34,
+            ),
+        ),
+        'kto_tu_rzadzi' => array(
+            'instytucje' => array(
+                'label' => 'Instytucje',
+                'menu_id' => 'instytucje',
+                'order' => 'weight desc',
+                'autocompletion' => array(
+                    'dataset' => 'instytucje',
+                ),
+                'id' => 7,
+            ),
+        ),
+    );
+    
     public $hasMany = array(
 	    'SubscriptionChannel' => array(),
 	    'SubscriptionQuery' => array(),
@@ -261,9 +597,8 @@ class Subscription extends AppModel
 			
 			$es_conditions = array();
 			
-			if( 
-				( $sub['dataset'] == 'zbiory' )
-			) {
+			if( $sub['dataset'] == 'zbiory' ) {
+				
 				
 				$_dataset = $db->query("SELECT base_alias FROM datasets WHERE `id`='" . addslashes( $sub['object_id'] ) . "' LIMIT 1");
 				
@@ -278,6 +613,26 @@ class Subscription extends AppModel
 				    }
 				    $es_conditions['ngo_konkursy.area_id'] = $value;
 				}
+				
+				
+			} elseif( $sub['dataset'] == 'users_phrases' ) {
+								
+				$es_conditions = array(
+					'q' => $parent_doc['hits']['hits'][0]['_source']['data']['users_phrases']['q'],
+				);
+									
+				if( isset($data['SubscriptionChannel']) ) {
+				    $value = array();
+				    				    
+				    for( $c=0; $c<count($data['SubscriptionChannel']); $c++ ) {
+					    
+					    $_ch = $data['SubscriptionChannel'][ $c ];
+					    $value[] = $this->getDatasetsForApp($_ch['channel']);
+					    
+				    }
+					    
+				    $es_conditions['dataset'] = $value;
+				}				
 								
 			} else {
 			
@@ -307,7 +662,7 @@ class Subscription extends AppModel
 			));
 									
 			$query = isset( $es_query['body']['query']['function_score']['query'] ) ? $es_query['body']['query']['function_score']['query'] : $es_query['body']['query'];
-								
+									
 			$params['body']  = array(
 				'id' => $sub['id'],
 				'query' => $query,
@@ -449,6 +804,32 @@ class Subscription extends AppModel
 			return true;
 			
 		} else return false;
+		
+	}
+	
+	public function getDatasetsForApp($app_id) {
+		
+		$datasets = array();
+		
+		$app_slug = false;
+		foreach( $this->apps as $app ) {
+			if( $app['id'] == $app_id ) {
+				$app_slug = $app['slug'];
+				break;
+			}
+		}
+				
+		if(
+			$app_slug && 
+			isset( $this->datasets[$app_slug] )
+		) {
+			
+			foreach( $this->datasets[$app_slug] as $dataset => $params )
+				$datasets[] = $dataset;
+			
+		}
+				
+		return $datasets;
 		
 	}
 

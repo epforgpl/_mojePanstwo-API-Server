@@ -622,8 +622,8 @@ class DataobjectsController extends AppController
 				
 				} elseif( $object['dataset'] == 'users_phrases' ) {
 					
-					$this->loadModel('Dane.Subscriptions');
-					$apps = $this->Subscriptions->apps;
+					$this->loadModel('Dane.Subscription');
+					$apps = $this->Subscription->apps;
 					
 					$object['layers']['channels'] = array();
 					

@@ -381,7 +381,10 @@ class MPSearch {
 	        		$ors = array();
 	        		foreach( $value as $v ) {
 		        		
-		        		if( preg_match('/^(.*?)\{(.*?)\:(.*?)\}$/', $v, $match) ) {
+		        		if( 
+			        		is_string($v) && 
+		        			preg_match('/^(.*?)\{(.*?)\:(.*?)\}$/', $v, $match) 
+	        			) {
 			        		
 			        		$ors[] = array(
 				        		'bool' => array(
@@ -401,12 +404,24 @@ class MPSearch {
 			        		);
 			        		
 		        		} else {
-		        		
-			        		$ors[] = array(
-				        		'term' => array(
-					        		$key => $v,
-				        		),
-			        		);
+		        			
+		        			if( is_array($v) ) {
+		        			
+				        		$ors[] = array(
+					        		'terms' => array(
+						        		$key => $v,
+					        		),
+				        		);
+			        		
+			        		} else {
+				        		
+				        		$ors[] = array(
+					        		'term' => array(
+						        		$key => $v,
+					        		),
+				        		);
+				        		
+			        		}
 		        		
 		        		}
 		        		

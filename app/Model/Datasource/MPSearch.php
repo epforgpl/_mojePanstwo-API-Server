@@ -21,6 +21,15 @@ class MPSearch {
 	    'filter' => array('term'),
     );
     
+    public $source_fields = array(
+	    'gminy-wydatki-okresy', 
+	    'gminy-wydatki-dzialy', 
+	    'gminy-wydatki-rozdzialy',
+	    'gminy-dochody-okresy',
+	    'gminy-dochody-dzialy',
+	    'gminy-dochody-rozdzialy',
+    );
+    
     private $layers_requested = array();
     private $layers = array();
     
@@ -188,7 +197,14 @@ class MPSearch {
 		    	$output['subscribtions'][] = $hit['_source'];
 		    	
 	    	}	    	
-    	}    	
+    	}
+    	
+    	
+    	foreach( $doc['_source'] as $sf => $sf_data ) {
+	    	if( in_array($sf, $this->source_fields) ) {
+		    	$output[ $sf ] = $sf_data;
+	    	}
+    	}
     	
     	return $output;
 	    
@@ -213,6 +229,16 @@ class MPSearch {
 		$from = ( $queryData['page'] - 1 ) * $queryData['limit'];
 		$size = $queryData['limit'];
 		$_type = isset( $queryData['_type'] ) ? $queryData['_type'] : 'objects';
+		
+		$source_fields = array('data', 'static');
+		
+		if( @$queryData['fields'] && is_array($queryData['fields']) ) {
+			foreach( $queryData['fields'] as $sf ) {
+				if( in_array($sf, $this->source_fields) ) {
+					$source_fields[] = $sf;
+				}
+			}
+		}
 				
 		$params = array(
 			'index' => $this->_index,
@@ -231,9 +257,11 @@ class MPSearch {
 		
 		if( !isset( $queryData['_type']) || ($queryData['_type']=='objects') ) {
 			
+			
+			
 			$params['body'] = array_merge($params['body'], array(
 				'fields' => array('dataset', 'id', 'slug'),
-				'_source' => array('data', 'static'),
+				'_source' => $source_fields,
 			));
 			
 			$fields_prefix = 'data.';
@@ -704,7 +732,7 @@ class MPSearch {
         			);
         			
         			
-        			$params['body']['_source'] = array('data', 'static', 'contexts.*');
+        			$params['body']['_source'][] = 'contexts.*';
         			// $params['body']['partial_fields']['source']['include'][] = 'contexts.*';
 	        		
 	        		
@@ -763,8 +791,7 @@ class MPSearch {
 	        			),
         			);
         			
-        			$params['body']['_source'] = array('data', 'static', 'contexts.' . $value['dataset'] . '.' . $value['object_id'] . '.*');
-		        	// $params['body']['partial_fields']['source']['include'][] = 'contexts.' . $value['dataset'] . '.' . $value['object_id'] . '.*';
+        			$params['body']['_source'][] = 'contexts.' . $value['dataset'] . '.' . $value['object_id'] . '.*';
 		        	
 		        	if( $value['dataset']=='rady_druki' ) {
 		        	
@@ -1474,7 +1501,7 @@ class MPSearch {
 	}
 	
     public function read(Model $model, $queryData = array()) {
-		
+				
 		$params = $this->buildESQuery($queryData);
 		// $params['body']['profile'] = true;
 		
@@ -1483,7 +1510,7 @@ class MPSearch {
 		$this->lastResponseStats = null;
 		$response = $this->API->search( $params );
 
-		// echo "\n\n\nRESPONSE= "; var_export($response); die();
+		// echo "\n\n\nRESPONSE= "; debug($response); die();
 		
 		if (isset($response['profile'])) {
 			$this->profile = $response['profile'];

@@ -164,8 +164,14 @@ class DataobjectsController extends AppController
 		}
 		
 		
-		if( isset($this->request->query['fields']) )
-			$query['fields'] = $this->request->query['fields'];
+		if( isset($this->request->query['fields']) ) {
+			
+			if( is_array($this->request->query['fields']) )
+				$query['fields'] = $this->request->query['fields'];
+			elseif( is_string($this->request->query['fields']) )
+				$query['fields'] = array($this->request->query['fields']);
+			
+		}
 		
 		$objects = $this->Dataobject->find('all', $query);
 		$this->log($objects);
@@ -383,12 +389,22 @@ class DataobjectsController extends AppController
 				'page'
 			),
 		);
+		
+		if( isset($this->request->query['fields']) ) {
+			
+			if( is_array($this->request->query['fields']) )
+				$dataobject_query['fields'] = $this->request->query['fields'];
+			elseif( is_string($this->request->query['fields']) )
+				$dataobject_query['fields'] = array($this->request->query['fields']);
+			
+		}
 
 		if (isset($query['aggs'])) {
 			$dataobject_query['aggs'] = $query['aggs'];
 		}
 	        
 	    $object = $this->Dataobject->find('first', $dataobject_query);
+	    	    
 	    if( !$object ) {
 		    throw new NotFoundException();
 	    }

@@ -91,6 +91,12 @@ Router::connect('/dane/:dataset/:id/:layer', array(
 	'pass' => array('dataset', 'id', 'layer'),
 ));
 
+Router::connect('/dane/user_phrases/register', array(
+	'plugin' => 'Dane',
+	'controller' => 'UserPhrases',
+	'action' => 'register'
+));
+
 # ObjectUsersManagement
 Router::connect('/dane/:dataset/:object_id/users/index', array('plugin' => 'Dane', 'controller' => 'ObjectUsersManagement', 'action' => 'index', '[method]' => 'GET'), array('dataset' => '([a-zA-Z\_]+)', 'object_id' => '[0-9]+'));
 Router::connect('/dane/:dataset/:object_id/users/index', array('plugin' => 'Dane', 'controller' => 'ObjectUsersManagement', 'action' => 'add', '[method]' => 'POST'), array('dataset' => '([a-zA-Z\_]+)', 'object_id' => '[0-9]+'));

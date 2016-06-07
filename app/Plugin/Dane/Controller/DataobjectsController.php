@@ -619,6 +619,25 @@ class DataobjectsController extends AppController
 						);
 						
 					}
+				
+				} elseif( $object['dataset'] == 'users_phrases' ) {
+					
+					$this->loadModel('Dane.Subscriptions');
+					$apps = $this->Subscriptions->apps;
+					
+					$object['layers']['channels'] = array();
+					
+					foreach( $apps as $app ) {
+						
+						$object['layers']['channels'][] = array(
+							'DatasetChannel' => array(
+								'channel' => $app['id'],
+								'title' => $app['title'],
+								'subject_dataset' => 'users_phrases',
+							),
+						);	
+					
+					}	
 					
 				} else {
 				

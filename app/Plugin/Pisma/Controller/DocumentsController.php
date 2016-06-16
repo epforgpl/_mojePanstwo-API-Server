@@ -647,7 +647,7 @@ class DocumentsController extends AppController
 			        	
 		        	}
 		            
-		            $this->Document->query("INSERT IGNORE INTO `pisma_szablony_pola_wartosci` (`pismo_id`, `input_id`, `v`) VALUES ('" . $doc['Document']['alphaid'] . "', '101', '" . addslashes( $text ) . "')");
+		            $this->Document->query("INSERT IGNORE INTO `pisma_szablony_pola_wartosci` (`pismo_id`, `input_id`, `v`) VALUES ('" . $doc['Document']['alphaid'] . "', '102', '" . addslashes( $text ) . "')");
 		            
 	            }
 	            

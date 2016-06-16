@@ -654,7 +654,28 @@ class DataobjectsController extends AppController
 						);	
 					
 					}	
+				
+				} elseif( $object['dataset'] == 'aplikacje' ) {
 					
+					$this->loadModel('Dane.Subscription');
+					$apps = $this->Subscription->datasets;
+					
+					$object['layers']['channels'] = array();
+					$datasets = $apps[ $object['data']['aplikacje.slug'] ];
+										
+					foreach( $datasets as $dataset => $dataset_params ) {
+						
+						if( isset($dataset_params['id']) ) {
+							$object['layers']['channels'][] = array(
+								'DatasetChannel' => array(
+									'channel' => $dataset_params['id'],
+									'title' => $dataset_params['label'],
+								),
+							);	
+						}
+					
+					}	
+										
 				} else {
 				
 					$object['layers']['channels'] = $this->DatasetChannel->find('all', array(

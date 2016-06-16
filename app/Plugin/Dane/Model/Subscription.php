@@ -107,25 +107,29 @@ class Subscription extends AppModel
             ),
         ),
         'prawo' => array(
-            'prawo' => array(
-                'label' => 'Prawo powszechne',
-                'searchTitle' => 'Szukaj w prawie powszechnym...',
-                'menu_id' => 'powszechne',
-                'autocompletion' => array(
-                    'dataset' => 'prawo',
-                ),
-                'id' => 36,
+            'dziennik_ustaw' => array(
+                'label' => 'Dziennik Ustaw',
+                'searchTitle' => 'Szukaj w Dzienniku Ustaw...',
+                'menu_id' => 'dziennik_ustaw',
+                'id' => 237,
+            ),
+            'monitor_polski' => array(
+                'label' => 'Monitor Polski',
+                'searchTitle' => 'Szukaj w Monitorze Polskim...',
+                'menu_id' => 'monitor_polski',
+                'id' => 238,
             ),
             'prawo_wojewodztwa' => array(
                 'label' => 'Prawo lokalne',
                 'searchTitle' => 'Szukaj w prawie lokalnym...',
                 'menu_id' => 'lokalne',
+                'id' => 182,
             ),
             'prawo_urzedowe' => array(
                 'label' => 'Prawo urzędowe',
                 'searchTitle' => 'Szukaj w prawie urzędowym...',
                 'menu_id' => 'urzedowe',
-                'id' => 182,
+                'id' => 181,
             ),
             'prawo_hasla' => array(
                 'label' => 'Tematy w prawie',
@@ -335,6 +339,33 @@ class Subscription extends AppModel
                     'dataset' => 'instytucje',
                 ),
                 'id' => 7,
+            ),
+            'gminy' => array(
+                'label' => 'Gminy',
+                'menu_id' => 'gminy',
+                'order' => 'weight desc',
+                'autocompletion' => array(
+                    'dataset' => 'gminy',
+                ),
+                'id' => 6,
+            ),
+            'powiaty' => array(
+                'label' => 'Powiaty',
+                'menu_id' => 'powiaty',
+                'order' => 'weight desc',
+                'autocompletion' => array(
+                    'dataset' => 'powiaty',
+                ),
+                'id' => 35,
+            ),
+            'wojewodztwa' => array(
+                'label' => 'Województwa',
+                'menu_id' => 'wojewodztwa',
+                'order' => 'weight desc',
+                'autocompletion' => array(
+                    'dataset' => 'wojewodztwa',
+                ),
+                'id' => 104,
             ),
         ),
     );
@@ -608,11 +639,37 @@ class Subscription extends AppModel
 				
 				if( isset($data['SubscriptionChannel']) ) {
 				    $value = array();
-				    foreach( $data['SubscriptionChannel'] as $ch ) {
-					    $value[] = (string) $ch['channel'];
+				    foreach( $data['SubscriptionChannel'] as $dch ) {
+					    $value[] = (string) $dch['channel'];
 				    }
 				    $es_conditions['ngo_konkursy.area_id'] = $value;
 				}
+				
+			
+			} elseif( $sub['dataset'] == 'aplikacje' ) {
+				
+				$datasets = $this->datasets[ $parent_doc['hits']['hits'][0]['_source']['data']['aplikacje']['slug'] ];
+				$value = array();
+				
+				foreach( $datasets as $dataset => $dataset_params ) {
+					
+					if( isset($data['SubscriptionChannel']) && !empty($data['SubscriptionChannel']) ) {
+						
+						foreach( $data['SubscriptionChannel'] as $ach ) {
+						    if( $dataset_params['id'] == $ach['channel'] ) {
+							    $value[] = $dataset;
+							    break;
+						    }
+						    
+					    }
+						
+					} else {
+						$value[] = $dataset;
+					}
+					
+				}
+				
+				$es_conditions['dataset'] = $value;
 				
 				
 			} elseif( $sub['dataset'] == 'users_phrases' ) {
@@ -660,7 +717,7 @@ class Subscription extends AppModel
 			$es_query = $ES->buildESQuery(array(
 				'conditions' => $es_conditions,
 			));
-									
+												
 			$query = isset( $es_query['body']['query']['function_score']['query'] ) ? $es_query['body']['query']['function_score']['query'] : $es_query['body']['query'];
 									
 			$params['body']  = array(

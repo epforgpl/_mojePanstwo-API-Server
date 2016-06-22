@@ -1053,9 +1053,11 @@ class MPSearch {
 			        	
 			        	} elseif( $operator==='!=' ) {
 				        	
+				        	$term_filter = is_array($value) ? 'terms' : 'term';
+				        	
 				        	$and_filters[] = array(
 					        	'not' => array(
-						        	'term' => array(
+						        	$term_filter => array(
 							        	$fields_prefix . $key => $value,
 						        	),
 					        	),

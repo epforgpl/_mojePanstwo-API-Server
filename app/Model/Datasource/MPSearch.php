@@ -30,7 +30,8 @@ class MPSearch {
 	    'gminy-dochody-rozdzialy',
 	    'zamowienia_publiczne-dokumenty',
 		'zamowienia_publiczne-wykonawcy',
-		'zamowienia_publiczne-kryteria'
+		'zamowienia_publiczne-kryteria',
+		'details'
     );
     
     private $layers_requested = array();

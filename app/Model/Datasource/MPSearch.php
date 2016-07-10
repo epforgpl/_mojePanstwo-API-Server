@@ -28,6 +28,9 @@ class MPSearch {
 	    'gminy-dochody-okresy',
 	    'gminy-dochody-dzialy',
 	    'gminy-dochody-rozdzialy',
+	    'zamowienia_publiczne-dokumenty',
+		'zamowienia_publiczne-wykonawcy',
+		'zamowienia_publiczne-kryteria'
     );
     
     private $layers_requested = array();

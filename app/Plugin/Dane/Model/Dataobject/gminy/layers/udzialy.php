@@ -20,7 +20,7 @@ return $this->DB->selectAssocs("
         `objects`
             ON
               `objects`.`object_id` = `krs_wspolnicy`.`pozycja_id` AND
-              `objects`.`dataset_id` = '122'
+              `objects`.`dataset` = 'krs_podmioty'
 	WHERE
 		`krs_wspolnicy`.`gmina_id` = '" . addslashes($id) . "' AND
 		`krs_wspolnicy`.`deleted` = '0'

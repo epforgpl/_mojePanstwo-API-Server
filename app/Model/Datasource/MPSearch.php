@@ -1511,9 +1511,9 @@ class MPSearch {
 		$params = $this->buildESQuery($queryData);
 		// $params['body']['profile'] = true;
 		
-		if( $params['body']['size']!=1 ) {
+		// if( $params['body']['size']!=1 ) {
 			// echo "\n\n\nQUERY= "; var_export( $params ); echo "\nEND\n"; die();
-		}
+		// }
 		
 		$this->lastResponseStats = null;
 		$response = $this->API->search( $params );

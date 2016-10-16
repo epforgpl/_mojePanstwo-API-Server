@@ -23,10 +23,12 @@ class RadniRankingController extends AppController
                     FROM `pl_gminy_radni_krakow`
                     JOIN
                       `pl_gminy_radni_krakow_ranking` ON
-                        `pl_gminy_radni_krakow_ranking`.`radny_id` = `pl_gminy_radni_krakow`.`id`
+                        `pl_gminy_radni_krakow_ranking`.`radny_id` = `pl_gminy_radni_krakow`.`id` AND 
+                        `pl_gminy_radni_krakow`.`deleted` = \'0\' 
                     JOIN
                       `pl_gminy_radni` ON
-                        `pl_gminy_radni`.`id` = `pl_gminy_radni_krakow`.`id`
+                        `pl_gminy_radni`.`id` = `pl_gminy_radni_krakow`.`id` AND 
+                        `pl_gminy_radni`.`kadencja_7` = \'1\'
                     GROUP BY
                       `pl_gminy_radni_krakow_ranking`.`radny_id`,
                       `pl_gminy_radni_krakow_ranking`.`typ`
@@ -63,10 +65,12 @@ class RadniRankingController extends AppController
                     FROM `pl_gminy_radni_krakow`
                     JOIN
                       `pl_gminy_radni_krakow_ranking` ON
-                        `pl_gminy_radni_krakow_ranking`.`radny_id` = `pl_gminy_radni_krakow`.`id`
+                        `pl_gminy_radni_krakow_ranking`.`radny_id` = `pl_gminy_radni_krakow`.`id` AND 
+                        `pl_gminy_radni_krakow`.`deleted` = \'0\' 
                     JOIN
                       `pl_gminy_radni` ON
-                        `pl_gminy_radni`.`id` = `pl_gminy_radni_krakow`.`id`
+                        `pl_gminy_radni`.`id` = `pl_gminy_radni_krakow`.`id` AND 
+                        `pl_gminy_radni`.`kadencja_7` = \'1\' 
                     WHERE `pl_gminy_radni_krakow_ranking`.`month` = "'. addslashes($month) .'"
                     GROUP BY
                       `pl_gminy_radni_krakow_ranking`.`radny_id`,
@@ -121,7 +125,9 @@ class RadniRankingController extends AppController
                 FROM `pl_gminy_radni_krakow`
                 JOIN
                   `pl_gminy_radni` ON
-                    `pl_gminy_radni`.`id` = `pl_gminy_radni_krakow`.`id`
+                    `pl_gminy_radni`.`id` = `pl_gminy_radni_krakow`.`id` AND 
+                    `pl_gminy_radni`.`kadencja_7` = \'1\' AND
+                    `pl_gminy_radni_krakow`.`deleted` = \'0\' 
                 ORDER BY `pl_gminy_radni`.`ranking_otwartosc_punkty`
             ');
 

@@ -43,7 +43,8 @@ class DocsController extends AppController
                             $html .= @$s3_response->body;
 
                     }
-
+					
+					$html = str_replace('https://docs.mojepanstwo', 'http://docs.mojepanstwo', $html);
                     $this->set('Package', $html);
 
 
@@ -52,8 +53,12 @@ class DocsController extends AppController
                     ($package = $this->request->query['package']) &&
                     ($s3_response = @$this->S3->getObject('docs.sejmometr.pl', $path)) &&
                     ($html = @$s3_response->body)
-                )
+                ) {
+	                
+					$html = str_replace('https://docs.mojepanstwo', 'http://docs.mojepanstwo', $html);
                     $this->set('Package', $html);
+                    
+                }
 
                 $_serialize[] = 'Package';
 

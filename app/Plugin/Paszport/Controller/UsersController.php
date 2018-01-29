@@ -267,8 +267,8 @@ class UsersController extends PaszportAppController
             ->emailFormat('html')
             ->subject('Miło Cię gościć na Moim Państwie.')
             ->to($email)
-            ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
-            ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+            ->from('biuro@mojepanstwo.pl', 'mojePaństwo')
+            ->replyTo('biuro@mojepanstwo.pl', 'mojePaństwo')
             ->send();
     }
 

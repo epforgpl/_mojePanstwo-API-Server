@@ -33,7 +33,7 @@ Router::connect('/dane/:dataset', array(
 	'controller' => 'Dataobjects',
 	'action' => 'index'
 ), array(
-	'dataset' => '[a-zA-Z_]+',
+	'dataset' => '[a-zA-Z_0-9]+',
 	'pass' => array('dataset'),
 ));
 

@@ -127,8 +127,8 @@ class AppShell extends Shell
             ->emailFormat('html')
             ->subject('MojePaństwo.pl - instrukcje i tutoriale')
             ->to($this->args[0], 'Jan Kowalski')
-            ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
-            ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+            ->from('biuro@mojepanstwo.pl', 'mojePaństwo')
+            ->replyTo('biuro@mojepanstwo.pl', 'mojePaństwo')
             ->send();
     }
 
@@ -144,8 +144,8 @@ class AppShell extends Shell
                 ->emailFormat('html')
                 ->subject('MojePaństwo.pl - instrukcje i tutoriale')
                 ->to($user['User']['email'])
-                ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
-                ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+                ->from('biuro@mojepanstwo.pl', 'mojePaństwo')
+                ->replyTo('biuro@mojepanstwo.pl', 'mojePaństwo')
                 ->send();
             echo $user['User']['id'] . " : " . ($status ? '1' : '0') . "\n";
         }

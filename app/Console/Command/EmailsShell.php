@@ -48,8 +48,8 @@ class EmailsShell extends AppShell {
                 ))
                 ->subject('Uzupełnij konto swojej organizacji na mojepanstwo.pl!')
                 ->to($row[0]['krs_pozycje']['email'])
-                ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
-                ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+                ->from('biuro@mojepanstwo.pl', 'mojePaństwo')
+                ->replyTo('biuro@mojepanstwo.pl', 'mojePaństwo')
                 ->send();
         } catch (SocketException $e) {
             $this->out($e->getMessage());
@@ -99,8 +99,8 @@ class EmailsShell extends AppShell {
                     ))
                     ->subject('Uzupełnij konto swojej organizacji na mojepanstwo.pl!')
                     ->to($row[0]['krs_pozycje']['email'])
-                    ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
-                    ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+                    ->from('biuro@mojepanstwo.pl', 'mojePaństwo')
+                    ->replyTo('biuro@mojepanstwo.pl', 'mojePaństwo')
                     ->send();
             } catch (SocketException $e) {
                 $this->out($e->getMessage());
@@ -136,8 +136,8 @@ class EmailsShell extends AppShell {
                 ->emailFormat('html')
                 ->subject('MojePaństwo.pl - instrukcje i tutoriale')
                 ->to($user[0]['users']['email'])
-                ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
-                ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+                ->from('biuro@mojepanstwo.pl', 'mojePaństwo')
+                ->replyTo('biuro@mojepanstwo.pl', 'mojePaństwo')
                 ->send();
 
             $status = 1;

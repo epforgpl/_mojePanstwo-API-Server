@@ -27,8 +27,7 @@
 <p>Jesteśmy przekonani, że korzystanie z portalu przyniesie Państwu wymierne korzyści oraz wpłynie na usprawnienie działań w organizacji. Przykładowe wykorzystanie powyższych funkcjonalności znajdą Państwo na naszym profilu: mojepanstwo.pl/dane/krs_podmioty/359730,fundacja-epanstwo.</p>
 
 <p>Z poważaniem,<br/><br/>
-    <b>Joanna Przybylska</b><br/>
-    Koordynatorka ds. komunikacji<br/>
-    <a href="mailto:asia.przybylska@epf.org.pl">asia.przybylska@epf.org.pl</a> / <a href="tel:+48 660 614 975">+48 660 614 975</a></p>
+<b>Zespół Fundacji ePaństwo</b><br/><br/>
+<a href="mailto:biuro@epf.org.pl">biuro@epf.org.pl</a></p>
 
 <a href="https://www.facebook.com/events/1690074087886940/"><img border="0" width="400" align="center" src="cid:1"/></a>

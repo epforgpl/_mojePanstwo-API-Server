@@ -14,9 +14,8 @@
 <p>W przypadku Państwa pytań - chętnie na nie odpowiem.</p>
 
 <p>Do zobaczenia na #PDF2016 :)<br/>
-Pozdrawiam,<br/><br/>
-<b>Asia Przybylska</b><br/>
-Koordynatorka ds. komunikacji<br/>
-<a href="mailto:asia.przybylska@epf.org.pl">asia.przybylska@epf.org.pl</a> / <a href="tel:+48 660 614 975">+48 660 614 975</a></p>
+Pozdrawiamy,<br/><br/>
+<b>Zespół Fundacji ePaństwo</b><br/><br/>
+<a href="mailto:biuro@epf.org.pl">biuro@epf.org.pl</a></p>
 
 <a href="https://www.facebook.com/events/1690074087886940/"><img border="0" width="400" align="center" src="cid:1"/></a>

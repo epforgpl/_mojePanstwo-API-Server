@@ -537,8 +537,8 @@ class Dataobject extends AppModel
                     ->emailFormat('html')
                     ->subject('Udało się! Witam na Moim Państwie!')
                     ->to($to_email, $to_name)
-                    ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
-                    ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+                    ->from('biuro@mojepanstwo.pl', 'mojePaństwo')
+                    ->replyTo('biuro@mojepanstwo.pl', 'mojePaństwo')
                     ->send();
 
                 if(!$status)
@@ -620,8 +620,8 @@ class Dataobject extends AppModel
                     ->emailFormat('html')
                     ->subject('Cześć! Fajnie, że jesteś!')
                     ->to($to_email, $to_name)
-                    ->from('asia.przybylska@epf.org.pl', 'Asia Przybylska')
-                    ->replyTo('asia.przybylska@epf.org.pl', 'Asia Przybylska')
+                    ->from('biuro@mojepanstwo.pl', 'mojePaństwo')
+                    ->replyTo('biuro@mojepanstwo.pl', 'mojePaństwo')
                     ->send();
             } catch(SocketException $e) {
                 throw new Exception('Wystąpił błąd podczas wysyłania wiadomości email (' .

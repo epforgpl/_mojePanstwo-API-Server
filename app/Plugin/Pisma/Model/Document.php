@@ -196,24 +196,18 @@ class Document extends AppModel
 
     private function prepareAggs($params, $field = false)
     {
-
-        if ($field && isset($params['and']) && isset($params['and']['filters'])) {
-
-            $filters = array();
-
-            foreach ($params['and']['filters'] as $f) {
-
-                $keys = array_keys($f['term']);
-                if ($keys[0] !== $field)
-                    $filters[] = $f;
-
-            }
-
-            $params['and']['filters'] = $filters;
-            return $params;
-
-        } else return $params;
-
+        $filters = array();
+        foreach( $params as $f ) {
+            $keys = array_keys($f['term']);
+            if ($keys[0] !== $field) {
+                $filters[] = $f;
+			}
+        }
+        return array(
+	        'bool' => array(
+		        'filter' => $filters,
+	        ),
+        );
     }
 
     public function search($params)
@@ -223,50 +217,46 @@ class Document extends AppModel
 
         $page = isset($params['page']) ? $params['page'] : 1;
         $from = ($page - 1) * 20;
-
-        $filtered = array(
-            'filter' => array(
-                'and' => array(
-                    'filters' => array(
-                        array(
-                            'term' => array(
-                                'from_user_type' => $params['user_type'],
-                            ),
-                        ),
-                        array(
-                            'term' => array(
-                                'from_user_id' => $params['user_id'],
-                            ),
-                        ),
-                        array(
-                            'term' => array(
-                                'deleted' => false,
-                            ),
-                        ),
-                    ),
-                    '_cache' => true,
+		
+		$filters = array(
+			array(
+                'term' => array(
+                    'from_user_type' => $params['user_type'],
+                    'from_user_type' => 1,
                 ),
             ),
-        );
+            array(
+                'term' => array(
+                    'from_user_id' => $params['user_id'],
+                    'from_user_id' => 1,
+                ),
+            ),
+            array(
+                'term' => array(
+                    'deleted' => false,
+                ),
+            ),
+		);
 
         if (isset($params['conditions'])) {
             foreach ($params['conditions'] as $key => $val) {
-
-                $filtered['filter']['and']['filters'][] = array(
-                    'term' => array(
+				
+				$filters[] = array(
+					'term' => array(
                         $key => $val,
                     ),
-                );
-
+				);
+				
             }
         }
 
-        if ($params['q'])
-            $filtered['query'] = array(
-                'match' => array(
+        if ($params['q']) {
+	        $filters[] = array(
+		        'match' => array(
                     'text' => $params['q'],
                 ),
-            );
+		    );
+        }
 
         $es_params = array(
             'index' => 'mojepanstwo_v1',
@@ -275,15 +265,10 @@ class Document extends AppModel
                 'from' => $from,
                 'size' => 20,
                 'query' => array(
-                    'filtered' => $filtered,
-                ),
-                /*
-                'partial_fields' => array(
-                    'data' => array(
-                        'include' => array('id', 'alphaid', 'name', 'slug', 'date', 'created_at', 'modified_at', 'to_label', 'hash', 'sent', 'sent_at'),
+                    'bool' => array(
+	                    'must' => $filters,
                     ),
                 ),
-                */
                 'sort' => array(
                     'modified_at' => 'desc',
                 ),
@@ -292,7 +277,7 @@ class Document extends AppModel
                         'global' => new \stdClass(),
                         'aggs' => array(
                             'access' => array(
-                                'filter' => $this->prepareAggs($filtered['filter'], 'access'),
+                                'filter' => $this->prepareAggs($filters, 'access'),
                                 'aggs' => array(
                                     'filtered' => array(
                                         'terms' => array(
@@ -302,7 +287,7 @@ class Document extends AppModel
                                 ),
                             ),
                             'sent' => array(
-                                'filter' => $this->prepareAggs($filtered['filter'], 'sent'),
+                                'filter' => $this->prepareAggs($filters, 'sent'),
                                 'aggs' => array(
                                     'filtered' => array(
                                         'terms' => array(
@@ -312,7 +297,7 @@ class Document extends AppModel
                                 ),
                             ),
                             'to_dataset' => array(
-                                'filter' => $this->prepareAggs($filtered['filter'], 'to_dataset'),
+                                'filter' => $this->prepareAggs($filters, 'to_dataset'),
                                 'aggs' => array(
                                     'filtered' => array(
                                         'terms' => array(
@@ -342,7 +327,7 @@ class Document extends AppModel
                                 ),
                             ),
                             'template_id' => array(
-                                'filter' => $this->prepareAggs($filtered['filter'], 'template_id'),
+                                'filter' => $this->prepareAggs($filters, 'template_id'),
                                 'aggs' => array(
                                     'filtered' => array(
                                         'terms' => array(
@@ -367,7 +352,6 @@ class Document extends AppModel
             ),
         );
 
-        // debug( $es_params );
         $data = $ES->API->search($es_params);
         // debug( $data ); die();
 				

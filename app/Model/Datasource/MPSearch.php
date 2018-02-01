@@ -458,9 +458,11 @@ class MPSearch {
 		        		}
 		        		
 	        		}
-	        			        		
+	        		  		
 	        		$and_filters[] = array(
-		        		'or' => $ors,
+		        		'bool' => [
+			        		'should' => $ors,
+		        		],
 	        		);
 	        		
 	        	} else {
@@ -991,10 +993,12 @@ class MPSearch {
 			        );
 			        
 		        }
-		        		        
+		        
 		        $and_filters[] = array(
-			        'or' => $ors,
-		        );
+	        		'bool' => [
+		        		'should' => $ors,
+	        		],
+        		);
         	
         	} else {
 	        	
@@ -1484,7 +1488,7 @@ class MPSearch {
 		$this->lastResponseStats = null;
 		$response = $this->API->search( $params );
 
-		// echo "\n\n\nRESPONSE= "; debug($response); die();
+		// echo "\n\n\nRESPONSE= "; var_export($response); die();
 		
 		if (isset($response['profile'])) {
 			$this->profile = $response['profile'];

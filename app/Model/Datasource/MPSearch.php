@@ -460,9 +460,9 @@ class MPSearch {
 	        		}
 	        		  		
 	        		$and_filters[] = array(
-		        		'bool' => [
+		        		'bool' => array(
 			        		'should' => $ors,
-		        		],
+		        		),
 	        		);
 	        		
 	        	} else {
@@ -995,9 +995,9 @@ class MPSearch {
 		        }
 		        
 		        $and_filters[] = array(
-	        		'bool' => [
+	        		'bool' => array(
 		        		'should' => $ors,
-	        		],
+	        		),
         		);
         	
         	} else {

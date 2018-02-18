@@ -495,7 +495,7 @@ class MPSearch {
 		        	$and_filters[] = array(
 			        	'nested' => array(
 				        	'path' => $_path,
-				        	'filter' => array(
+				        	'query' => array(
 					        	'bool' => array(
 						        	'must' => $_must
 					        	),
@@ -645,7 +645,7 @@ class MPSearch {
 					$and_filters[] = array(
 						'nested' => array(
 							'path' => 'dataobjects',
-							'filter' => array(
+							'query' => array(
 								'bool' => array(
 									'must' => array(
 										array(
@@ -667,9 +667,9 @@ class MPSearch {
         		$and_filters[] = array(
 	        		'nested' => array(
 	        			'path' => 'feeds_channels',
-	        			'filter' => array(
-		        			'and' => arraY(
-			        			'filters' => array(
+	        			'query' => array(
+		        			'bool' => array(
+			        			'filter' => array(
 				        			array(
 					        			'term' => array(
 						        			'feeds_channels.dataset' => $value['dataset'],
@@ -710,9 +710,9 @@ class MPSearch {
 	        		$and_filters[] = array(
 	        			'has_child' => array(
 		        			'type' => 'objects-alerts',
-		        			'filter' => array(
-			        			'and' => arraY(
-				        			'filters' => array(
+		        			'query' => array(
+			        			'bool' => array(
+				        			'filter' => array(
 					        			array(
 						        			'term' => array(
 							        			'user_type' => $value['user_type'],
@@ -785,9 +785,9 @@ class MPSearch {
         			$and_filters[] = array(
 	        			'nested' => array(
 		        			'path' => 'feeds_channels',
-		        			'filter' => array(
-			        			'and' => arraY(
-				        			'filters' => $_and_filters,
+		        			'query' => array(
+			        			'bool' => array(
+				        			'filter' => $_and_filters,
 			        			),
 		        			),
 	        			),
@@ -1031,7 +1031,7 @@ class MPSearch {
 		        		$and_filters[] = array(
 			        		'nested' => array(
 				        		'path' => $nested_parts[0],
-				        		'filter' => array(
+				        		'query' => array(
 					        		'term' => array(
 						        		$nested_parts[1] => $value,
 					        		),
@@ -1056,9 +1056,13 @@ class MPSearch {
 				        	$term_filter = is_array($value) ? 'terms' : 'term';
 				        	
 				        	$and_filters[] = array(
-					        	'not' => array(
-						        	$term_filter => array(
-							        	$fields_prefix . $key => $value,
+					        	'bool' => array(
+						        	'must_not' => array(
+							        	array(
+								        	$term_filter => array(
+									        	$fields_prefix . $key => $value,
+								        	),
+							        	)
 						        	),
 					        	),
 				        	);
@@ -1141,9 +1145,9 @@ class MPSearch {
 	                            'aggs' => array(
 	                                'feed' => array(
 	                                    'filter' => array(
-	                                        'and' => array(
-	                                            'filters' => array(
-	                                                array(
+		                                    'bool' => array(
+							        			'filter' => array(
+								        			array(
 	                                                    'term' => array(
 	                                                        'feeds_channels.dataset' => $queryData['conditions']['_feed']['dataset'],
 	                                                    ),
@@ -1152,9 +1156,9 @@ class MPSearch {
 	                                                    'term' => array(
 	                                                        'feeds_channels.object_id' => $queryData['conditions']['_feed']['object_id'],
 	                                                    ),
-	                                                )
-	                                            ),
-	                                        ),
+	                                                ),
+							        			),
+						        			),
 	                                    ),
 	                                    'aggs' => array(
 	                                        'channel' => array(
@@ -1180,8 +1184,8 @@ class MPSearch {
 		                            'has_child' => array(
 					        			'type' => '.percolator',
 					        			'filter' => array(
-						        			'and' => array(
-							        			'filters' => array(
+						        			'bool' => array(
+							        			'filter' => array(
 								        			array(
 									        			'term' => array(
 										        			'user_type' => $value['user_type'],

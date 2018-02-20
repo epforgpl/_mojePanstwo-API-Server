@@ -1,4 +1,5 @@
 <?
+define('ROOT_API_KEY', '');
 
 define('CAKE_salt', "alphanumeric");
 define('CAKE_cipherSeed', 'numeric');

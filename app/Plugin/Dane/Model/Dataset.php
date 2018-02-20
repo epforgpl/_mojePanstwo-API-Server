@@ -150,20 +150,16 @@ class Dataset extends AppModel
 			"size" => $size,
 			"from" => $from, 
 			"query" => array(
-				"filtered" => array(
+				"bool" => array(
 					"filter" => array(
-						"and" => array(
-							"filters" => array(
-								array(
-									"term" => array(
-										"_type" => "objects",
-									),
-								),
-								array(
-									"term" => array(
-										"dataset" => $alias,
-									),
-								),
+						array(
+							"term" => array(
+								"_type" => "objects",
+							),
+						),
+						array(
+							"term" => array(
+								"dataset" => $alias,
 							),
 						),
 					),

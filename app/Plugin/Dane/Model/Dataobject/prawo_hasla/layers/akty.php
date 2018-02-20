@@ -2,23 +2,21 @@
 	
 	$transport = $this->ES->search(array(
 		'query' => array(
-			'filtered' => array(
+			'bool' => array(
 				'filter' => array(
-					'and' => array(
-						array(
-							'term' => array(
-								'_type' => 'prawo',
-							),
+					array(
+						'term' => array(
+							'_type' => 'prawo',
 						),
-						array(
-							'term' => array(
-								'data_v3.pierwotny' => '1',
-							),
+					),
+					array(
+						'term' => array(
+							'data_v3.pierwotny' => '1',
 						),
-						array(
-							'term' => array(
-								'data_virtual.haslo_id' => $id,
-							),
+					),
+					array(
+						'term' => array(
+							'data_virtual.haslo_id' => $id,
 						),
 					),
 				),

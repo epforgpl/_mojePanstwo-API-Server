@@ -7,36 +7,31 @@ class ZamowieniaPubliczne extends AppModel
 
     public function getStats()
     {
-		
 		App::import('model','DB');
 		$DB = new DB();
-		
+
 		App::Import('ConnectionManager');
 		$MPSearch = ConnectionManager::getDataSource('MPSearch');
 		    
         $response = $MPSearch->search(array(
 		  "size" => 0, 
 		  "query" => array(
-		    "filtered" => array(
-		      "filter" => array(
-		        "and" => array(
-		          "filters" => array(
-		            array(
-		              "term" => array(
-		                "data.zamowienia_publiczne.status_id" => "2"
-		              ),
-		            ),
-		            array(
-		              "range" => array(
-		                "date" => array(
-		                  "gte" => "now-1M"
-		                ),
-		              ),
-		            ),
-		          ),
-		        ),
-		      ),
-		    ),
+			"bool" => array(
+			  "filter" => array(
+			    array(
+	              "term" => array(
+	                "data.zamowienia_publiczne.status_id" => "2"
+	              ),
+	            ),
+	            array(
+	              "range" => array(
+	                "date" => array(
+	                  "gte" => "now-1M"
+	                ),
+	              ),
+	            ),
+			  ),
+			),
 		  ),
 		  "aggs" => array(
 		    "suma" => array(
@@ -96,9 +91,7 @@ class ZamowieniaPubliczne extends AppModel
 		    ),
 		  ),
         ));
-        
-        
-        
+                
         $aggregations = $response['aggregations'];
         $rodzaje = array();
         $tryby = array();
@@ -366,12 +359,8 @@ class ZamowieniaPubliczne extends AppModel
 			'body' => array(
 				'size' => 0, 
 				'query' => array(
-					'filtered' => array(
-						'filter' => array(
-							'bool' => array(
-								'must' => $filters,
-							),
-						),
+					'bool' => array(
+						'filter' => $filters,
 					),
 				),
 				'aggs' => $aggs,

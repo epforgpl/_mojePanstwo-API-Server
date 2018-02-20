@@ -59,9 +59,9 @@ class MPSearch {
     }
     
     public function doc2object($doc) {
-				
 		$dataset = $doc['fields']['dataset'][0];
-		$id = $doc['fields']['id'][0];
+		$id = $doc['_source']['id'];
+		$slug = $doc['_source']['slug'];
 
 		if ($dataset == null or $id == null) {
 			throw new InternalErrorException("Empty dataset or id: " . $dataset . ' ' . $id);
@@ -90,7 +90,7 @@ class MPSearch {
 			'mp_url' => Dataobject::mpUrl($dataset, $id),
 			'schema_url' => Dataobject::schemaUrl($dataset),
 			'global_id' => $doc['_id'],
-    		'slug' => $doc['fields']['slug'][0],
+    		'slug' => $slug,
             'score' => $doc['_score'],
             'data' => $data,
     	);
@@ -234,7 +234,7 @@ class MPSearch {
 		$size = $queryData['limit'];
 		$_type = isset( $queryData['_type'] ) ? $queryData['_type'] : 'objects';
 		
-		$source_fields = array('data', 'static');
+		$source_fields = array('data', 'static', 'id', 'slug');
 		
 		if( @$queryData['fields'] && is_array($queryData['fields']) ) {
 			foreach( $queryData['fields'] as $sf ) {
@@ -264,7 +264,7 @@ class MPSearch {
 			
 			
 			$params['body'] = array_merge($params['body'], array(
-				'fields' => array('dataset', 'id', 'slug'),
+				'stored_fields' => array('dataset', 'id', 'slug', 'text'),
 				'_source' => $source_fields,
 			));
 			
@@ -405,7 +405,7 @@ class MPSearch {
 	        	}
 	        	
         	}
-        	 
+        	        	
         	if( in_array($key, array('dataset', 'id')) ) {
         		
         		if( ($key=='dataset') && is_array($value) && !empty($value) ) {
@@ -458,9 +458,11 @@ class MPSearch {
 		        		}
 		        		
 	        		}
-	        			        		
+	        		  		
 	        		$and_filters[] = array(
-		        		'or' => $ors,
+		        		'bool' => array(
+			        		'should' => $ors,
+		        		),
 	        		);
 	        		
 	        	} else {
@@ -493,7 +495,7 @@ class MPSearch {
 		        	$and_filters[] = array(
 			        	'nested' => array(
 				        	'path' => $_path,
-				        	'filter' => array(
+				        	'query' => array(
 					        	'bool' => array(
 						        	'must' => $_must
 					        	),
@@ -514,19 +516,15 @@ class MPSearch {
 				
 				if( $value ) {
 					
-					$params['body']['query'] = array(
+					$and_filters[] = array(
 						'function_score' => array(
 			        		'query' => array(
-				        		'filtered' => array(
-					        		'query' => array(
-						        		'multi_match' => array(
-							        		'query' => mb_convert_encoding($value, 'UTF-8', 'UTF-8'),
-								        	'fields' => array('title', 'text', 'acronym'),
-								        	'cutoff_frequency' => 0.001,
-										    'type' => "phrase",
-											'slop' => 5,
-						        		),
-					        		),
+				        		'multi_match' => array(
+					        		'query' => mb_convert_encoding($value, 'UTF-8', 'UTF-8'),
+						        	'fields' => array('title', 'text', 'acronym'),
+						        	'cutoff_frequency' => 0.001,
+								    'type' => "phrase",
+									'slop' => 5,
 				        		),
 			        		),
 			        		'field_value_factor' => array(
@@ -647,7 +645,7 @@ class MPSearch {
 					$and_filters[] = array(
 						'nested' => array(
 							'path' => 'dataobjects',
-							'filter' => array(
+							'query' => array(
 								'bool' => array(
 									'must' => array(
 										array(
@@ -669,9 +667,9 @@ class MPSearch {
         		$and_filters[] = array(
 	        		'nested' => array(
 	        			'path' => 'feeds_channels',
-	        			'filter' => array(
-		        			'and' => arraY(
-			        			'filters' => array(
+	        			'query' => array(
+		        			'bool' => array(
+			        			'filter' => array(
 				        			array(
 					        			'term' => array(
 						        			'feeds_channels.dataset' => $value['dataset'],
@@ -712,9 +710,9 @@ class MPSearch {
 	        		$and_filters[] = array(
 	        			'has_child' => array(
 		        			'type' => 'objects-alerts',
-		        			'filter' => array(
-			        			'and' => arraY(
-				        			'filters' => array(
+		        			'query' => array(
+			        			'bool' => array(
+				        			'filter' => array(
 					        			array(
 						        			'term' => array(
 							        			'user_type' => $value['user_type'],
@@ -787,9 +785,9 @@ class MPSearch {
         			$and_filters[] = array(
 	        			'nested' => array(
 		        			'path' => 'feeds_channels',
-		        			'filter' => array(
-			        			'and' => arraY(
-				        			'filters' => $_and_filters,
+		        			'query' => array(
+			        			'bool' => array(
+				        			'filter' => $_and_filters,
 			        			),
 		        			),
 	        			),
@@ -928,27 +926,23 @@ class MPSearch {
 	        			'type' => '.percolator',   
 	        			"score_mode" => "max",   			
 	        			'query' => array(
-			        		'filtered' => array(
-				        		'query' => array(
-					        		'bool' => array(
-						        		'must' => array(
-							        		array(
-							        			'term' => array(
-								        			'user_type' => $value['user_type'],
-							        			),
-						        			),
-						        			array(
-							        			'term' => array(
-								        			'user_id' => $value['user_id'],
-							        			),
-						        			),
-						        			array(
-							        			'term' => array(
-								        			'deleted' => false,
-							        			),
-						        			),
-						        		),
-					        		),
+			        		'bool' => array(
+				        		'must' => array(
+					        		array(
+					        			'term' => array(
+						        			'user_type' => $value['user_type'],
+					        			),
+				        			),
+				        			array(
+					        			'term' => array(
+						        			'user_id' => $value['user_id'],
+					        			),
+				        			),
+				        			array(
+					        			'term' => array(
+						        			'deleted' => false,
+					        			),
+				        			),
 				        		),
 			        		),
 		        		),
@@ -999,10 +993,12 @@ class MPSearch {
 			        );
 			        
 		        }
-		        		        
+		        
 		        $and_filters[] = array(
-			        'or' => $ors,
-		        );
+	        		'bool' => array(
+		        		'should' => $ors,
+	        		),
+        		);
         	
         	} else {
 	        	
@@ -1035,7 +1031,7 @@ class MPSearch {
 		        		$and_filters[] = array(
 			        		'nested' => array(
 				        		'path' => $nested_parts[0],
-				        		'filter' => array(
+				        		'query' => array(
 					        		'term' => array(
 						        		$nested_parts[1] => $value,
 					        		),
@@ -1060,9 +1056,13 @@ class MPSearch {
 				        	$term_filter = is_array($value) ? 'terms' : 'term';
 				        	
 				        	$and_filters[] = array(
-					        	'not' => array(
-						        	$term_filter => array(
-							        	$fields_prefix . $key => $value,
+					        	'bool' => array(
+						        	'must_not' => array(
+							        	array(
+								        	$term_filter => array(
+									        	$fields_prefix . $key => $value,
+								        	),
+							        	)
 						        	),
 					        	),
 				        	);
@@ -1145,9 +1145,9 @@ class MPSearch {
 	                            'aggs' => array(
 	                                'feed' => array(
 	                                    'filter' => array(
-	                                        'and' => array(
-	                                            'filters' => array(
-	                                                array(
+		                                    'bool' => array(
+							        			'filter' => array(
+								        			array(
 	                                                    'term' => array(
 	                                                        'feeds_channels.dataset' => $queryData['conditions']['_feed']['dataset'],
 	                                                    ),
@@ -1156,9 +1156,9 @@ class MPSearch {
 	                                                    'term' => array(
 	                                                        'feeds_channels.object_id' => $queryData['conditions']['_feed']['object_id'],
 	                                                    ),
-	                                                )
-	                                            ),
-	                                        ),
+	                                                ),
+							        			),
+						        			),
 	                                    ),
 	                                    'aggs' => array(
 	                                        'channel' => array(
@@ -1184,8 +1184,8 @@ class MPSearch {
 		                            'has_child' => array(
 					        			'type' => '.percolator',
 					        			'filter' => array(
-						        			'and' => array(
-							        			'filters' => array(
+						        			'bool' => array(
+							        			'filter' => array(
 								        			array(
 									        			'term' => array(
 										        			'user_type' => $value['user_type'],
@@ -1302,18 +1302,11 @@ class MPSearch {
 					array_key_exists('filters_exclude', $aggs) || 
 					array_key_exists('query_main', $aggs) 
 				) {
-										
-					if( isset($params['body']['query']['function_score']['query']['filtered']['query']) )
-						$filter = array(
-							'query' => $params['body']['query']['function_score']['query']['filtered']['query'],
-						);
-					else
-						$filter = array(
-							'match_all' => new \stdClass(),
-						);
 					
 					$es_aggs['__global']['aggs']['__query'] = array(
-						'filter' => $filter,
+						'filter' => array(
+							'match_all' => new \stdClass(),
+						),
 						'aggs' => array(),
 					);
 					
@@ -1412,31 +1405,12 @@ class MPSearch {
 										
 		}
 		
-		
-		if( isset($params['body']['query']['function_score']) ) {
-			
-			$params['body']['query']['function_score']['query']['filtered']['filter'] = array(
-				'bool' => array(
-					'must' => $and_filters,
-				),
-			);
-			
-		} else {
-			
-			$params['body']['query'] = array(
-				'filtered' => array(
-					'filter' => array(
-						'bool' => array(
-							'must' => $and_filters,
-						),
-					),
-				),
-			);
-			
-		}
-		
-						
-		
+		$params['body']['query'] = array(
+			'bool' => array(
+				'must' => $and_filters,
+			),
+		);
+				
 		if( 
 			isset($queryData['highlight']) && 
 			$queryData['highlight'] && 
@@ -1518,7 +1492,7 @@ class MPSearch {
 		$this->lastResponseStats = null;
 		$response = $this->API->search( $params );
 
-		// echo "\n\n\nRESPONSE= "; debug($response); die();
+		// echo "\n\n\nRESPONSE= "; var_export($response); die();
 		
 		if (isset($response['profile'])) {
 			$this->profile = $response['profile'];

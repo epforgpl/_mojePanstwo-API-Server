@@ -1421,7 +1421,6 @@ class MPSearch {
 			$params['body']['highlight'] = array(
 	    		'fields' => array(
 	    			'text' => array(
-	    				'index_options' => 'offsets',
 	    				'number_of_fragments' => 1,
 	    				'fragment_size' => 200,
 	    			),
@@ -1435,7 +1434,6 @@ class MPSearch {
 			$params['body']['highlight'] = array(
 	    		'fields' => array(
 	    			'text' => array(
-	    				'index_options' => 'offsets',
 	    				'number_of_fragments' => 1,
 	    				'fragment_size' => 200,
 	    				'highlight_query' => array(

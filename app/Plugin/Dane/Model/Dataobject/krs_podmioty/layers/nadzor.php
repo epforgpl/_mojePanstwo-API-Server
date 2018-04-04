@@ -1,6 +1,6 @@
 <?
 
-$data = $this->DB->query("SELECT `krs_nadzorcy`.nazwa, `krs_nadzorcy`.imiona, `krs_osoby`.`id`, `krs_osoby`.`data_urodzenia`, `krs_osoby`.`privacy_level` 
+$data = $this->DB->query("SELECT `krs_nadzorcy`.nazwa, `krs_nadzorcy`.imiona, `krs_osoby`.`id`, `krs_osoby`.`data_urodzenia`, `krs_osoby`.`privacy_level`, `krs_osoby`.`deleted` 
 		FROM `krs_nadzorcy` 
 		LEFT JOIN `krs_osoby` 
 		ON `krs_nadzorcy`.`osoba_id` = `krs_osoby`.`id` 
@@ -9,7 +9,11 @@ $data = $this->DB->query("SELECT `krs_nadzorcy`.nazwa, `krs_nadzorcy`.imiona, `k
 
 $output = array();
 foreach ($data as $d) {
-
+	
+	if( $d['deleted'] ) {
+		continue;
+	}
+	
     $output[] = array(
         'nazwa' => _ucfirst($d['krs_nadzorcy']['nazwa'] . ' ' . $d['krs_nadzorcy']['imiona']),
         'data_urodzenia' => $d['krs_osoby']['data_urodzenia'],

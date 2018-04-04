@@ -10,6 +10,7 @@ $data = $this->DB->selectAssocs("
         `krs_pozycje`.`id` as 'krs_id',
         `krs_osoby`.`data_urodzenia`,
         `krs_osoby`.`privacy_level`,
+        `krs_osoby`.`deleted`,
         `krs_wspolnicy`.`udzialy_status`,
         `krs_wspolnicy`.`udzialy_liczba`,
         `krs_wspolnicy`.`udzialy_wartosc_jedn`,
@@ -46,6 +47,10 @@ $data = $this->DB->selectAssocs("
 
 $output = array();
 foreach ($data as $d) {
+	
+	if( $d['deleted'] ) {
+		continue;
+	}
 	
 	$nazwa = $d['nazwa'];
 	$imiona = $d['imiona'];

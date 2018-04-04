@@ -38,7 +38,8 @@
 		ON `organizacje`.`id` = `_organizacje`.`pozycja_id`
 	WHERE 
 		`_organizacje`.`osoba_id` = '" . addslashes( $id ) . "' AND 
-		`_osoby`.`deleted`='0' AND 
+		`osoby`.`deleted` = '0' AND 
+                `_osoby`.`deleted`='0' AND 
 		`_organizacje`.`deleted`='0' AND 
 		`organizacje`.`wykreslony`='0'
 	");

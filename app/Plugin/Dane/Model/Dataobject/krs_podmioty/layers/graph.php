@@ -12,7 +12,7 @@
 		ON `osoby`.`id` = `_osoby`.`osoba_id` 
 	JOIN `krs_pozycje` AS `organizacje` 
 		ON `organizacje`.`id` = `_organizacje`.`pozycja_id`
-	WHERE `_osoby`.`pozycja_id` = '" . addslashes( $id ) . "' AND `_osoby`.`deleted`='0' AND `_organizacje`.`deleted`='0'");
+	WHERE `osoby`.`deleted` = '0' AND `_osoby`.`pozycja_id` = '" . addslashes( $id ) . "' AND `_osoby`.`deleted`='0' AND `_organizacje`.`deleted`='0'");
 	
 	
 	

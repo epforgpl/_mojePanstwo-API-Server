@@ -1,0 +1,54 @@
+<?php
+class DATABASE_CONFIG
+{
+
+    public $default = array(
+        'datasource' => 'Database/Mysql',
+        'persistent' => false,
+        'host' => '${API_DATABASE_host_epf}',
+        'login' => 'epf',
+        'password' => '${API_DATABASE_password_epf}',
+        'database' => 'epf',
+        'prefix' => '',
+        'encoding' => 'utf8',
+    );
+
+        public $passport = array(
+                'datasource' => 'Database/Mysql',
+                'persistent' => false,
+                'host' => '${API_DATABASE_host_passport}',
+                'login' => 'passport',
+                'password' => '${API_DATABASE_password_passport}',
+                'database' => 'passport',
+                'prefix' => '',
+                'encoding' => 'utf8',
+        );
+
+// mamy S3 podpiętą. Portal może zapisywać, z zewnątrz jest tylko do odczytu
+        public $S3 = array(
+                'datasource' => 'S3Source',
+                'host' => '${API_S3_host}',
+            'login' => '${API_S3_login}',
+                'secret' => '${API_S3_secret}',
+        );
+
+// to łączy do Redisa
+        public $MPCache = array(
+                'datasource' => 'MPCacheSource',
+        'database' => false,
+        'scheme' => 'tcp',
+                'host' => '${API_REDIS_host}',
+                'port' => 6379,
+                'password' => '${API_REDIS_password}',
+        );
+
+// elastic search
+        public $MPSearch = array(
+        'datasource' => 'MPSearch',
+        'database' => false,
+        // 'host' => 'localhost',
+        'host' => '${API_ELASTIC_host}',
+        'port' => '9200',
+        'index' => '${API_ELASTIC_index}',
+    );
+}

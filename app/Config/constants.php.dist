@@ -1,0 +1,28 @@
+<?
+
+// wydaje mi sie, ze to co tu trafi powinno wyladowac jako `apikey` w $mpAPI database.php Portalu #9
+define('ROOT_API_KEY', '${API_CONSTANS_ROOT_API_KEY}');
+
+define('CAKE_salt', "${API_CONSTANS_CAKE_salt}");
+define('CAKE_cipherSeed', '${API_CONSTANS_CAKE_cipherSeed}');
+
+define('OAUTH_client_id', '${API_CONSTANS_OAUTH_client_id}');
+define('OAUTH_client_secret', '${API_CONSTANS_OAUTH_client_secret}');
+
+define('PASSPORT_client', '${API_CONSTANS_PASSPORT_client}');
+define('PASSPORT_salt', '${API_CONSTANS_PASSPORT_salt}');
+
+define('SEJMOMETR_USERS_SALT', "${API_CONSTANS_SEJMOMETR_USERS_SALT}");
+
+define('S3_LOGIN','${API_CONSTANS_S3_LOGIN}');
+define('S3_SECRET', '${API_CONSTANS_S3_SECRET}');
+define('S3_ENDPOINT', '${API_CONSTANS_S3_ENDPOINT}');
+
+define('MPAPI_DEV_KEY', '${API_CONSTANS_MPAPI_DEV_KEY}');
+define('TRUSTED_CLIENTS', '${API_CONSTANS_TRUSTED_CLIENTS}');
+define('objectIndexUrl', '${API_CONSTANS_objectIndexUrl}');
+define('objectIndexPass', '${API_CONSTANS_objectIndexPass}');
+
+define('PORTAL_PRODUCTION_URL', '${API_CONSTANS_PORTAL_PRODUCTION_URL}');
+define('TPAY_SELLER_ID', ${API_CONSTANS_TPAY_SELLER_ID});
+define('TPAY_SELLER_CONFIRMATION_CODE', '${API_CONSTANS_TPAY_SELLER_CONFIRMATION_CODE}');

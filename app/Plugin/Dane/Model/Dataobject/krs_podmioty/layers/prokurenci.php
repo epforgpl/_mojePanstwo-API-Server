@@ -10,7 +10,7 @@ $data = $this->DB->query("SELECT `krs_prokurenci`.nazwa, `krs_prokurenci`.imiona
 $output = array();
 foreach ($data as $d) {
 	
-	if( @$d['deleted'] ) {
+	if( @$d['krs_osoby']['deleted'] ) {
 		continue;
 	}
 	

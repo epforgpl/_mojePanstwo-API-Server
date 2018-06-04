@@ -48,7 +48,7 @@ $data = $this->DB->selectAssocs("
 $output = array();
 foreach ($data as $d) {
 	
-	if( $d['deleted'] ) {
+	if( @$d['deleted'] ) {
 		continue;
 	}
 	

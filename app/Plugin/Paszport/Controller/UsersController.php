@@ -156,7 +156,6 @@ class UsersController extends PaszportAppController
                 )
             )
         ) {
-
             $errors = array();
             $user = false;
             $moderateRequestFields = array(
@@ -177,18 +176,17 @@ class UsersController extends PaszportAppController
             }
 
             $this->User->set($this->data);
-
             if($this->User->validates()) {
 
                 $this->User->data['User']['password'] = $this->Auth->password( $this->User->data['User']['password'] );
                 $this->User->data['User']['group_id'] = 1;
 
                 $this->User->getDataSource()->begin();
-
+				
                 $saved = $this->User->save($this->User->data, false, array(
-                    'id', 'email', 'password', 'username', 'group_id', 'language_id', 'is_ngo'
+                    'id', 'email', 'password', 'username', 'group_id', 'language_id'
                 ));
-
+								
                 if ($saved) {
 
                     try {

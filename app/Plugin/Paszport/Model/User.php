@@ -214,7 +214,7 @@ class User extends PaszportAppModel
             'index' => 'mojepanstwo_v1',
             'id' => $global_id,
             'type' => 'objects',
-            'refresh' => true,
+            // 'refresh' => true,
             'body' => array(
                 'id' => $user['id'],
                 'title' => $user['username'],

@@ -341,7 +341,19 @@ class MPSearch {
 		
 		// FILTERS
 					
-		$and_filters = array();
+		$and_filters = array(
+			array(
+				'bool' => array(
+					'must_not' => array(
+						array(
+							'term' => array(
+								'dataset' => 'persons',
+							),
+						),
+					),
+				),
+			),
+		);
         
         if( !isset( $queryData['_type']) || ($queryData['_type']=='objects') ) {    
 	        if(

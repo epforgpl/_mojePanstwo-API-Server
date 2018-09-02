@@ -15,6 +15,12 @@ Router::connect('/dane/subscriptions/transfer_anonymous', array(
 	'action' => 'transfer_anonymous'
 ));
 
+Router::connect('/random', array(
+	'plugin' => 'Dane', 
+	'controller' => 'Dataobjects',
+	'action' => 'random'
+));
+
 Router::connect('/dane', array(
 	'plugin' => 'Dane', 
 	'controller' => 'Dataobjects',

@@ -822,5 +822,85 @@ class DataobjectsController extends AppController
 	    $this->set('_serialize', 'output');
 	    
     }
+    
+    public function random()
+    {
+	    $datasets = [
+		    'krs_podmioty',
+		    'krs_osoby', 
+		    'science_theses',
+		    'science_persons',
+		    'ipn_persons',
+	    ];
+	    
+	    $i = rand(0, count($datasets)-1);
+	    $dataset = $datasets[$i];
+	    
+	    $source = $this->Dataobject->getDataSource();
+	    $es = $source->API;
+	    
+	    $params = array(
+			'index' => 'mojepanstwo_v1',
+			'type' => 'objects',
+			'body' => array(
+				'from' => 0, 
+				'size' => 1,
+				'query' => array(
+					'function_score' => array(
+						'query' => array(
+							'term' => array(
+								'dataset' => $dataset,
+							),
+						),
+						'functions' => array(
+							array(
+								'random_score' => new \stdClass(),
+							),
+						),
+					),
+				),
+			),
+		);
+		
+		$object = [];
+				
+		if(
+			( $res = $source->API->search($params) ) && 
+			(!empty($res['hits']['hits']))
+		) {
+			$hit = $res['hits']['hits'][0];
+			switch ($dataset) {
+				
+				case 'krs_podmioty': {
+					$object['title'] = $hit['_source']['data']['krs_podmioty']['nazwa'];
+					break;
+				}
+				
+				case 'krs_osoby': {
+					$object['title'] = $hit['_source']['data']['krs_osoby']['imiona'] .  ' ' . $hit['_source']['data']['krs_osoby']['nazwisko'];
+					break;
+				}
+				
+				case 'science_theses': {
+					$object['title'] = $hit['_source']['data']['science_theses']['title'];
+					break;
+				}
+				
+				case 'science_persons': {
+					$object['title'] = $hit['_source']['data']['science_persons']['name'];
+					break;
+				}
+				
+				case 'ipn_persons': {
+					$object['title'] = $hit['_source']['data']['ipn_persons']['first_names'] .  ' ' . $hit['_source']['data']['ipn_persons']['last_name'];
+					break;
+				}
+				
+			}
+		}
+		       
+	    $this->set('object', $object);
+		$this->set('_serialize', array('object'));
+    }
 
 }

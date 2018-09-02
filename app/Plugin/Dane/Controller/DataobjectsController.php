@@ -825,19 +825,18 @@ class DataobjectsController extends AppController
     
     public function random()
     {
-	    $datasets = [
+	    $datasets = array(
 		    'krs_podmioty',
 		    'krs_osoby', 
 		    'science_theses',
 		    'science_persons',
 		    'ipn_persons',
-	    ];
+	    );
 	    
 	    $i = rand(0, count($datasets)-1);
 	    $dataset = $datasets[$i];
 	    
 	    $source = $this->Dataobject->getDataSource();
-	    $es = $source->API;
 	    
 	    $params = array(
 			'index' => 'mojepanstwo_v1',
@@ -862,7 +861,7 @@ class DataobjectsController extends AppController
 			),
 		);
 		
-		$object = [];
+		$object = array();
 				
 		if(
 			( $res = $source->API->search($params) ) && 

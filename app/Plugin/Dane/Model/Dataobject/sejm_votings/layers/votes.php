@@ -1,0 +1,2 @@
+<?
+	return $this->DB->selectAssocs("SELECT `sejm_votes`.`mp_id`, `sejm_votes`.`vote_id`, `sejm_mps`.`name` FROM `sejm_votes` JOIN `sejm_votings` ON `sejm_votes`.`voting_id` = `sejm_votings`.`id` LEFT JOIN `sejm_mps` ON `sejm_votes`.`mp_id` = `sejm_mps`.`id` WHERE `sejm_votings`.`id`='" . $id . "'");

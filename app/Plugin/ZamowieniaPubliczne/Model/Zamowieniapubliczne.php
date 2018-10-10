@@ -196,38 +196,57 @@ class ZamowieniaPubliczne extends AppModel
 		
 		$request = isset($params['request']) ? $params['request'] : array();
 		$_aggs = isset($params['aggs']) ? $params['aggs'] : array();
-		
-		$filters = array(
-			array(
-				'term' => array(
-					'dataset' => 'zamowienia_publiczne_dokumenty',
-				),
-			),
-			array(
-				'term' => array(
-					'data.zamowienia_publiczne_dokumenty.typ_id' => '3',
+				
+		$announcements_filter = array(
+			'bool' => array(
+				'must' => array(
+					array(
+						'terms' => array(
+				            'procurements-announcements.cena_waluta' => array('pln', 'PLN', 'zł', 'ZŁ'), 
+			            ),
+					),
+					array(
+						'range' => array(
+							'procurements-announcements.data_udzielenia_zamowienia' => array(
+								'gt' => $request['date_min'],
+								'lte' => $request['date_max'],
+							),
+						),
+					),
 				),
 			),
 		);
 		
-		if( isset($request['date_min']) )
-			$filters[] = array(
+		$aggs['announcements'] = array(
+			'nested' => array(
+				'path' => 'procurements-announcements',
+			),
+			'aggs' => array(
 				'range' => array(
-					'date' => array(
-						'gte' => $request['date_min'],
-					),
+					'filter' => $announcements_filter,
+					'aggs' => array(),
 				),
-			);
-			
-		if( isset($request['date_max']) )
-			$filters[] = array(
-				'range' => array(
-					'date' => array(
-						'lte' => $request['date_max'],
-					),
+			),
+		);
+		
+		$filters = array(
+			array(
+				'term' => array(
+					'dataset' => 'procurements',
 				),
-			);
-						
+			),
+			array(
+				'nested' => array(
+					'path' => 'procurements-announcements',
+					'inner_hits' => array(
+						'name' => 'announcements',
+					),
+					'query' => $announcements_filter,
+				),
+			),
+		);
+				
+		/*	
 		if( isset($request['instytucja_id']) )
 			$filters[] = array(
 				'nested' => array(
@@ -250,47 +269,29 @@ class ZamowieniaPubliczne extends AppModel
 					),
 				),
 			);
+		*/
 			
 		if( isset($request['gmina_id']) )
 			$filters[] = array(
 				'term' => array(
-					'data.zamowienia_publiczne_dokumenty.gmina_id' => $request['gmina_id'],
+					'data.procurements_purchasers.gmina_id' => $request['gmina_id'],
 				),
 			);
 			
+		/*	
 		if( isset($request['zamawiajacy_id']) )
 			$filters[] = array(
 				'term' => array(
 					'data.zamowienia_publiczne_dokumenty.zamawiajacy_id' => $request['zamawiajacy_id'],
 				),
 			);
-					
-		if( array_key_exists('dokumenty', $_aggs) ) {
-			
-			$size = (
-				isset( $_aggs['dokumenty']['size'] ) && 
-				is_numeric( $_aggs['dokumenty']['size'] )
-			) ? $_aggs['dokumenty']['size'] : 3;
-						
-			$aggs['dokumenty'] = array(
-				'top_hits' => array(
-					'size' => $size,
-					'fielddata_fields' => array('dataset', 'id', 'source'),
-                    'sort' => array(
-                        'data.zamowienia_publiczne_dokumenty.wartosc_cena' => array(
-	                        'order' => 'desc',
-                        ),
-                    ),
-				),
-			);
-			
-		}
+		*/
 		
 		if( array_key_exists('stats', $_aggs) ) {
 			
-			$aggs['stats'] = array(
+			$aggs['announcements']['aggs']['range']['aggs']['stats'] = array(
 				'stats' => array(
-					'field' => 'data.zamowienia_publiczne_dokumenty.wartosc_cena',
+					'field' => 'procurements-announcements.wartosc_umowy',
 				),
 			);
 			
@@ -298,6 +299,44 @@ class ZamowieniaPubliczne extends AppModel
 		
 		if( array_key_exists('wykonawcy', $_aggs) ) {
 			
+			$aggs['announcements']['aggs']['range']['aggs']['contractors'] = array(
+				'nested' => array(
+					'path' => 'procurements-announcements.contractors',
+				),
+				'aggs' => array(
+					'ranking' => array(
+						'terms' => array(
+							'field' => 'procurements-announcements.contractors.contractor_id',
+							'order' => array(
+								'announcements>sum' => 'desc',
+							),
+						),
+						'aggs' => array(
+							'name' => array(
+								'terms' => array(
+									'field' => 'procurements-announcements.contractors.Nazwa',
+									'size' => 1,
+								),
+							),
+							'announcements' => array(
+								'reverse_nested' => array(
+									'path' => 'procurements-announcements',
+								),
+								'aggs' => array(	
+									'sum' => array(
+										'sum' => array(
+											'field' => 'procurements-announcements.wartosc_umowy',
+										),
+									),
+								),
+							),
+						),
+					),
+				),
+			);
+			
+						
+			/*
 			$size = (
 				isset( $_aggs['wykonawcy']['size'] ) && 
 				is_numeric( $_aggs['wykonawcy']['size'] )
@@ -350,6 +389,7 @@ class ZamowieniaPubliczne extends AppModel
 					),
 				),
 			);
+			*/
 			
 		}
 		
@@ -357,18 +397,36 @@ class ZamowieniaPubliczne extends AppModel
 			'index' => 'mojepanstwo_v1',
 			'type' => 'objects',
 			'body' => array(
-				'size' => 0, 
+				'size' => 10, 
 				'query' => array(
 					'bool' => array(
 						'filter' => $filters,
 					),
 				),
+				'_source' => array('id', 'data'),
+				'stored_fields' => array('dataset', 'id'),
+				'sort' => array(
+					array(
+						'procurements-announcements.wartosc_umowy' => array(
+							'mode' => 'sum',
+							'order' => 'desc',
+							'nested_path' => 'procurements-announcements',
+							'nested_filter' => array(
+								'range' => array(
+									'procurements-announcements.data_udzielenia_zamowienia' => array(
+										'gt' => $request['date_min'],
+										'lte' => $request['date_max'],
+									),
+								),
+							),
+						),
+					),
+				),
 				'aggs' => $aggs,
 			),
 		);
-
-        $response = $MPSearch->API->search($query);
-        
+		
+        $response = $MPSearch->API->search($query);        
         return $response;
 		
 		$output = array(

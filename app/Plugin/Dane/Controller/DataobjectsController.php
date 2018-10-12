@@ -93,7 +93,6 @@ class DataobjectsController extends AppController
 		
 		$original_query = $query = array_intersect_key($this->request->query, array_flip($allowed_query_params));
 		
-		
 		if( $query['_type']=='collections' ) {
 
 			$objects = $this->ObjectPage->query("
@@ -163,7 +162,14 @@ class DataobjectsController extends AppController
 			$query['limit'] = DataobjectsController::RESULTS_COUNT_DEFAULT;
 		}
 		
+		if (!isset($query['page'])) {
+			$query['page'] = 1;
+		}
 		
+		if ( ($query['page'] * $query['limit']) > 2000000 ) {
+			throw new BadRequestException('page * $limit should less or equal to 2000000', 422); // 422 Unprocessable Entity
+		}
+				
 		if( isset($this->request->query['fields']) ) {
 			
 			if( is_array($this->request->query['fields']) )

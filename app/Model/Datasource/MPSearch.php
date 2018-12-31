@@ -350,6 +350,21 @@ class MPSearch {
 								'dataset' => 'persons',
 							),
 						),
+						array(
+							'term' => array(
+								'dataset' => 'krs_osoby',
+							),
+						),
+						array(
+							'term' => array(
+								'dataset' => 'krs_podmioty',
+							),
+						),
+						array(
+							'term' => array(
+								'dataset' => 'krs_organizations',
+							),
+						),
 					),
 				),
 			),

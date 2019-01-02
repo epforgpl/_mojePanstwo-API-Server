@@ -339,37 +339,59 @@ class MPSearch {
 		
 		
 		
+		
+		
+		if (
+			isset($queryData['conditions']) && 
+			isset($queryData['conditions']['dataset'])
+		) {
+			$and_filters_must_not = array(
+				array(
+					'term' => array(
+						'dataset' => 'persons',
+					),
+				),
+				array(
+					'term' => array(
+						'dataset' => 'krs_organizations',
+					),
+				),
+			);
+		} else {
+			$and_filters_must_not = array(
+				array(
+					'term' => array(
+						'dataset' => 'persons',
+					),
+				),
+				array(
+					'term' => array(
+						'dataset' => 'krs_organizations',
+					),
+				),
+				array(
+					'term' => array(
+						'dataset' => 'krs_osoby',
+					),
+				),
+				array(
+					'term' => array(
+						'dataset' => 'krs_podmioty',
+					),
+				),
+			);
+		}
+		
 		// FILTERS
 					
 		$and_filters = array(
 			array(
 				'bool' => array(
-					'must_not' => array(
-						array(
-							'term' => array(
-								'dataset' => 'persons',
-							),
-						),
-						array(
-							'term' => array(
-								'dataset' => 'krs_osoby',
-							),
-						),
-						array(
-							'term' => array(
-								'dataset' => 'krs_podmioty',
-							),
-						),
-						array(
-							'term' => array(
-								'dataset' => 'krs_organizations',
-							),
-						),
-					),
+					'must_not' => $and_filters_must_not,
 				),
 			),
 		);
-        
+				        
         if( !isset( $queryData['_type']) || ($queryData['_type']=='objects') ) {    
 	        if(
 	        	(
@@ -1505,8 +1527,7 @@ class MPSearch {
 		
 	}
 	
-    public function read(Model $model, $queryData = array()) {
-				
+    public function read(Model $model, $queryData = array()) {				
 		$params = $this->buildESQuery($queryData);
 		
 		$this->lastResponseStats = null;

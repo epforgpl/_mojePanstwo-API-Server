@@ -93,7 +93,9 @@ class AppController extends Controller
 	        	));
 	        }
 	        
-        }
+        } else {
+		return $this->redirect('https://rejestr.io/api');
+	}
                 
         // force all requests to be perceived as ajax (no template rendering)
         $this->request->addDetector('ajax', array(
